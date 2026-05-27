@@ -124,6 +124,13 @@ Goal 24 adds case-detail audit filtering:
 - Playwright proves a report download records `sensitive_export_read` and the
   case-detail audit log can filter to that event.
 
+Goal 29 adds the frontend environment contract:
+
+- `lib/env.ts` parses `RETURN_PLAY_ENV`, `RETURN_PLAY_DATA_MODE`,
+  `RETURN_PLAY_API_BASE_URL`, bearer token, and local request-context headers.
+- Production mode rejects demo-only rendering and requires
+  `RETURN_PLAY_API_BASE_URL`.
+
 ## Local Commands
 
 ```powershell
@@ -148,4 +155,14 @@ $env:RETURN_PLAY_ACTOR_ID="clinician_demo"
 $env:RETURN_PLAY_ACTOR_ROLE="clinician"
 $env:RETURN_PLAY_ORGANIZATION_ID="org_demo"
 npm run dev
+```
+
+Production mode requires:
+
+```powershell
+$env:RETURN_PLAY_ENV="production"
+$env:RETURN_PLAY_DATA_MODE="api"
+$env:RETURN_PLAY_API_BASE_URL="https://api.example.com"
+$env:RETURN_PLAY_API_TOKEN="<issued-bearer-token>"
+npm run build
 ```

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import time
 from collections import defaultdict, deque
 from collections.abc import Callable
@@ -9,6 +8,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
+
+from return_play.config import get_settings
 
 
 SECURITY_HEADERS = {
@@ -77,7 +78,7 @@ def configure_security(app: FastAPI) -> None:
 
 
 def _reject_oversized_request(request: Request) -> JSONResponse | None:
-    max_bytes = _int_setting("RETURN_PLAY_MAX_REQUEST_BYTES", 1_048_576)
+    max_bytes = get_settings().max_request_bytes
     content_length = request.headers.get("content-length")
     if content_length is None:
         return None
@@ -100,10 +101,10 @@ def _reject_rate_limited_request(
     path = request.url.path
     client_host = request.client.host if request.client else "unknown"
     if path == "/api/auth/login":
-        limit = _int_setting("RETURN_PLAY_AUTH_RATE_LIMIT_PER_MINUTE", 20)
+        limit = get_settings().auth_rate_limit_per_minute
         key = f"auth:{client_host}"
     elif path.startswith("/api/share/"):
-        limit = _int_setting("RETURN_PLAY_SHARE_RATE_LIMIT_PER_MINUTE", 120)
+        limit = get_settings().share_rate_limit_per_minute
         key = f"share:{client_host}:{path}"
     else:
         return None
@@ -120,15 +121,7 @@ def _with_security_headers(response: Response) -> Response:
 
 
 def _cors_origins() -> list[str]:
-    configured = os.getenv("RETURN_PLAY_CORS_ORIGINS")
+    configured = get_settings().cors_origin_list
     if configured:
-        return [origin.strip() for origin in configured.split(",") if origin.strip()]
+        return configured
     return list(DEFAULT_CORS_ORIGINS)
-
-
-def _int_setting(name: str, default: int) -> int:
-    try:
-        value = int(os.getenv(name, str(default)))
-    except ValueError:
-        return default
-    return max(value, 1)

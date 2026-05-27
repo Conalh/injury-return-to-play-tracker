@@ -1,4 +1,3 @@
-import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, FastAPI, Query, Response, status
@@ -10,6 +9,7 @@ from return_play.auth import (
     get_request_context,
     require_permission,
 )
+from return_play.config import get_settings
 from return_play.db import create_session_factory
 from return_play.models import (
     ApplyTemplateRequest,
@@ -407,9 +407,10 @@ def create_persistent_app(database_url: str) -> FastAPI:
 
 
 def create_runtime_app() -> FastAPI:
-    database_url = os.getenv("RETURN_PLAY_DATABASE_URL")
-    if database_url:
-        return create_persistent_app(database_url)
+    settings = get_settings()
+    settings.validate_startup()
+    if settings.database_url:
+        return create_persistent_app(settings.database_url)
     return create_app()
 
 

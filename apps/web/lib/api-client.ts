@@ -11,6 +11,7 @@ import {
   type SymptomLog,
   type WorkloadSession,
 } from "@/lib/demo-data";
+import { returnPlayWebEnv } from "@/lib/env";
 
 export type DataSource = "demo" | "api";
 
@@ -539,15 +540,15 @@ export async function submitGuardianAcknowledgment(
 }
 
 export function currentOrganizationId(): string {
-  return process.env.RETURN_PLAY_ORGANIZATION_ID ?? "org_demo";
+  return returnPlayWebEnv().organizationId;
 }
 
 export function currentActorId(): string {
-  return process.env.RETURN_PLAY_ACTOR_ID ?? "clinician_demo";
+  return returnPlayWebEnv().actorId;
 }
 
 export function currentActorRole(): string {
-  return process.env.RETURN_PLAY_ACTOR_ROLE ?? "clinician";
+  return returnPlayWebEnv().actorRole;
 }
 
 async function getApiCasePageData(caseId: string): Promise<CasePageData> {
@@ -734,22 +735,23 @@ function usesApi(): boolean {
 }
 
 function dataMode(): string {
-  return process.env.RETURN_PLAY_DATA_MODE ?? "demo";
+  return returnPlayWebEnv().dataMode;
 }
 
 function apiBaseUrl(): string {
-  return process.env.RETURN_PLAY_API_BASE_URL ?? "http://127.0.0.1:8000";
+  return returnPlayWebEnv().apiBaseUrl;
 }
 
 function authHeaders(): Record<string, string> {
-  const token = process.env.RETURN_PLAY_API_TOKEN;
+  const env = returnPlayWebEnv();
+  const token = env.apiToken;
   if (token) {
     return { Authorization: `Bearer ${token}` };
   }
   return {
-    "x-actor-id": process.env.RETURN_PLAY_ACTOR_ID ?? "clinician_demo",
-    "x-actor-role": process.env.RETURN_PLAY_ACTOR_ROLE ?? "clinician",
-    "x-organization-id": process.env.RETURN_PLAY_ORGANIZATION_ID ?? "org_demo",
+    "x-actor-id": env.actorId,
+    "x-actor-role": env.actorRole,
+    "x-organization-id": env.organizationId,
   };
 }
 

@@ -4,13 +4,13 @@ import base64
 import hashlib
 import hmac
 import json
-import os
 import time
 from dataclasses import dataclass
 from typing import Annotated, Callable
 
 from fastapi import Depends, Header, HTTPException, status
 
+from return_play.config import get_settings
 from return_play.models import UserRole
 
 
@@ -42,14 +42,15 @@ def create_auth_token(
 
 
 def authenticate_local_login(email: str, password: str) -> RequestContext:
-    if os.getenv("RETURN_PLAY_LOCAL_AUTH_ENABLED") != "1":
+    settings = get_settings()
+    if not settings.local_auth_enabled:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Local login provider is not enabled.",
         )
 
-    expected_email = os.getenv("RETURN_PLAY_LOCAL_AUTH_EMAIL", "")
-    expected_password = os.getenv("RETURN_PLAY_LOCAL_AUTH_PASSWORD", "")
+    expected_email = settings.local_auth_email or ""
+    expected_password = settings.local_auth_password or ""
     if not (
         hmac.compare_digest(email, expected_email)
         and hmac.compare_digest(password, expected_password)
@@ -60,24 +61,24 @@ def authenticate_local_login(email: str, password: str) -> RequestContext:
         )
 
     try:
-        role = UserRole(os.environ["RETURN_PLAY_LOCAL_AUTH_ROLE"])
-    except (KeyError, ValueError) as exc:
+        role = UserRole(settings.local_auth_role)
+    except (KeyError, TypeError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Local login provider is not configured.",
         ) from exc
 
-    try:
-        return RequestContext(
-            actor_id=os.environ["RETURN_PLAY_LOCAL_AUTH_ACTOR_ID"],
-            role=role,
-            organization_id=os.environ["RETURN_PLAY_LOCAL_AUTH_ORGANIZATION_ID"],
-        )
-    except KeyError as exc:
+    if not settings.local_auth_actor_id or not settings.local_auth_organization_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Local login provider is not configured.",
-        ) from exc
+        )
+
+    return RequestContext(
+        actor_id=settings.local_auth_actor_id,
+        role=role,
+        organization_id=settings.local_auth_organization_id,
+    )
 
 
 def get_request_context(
@@ -179,19 +180,11 @@ def _verify_auth_token(token: str, secret: str) -> RequestContext:
 
 
 def _auth_mode() -> str:
-    mode = os.getenv("RETURN_PLAY_AUTH_MODE", "dev_headers").lower()
-    if mode in {"token", "bearer_token"}:
-        return "token"
-    if mode in {"dev", "development", "dev_headers"}:
-        return "dev_headers"
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail="Authentication mode is not configured.",
-    )
+    return get_settings().auth_mode
 
 
 def _auth_secret() -> str:
-    secret = os.getenv("RETURN_PLAY_AUTH_SECRET")
+    secret = get_settings().auth_secret
     if not secret:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -24,3 +24,5 @@
   status checks.
 - `operations/local-production-compose.md`: local production-shaped Docker
   Compose runbook.
+- `operations/environment-configuration.md`: backend and frontend runtime
+  environment contract.

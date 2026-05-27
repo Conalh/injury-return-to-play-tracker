@@ -278,6 +278,13 @@ Goal 28 adds local production packaging:
 - `services/api/scripts/seed_demo.py` powers the compose `seed-demo` service for
   explicit demo seeding.
 
+Goal 29 adds explicit environment configuration:
+
+- `return_play.config.ReturnPlaySettings` centralizes typed backend settings.
+- `create_runtime_app()` fails fast when `RETURN_PLAY_ENV=production` is missing
+  required production values.
+- `.env.example` documents local placeholders without committed secrets.
+
 ## Local Setup
 
 ```powershell
@@ -352,3 +359,17 @@ RETURN_PLAY_LOCAL_AUTH_ACTOR_ID=clinician_demo
 RETURN_PLAY_LOCAL_AUTH_ROLE=clinician
 RETURN_PLAY_LOCAL_AUTH_ORGANIZATION_ID=org_demo
 ```
+
+## Production Startup Validation
+
+When `RETURN_PLAY_ENV=production`, API startup requires:
+
+```text
+RETURN_PLAY_DATABASE_URL=<database-url>
+RETURN_PLAY_AUTH_MODE=token
+RETURN_PLAY_AUTH_SECRET=<32-plus-character-signing-secret>
+RETURN_PLAY_CORS_ORIGINS=https://app.example.com
+```
+
+Production startup rejects trusted local-header auth and the local login
+provider.

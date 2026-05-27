@@ -27,6 +27,9 @@ class Permission(str, Enum):
     READ_AUDIT_LOG = "read_audit_log"
     SEED_DEMO = "seed_demo"
     READ_SHARED_STATUS = "read_shared_status"
+    MANAGE_ORGANIZATION = "manage_organization"
+    MANAGE_USERS = "manage_users"
+    READ_ORGANIZATION_AUDIT_LOG = "read_organization_audit_log"
 
 
 CLINICAL_WORKFLOW_PERMISSIONS = frozenset(
@@ -49,8 +52,19 @@ CLINICAL_WORKFLOW_PERMISSIONS = frozenset(
 )
 
 
+ADMIN_PERMISSIONS = frozenset(
+    {
+        Permission.MANAGE_ORGANIZATION,
+        Permission.MANAGE_USERS,
+        Permission.READ_ORGANIZATION_AUDIT_LOG,
+    }
+)
+
+
 ROLE_PERMISSIONS: dict[UserRole, frozenset[Permission]] = {
-    UserRole.ADMIN: CLINICAL_WORKFLOW_PERMISSIONS | {Permission.READ_SHARED_STATUS},
+    UserRole.ADMIN: CLINICAL_WORKFLOW_PERMISSIONS
+    | ADMIN_PERMISSIONS
+    | {Permission.READ_SHARED_STATUS},
     UserRole.CLINICIAN: CLINICAL_WORKFLOW_PERMISSIONS | {Permission.READ_SHARED_STATUS},
     UserRole.ATHLETIC_TRAINER: CLINICAL_WORKFLOW_PERMISSIONS
     | {Permission.READ_SHARED_STATUS},

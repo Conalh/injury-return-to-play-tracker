@@ -19,6 +19,7 @@ def test_metadata_contains_goal_2_tables() -> None:
         "clinician_notes",
         "audit_log_entries",
         "share_tokens",
+        "organization_audit_log_entries",
     }
 
     assert expected_tables.issubset(set(Base.metadata.tables))
@@ -50,3 +51,13 @@ def test_goal_10_metadata_contains_runtime_persistence_columns() -> None:
         assert column_name in share_columns
 
     assert "decided_by_role" in clearance_columns
+
+
+def test_goal_14_metadata_contains_user_admin_columns() -> None:
+    user_columns = Base.metadata.tables["users"].columns
+    organization_audit_columns = Base.metadata.tables["organization_audit_log_entries"].columns
+
+    assert "active" in user_columns
+    assert "organization_id" in organization_audit_columns
+    assert "target_user_id" in organization_audit_columns
+    assert "metadata_json" in organization_audit_columns

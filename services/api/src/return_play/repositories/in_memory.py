@@ -17,11 +17,15 @@ from return_play.models import (
     InjuryCaseCreate,
     MilestoneResultStatus,
     MilestoneResultUpdate,
+    OrganizationCreate,
     PhaseStatus,
     ReturnPlanTemplateWithPhasesCreate,
     ShareTokenCreate,
     ShareTokenRevoke,
     SymptomLogCreate,
+    UserCreate,
+    UserDeactivateRequest,
+    UserRoleUpdate,
     WorkloadSessionCreate,
 )
 from return_play.permissions import Permission, assert_permission
@@ -43,9 +47,13 @@ class InMemoryWorkflowRepository:
         self.clearance_decisions: dict[str, list[dict]] = {}
         self.share_tokens: dict[str, dict] = {}
         self.audit_log_entries: dict[str, list[dict]] = {}
+        self.organizations: dict[str, dict] = {}
+        self.users: dict[str, dict] = {}
+        self.organization_audit_log_entries: dict[str, list[dict]] = {}
 
     def create_athlete(self, payload: AthleteCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_ATHLETES)
+        self._ensure_active_user(context)
         self._ensure_payload_organization(payload.organization_id, context)
         athlete = payload.model_dump(mode="json")
         athlete["id"] = self._new_id("athlete")
@@ -58,6 +66,7 @@ class InMemoryWorkflowRepository:
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_ATHLETES)
+        self._ensure_active_user(context)
         self._ensure_requested_organization(organization_id, context)
         athletes = list(self.athletes.values())
         athletes = [
@@ -69,6 +78,7 @@ class InMemoryWorkflowRepository:
 
     def create_injury_case(self, payload: InjuryCaseCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_user(context)
         self._ensure_payload_organization(payload.organization_id, context)
         athlete = self.athletes.get(payload.athlete_id)
         if athlete is None or athlete["organization_id"] != context.organization_id:
@@ -87,6 +97,7 @@ class InMemoryWorkflowRepository:
 
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
         assert_permission(context, Permission.READ_CLINICAL_CASES)
+        self._ensure_active_user(context)
         injury_case = self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id, [])
         current_phase = next(
@@ -110,6 +121,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_TEMPLATES)
+        self._ensure_active_user(context)
         self._ensure_payload_organization(payload.organization_id, context)
         template = payload.model_dump(mode="json", exclude={"phases"})
         template["id"] = self._new_id("template")
@@ -136,6 +148,7 @@ class InMemoryWorkflowRepository:
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_TEMPLATES)
+        self._ensure_active_user(context)
         self._ensure_requested_organization(organization_id, context)
         templates = list(self.templates.values())
         templates = [
@@ -152,6 +165,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         template = self._get_template(payload.template_id, context.organization_id)
         phases: list[dict] = []
@@ -200,6 +214,7 @@ class InMemoryWorkflowRepository:
 
     def list_case_phases(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_CLINICAL_CASES)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         return {"items": self.case_plans.get(case_id, [])}
 
@@ -211,6 +226,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id)
         if phases is None:
@@ -241,6 +257,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         note = payload.model_dump(mode="json")
         note["id"] = self._new_id("note")
@@ -256,6 +273,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_EVIDENCE)
+        self._ensure_active_user(context)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         athlete = self.athletes.get(payload.athlete_id)
         if athlete is None or athlete["organization_id"] != context.organization_id:
@@ -271,6 +289,7 @@ class InMemoryWorkflowRepository:
 
     def list_symptom_logs(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_EVIDENCE)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         return {"items": self.symptom_logs.get(case_id, [])}
 
@@ -281,6 +300,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_EVIDENCE)
+        self._ensure_active_user(context)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         functional_test = payload.model_dump(mode="json")
         functional_test["id"] = self._new_id("functional_test")
@@ -294,6 +314,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_EVIDENCE)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         return {"items": self.functional_tests.get(case_id, [])}
 
@@ -304,6 +325,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_EVIDENCE)
+        self._ensure_active_user(context)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         workload_session = payload.model_dump(mode="json")
         workload_session["id"] = self._new_id("workload")
@@ -317,11 +339,13 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_EVIDENCE)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         return {"items": self.workload_sessions.get(case_id, [])}
 
     def get_readiness(self, case_id: str, context: RequestContext) -> dict:
         assert_permission(context, Permission.READ_READINESS)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id, [])
         current_phase = next(
@@ -343,6 +367,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.RECORD_CLEARANCE_DECISIONS)
+        self._ensure_active_user(context)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         if payload.decided_by != context.actor_id:
             raise HTTPException(
@@ -373,6 +398,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_SHARES)
+        self._ensure_active_user(context)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         raw_token = token_urlsafe(24)
         token_hash = self._hash_token(raw_token)
@@ -439,6 +465,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_SHARES)
+        self._ensure_active_user(context)
         share = self._get_share_by_token(token)
         self._get_case(share["injury_case_id"], context.organization_id)
         if payload.revoked_by != context.actor_id:
@@ -458,6 +485,7 @@ class InMemoryWorkflowRepository:
 
     def build_report(self, case_id: str, context: RequestContext) -> bytes:
         assert_permission(context, Permission.GENERATE_REPORTS)
+        self._ensure_active_user(context)
         injury_case = self._get_case(case_id, context.organization_id)
         athlete = self.athletes[injury_case["athlete_id"]]
         readiness = self.get_readiness(case_id, context)
@@ -477,12 +505,108 @@ class InMemoryWorkflowRepository:
 
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_AUDIT_LOG)
+        self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         return {"items": self.audit_log_entries.get(case_id, [])}
 
     def seed_demo(self, context: RequestContext) -> dict:
         assert_permission(context, Permission.SEED_DEMO)
+        self._ensure_active_user(context)
         return DemoSeedService(self).seed_demo(context)
+
+    def setup_organization(self, payload: OrganizationCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_ORGANIZATION)
+        self._ensure_active_user(context)
+        organization = {
+            "id": context.organization_id,
+            **payload.model_dump(mode="json"),
+        }
+        self.organizations[organization["id"]] = organization
+        self._record_organization_audit_event(
+            organization["id"],
+            "organization_configured",
+            context.actor_id,
+            None,
+            {"name": organization["name"], "timezone": organization["timezone"]},
+        )
+        return organization
+
+    def invite_user(self, payload: UserCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_USERS)
+        self._ensure_active_user(context)
+        self._ensure_payload_organization(payload.organization_id, context)
+        self.organizations.setdefault(
+            payload.organization_id,
+            {"id": payload.organization_id, "name": payload.organization_id, "timezone": "UTC"},
+        )
+        user = {
+            "id": self._new_id("user"),
+            **payload.model_dump(mode="json"),
+            "active": True,
+        }
+        self.users[user["id"]] = user
+        self._record_organization_audit_event(
+            payload.organization_id,
+            "user_invited",
+            context.actor_id,
+            user["id"],
+            {"email": user["email"], "role": user["role"]},
+        )
+        return user
+
+    def update_user_role(
+        self,
+        user_id: str,
+        payload: UserRoleUpdate,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_USERS)
+        self._ensure_active_user(context)
+        user = self._get_user(user_id, context.organization_id)
+        previous_role = user["role"]
+        user["role"] = payload.role.value
+        self._record_organization_audit_event(
+            context.organization_id,
+            "user_role_updated",
+            context.actor_id,
+            user_id,
+            {"previous_role": previous_role, "new_role": user["role"]},
+        )
+        return user
+
+    def deactivate_user(
+        self,
+        user_id: str,
+        payload: UserDeactivateRequest,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_USERS)
+        self._ensure_active_user(context)
+        if payload.deactivated_by != context.actor_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Deactivation actor must match request context.",
+            )
+        user = self._get_user(user_id, context.organization_id)
+        user["active"] = False
+        self._record_organization_audit_event(
+            context.organization_id,
+            "user_deactivated",
+            context.actor_id,
+            user_id,
+            {"email": user["email"], "role": user["role"]},
+        )
+        return user
+
+    def get_organization_audit_log(
+        self,
+        organization_id: str | None,
+        context: RequestContext,
+    ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_ORGANIZATION_AUDIT_LOG)
+        self._ensure_active_user(context)
+        self._ensure_requested_organization(organization_id, context)
+        return {"items": self.organization_audit_log_entries.get(context.organization_id, [])}
 
     def find_demo_case(self, context: RequestContext) -> dict | None:
         for injury_case in self.injury_cases.values():
@@ -560,6 +684,23 @@ class InMemoryWorkflowRepository:
             )
         return template
 
+    def _get_user(self, user_id: str, organization_id: str) -> dict:
+        user = self.users.get(user_id)
+        if user is None or user["organization_id"] != organization_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found.",
+            )
+        return user
+
+    def _ensure_active_user(self, context: RequestContext) -> None:
+        user = self.users.get(context.actor_id)
+        if user is not None and not user["active"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User is deactivated.",
+            )
+
     def _validate_evidence_case(
         self,
         route_case_id: str,
@@ -621,6 +762,26 @@ class InMemoryWorkflowRepository:
             "metadata_json": metadata,
         }
         self.audit_log_entries.setdefault(case_id, []).append(event)
+        return event
+
+    def _record_organization_audit_event(
+        self,
+        organization_id: str,
+        event_type: str,
+        actor_id: str | None,
+        target_user_id: str | None,
+        metadata: dict,
+    ) -> dict:
+        event = {
+            "id": self._new_id("org_audit"),
+            "organization_id": organization_id,
+            "event_type": event_type,
+            "actor_id": actor_id,
+            "target_user_id": target_user_id,
+            "created_at": self._now(),
+            "metadata_json": metadata,
+        }
+        self.organization_audit_log_entries.setdefault(organization_id, []).append(event)
         return event
 
     @staticmethod

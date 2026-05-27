@@ -131,6 +131,21 @@ Goal 13 formalizes authorization:
   their portal surfaces exist.
 - `docs/product/permission-matrix.md` is the human-readable matrix.
 
+Goal 14 adds organization and user administration:
+
+- `POST /api/admin/organization` configures the authenticated admin's
+  organization.
+- `POST /api/admin/users/invitations` creates an active invited user inside the
+  admin's organization.
+- `PATCH /api/admin/users/{user_id}/role` changes a user's role.
+- `POST /api/admin/users/{user_id}/deactivate` deactivates a user.
+- `GET /api/admin/audit-log` returns organization audit events for organization
+  setup, invitations, role changes, and deactivation.
+- Deactivated persisted users are rejected by protected repository-backed
+  workflow access.
+- Alembic migration `0005_goal_14` adds `users.active` and
+  `organization_audit_log_entries`.
+
 ## Local Setup
 
 ```powershell

@@ -88,6 +88,14 @@ class UserCreate(ApiSchema):
     role: UserRole
 
 
+class UserRoleUpdate(ApiSchema):
+    role: UserRole
+
+
+class UserDeactivateRequest(ApiSchema):
+    deactivated_by: str = Field(min_length=1)
+
+
 class AuthLoginRequest(ApiSchema):
     email: EmailStr
     password: str = Field(min_length=1)

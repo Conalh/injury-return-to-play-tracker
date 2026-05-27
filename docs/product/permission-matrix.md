@@ -35,6 +35,9 @@ are limited to shared-status surfaces until their portals land.
 | `read_audit_log` | Yes | Yes | Yes | No | No | No |
 | `seed_demo` | Yes | Yes | Yes | No | No | No |
 | `read_shared_status` | Yes | Yes | Yes | Yes | Yes | Yes |
+| `manage_organization` | Yes | No | No | No | No | No |
+| `manage_users` | Yes | No | No | No | No | No |
+| `read_organization_audit_log` | Yes | No | No | No | No | No |
 
 ## Enforcement
 
@@ -45,6 +48,8 @@ The canonical matrix lives in `return_play.permissions`.
 - `require_permission(permission)` is the FastAPI route dependency.
 - Concrete repositories call `assert_permission` at public workflow entry
   points so direct service calls cannot bypass route checks.
+- Organization and user administration endpoints are admin-only and
+  organization-bound.
 
 ## Current Limitations
 

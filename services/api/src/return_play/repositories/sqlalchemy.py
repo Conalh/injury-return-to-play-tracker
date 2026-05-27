@@ -22,6 +22,7 @@ from return_play.db import (
     Milestone,
     MilestoneResult,
     Organization,
+    OrganizationAuditLogEntry,
     ReturnPlanPhase,
     ReturnPlanTemplate,
     ShareToken,
@@ -38,11 +39,15 @@ from return_play.models import (
     InjuryCaseCreate,
     MilestoneResultStatus,
     MilestoneResultUpdate,
+    OrganizationCreate,
     PhaseStatus,
     ReturnPlanTemplateWithPhasesCreate,
     ShareTokenCreate,
     ShareTokenRevoke,
     SymptomLogCreate,
+    UserCreate,
+    UserDeactivateRequest,
+    UserRoleUpdate,
     WorkloadSessionCreate,
 )
 from return_play.permissions import Permission, assert_permission
@@ -57,6 +62,7 @@ class SqlAlchemyWorkflowRepository:
 
     def create_athlete(self, payload: AthleteCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_ATHLETES)
+        self._ensure_active_context(context)
         self._ensure_payload_organization(payload.organization_id, context)
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
@@ -75,6 +81,7 @@ class SqlAlchemyWorkflowRepository:
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_ATHLETES)
         self._ensure_requested_organization(organization_id, context)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             athletes = session.scalars(
                 select(Athlete).where(Athlete.organization_id == context.organization_id)
@@ -83,6 +90,7 @@ class SqlAlchemyWorkflowRepository:
 
     def create_injury_case(self, payload: InjuryCaseCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_context(context)
         self._ensure_payload_organization(payload.organization_id, context)
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
@@ -106,6 +114,7 @@ class SqlAlchemyWorkflowRepository:
 
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
         assert_permission(context, Permission.READ_CLINICAL_CASES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             injury_case = self._get_case(session, case_id, context.organization_id)
             return self._case_detail(session, injury_case)
@@ -116,6 +125,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_TEMPLATES)
+        self._ensure_active_context(context)
         self._ensure_payload_organization(payload.organization_id, context)
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
@@ -161,6 +171,7 @@ class SqlAlchemyWorkflowRepository:
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_TEMPLATES)
+        self._ensure_active_context(context)
         self._ensure_requested_organization(organization_id, context)
         with self.session_factory() as session:
             templates = session.scalars(
@@ -177,6 +188,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             template = self._get_template(session, payload.template_id, context.organization_id)
@@ -209,6 +221,7 @@ class SqlAlchemyWorkflowRepository:
 
     def list_case_phases(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_CLINICAL_CASES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             return {"items": self._case_phases(session, case_id)}
@@ -221,6 +234,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             milestone = session.get(Milestone, milestone_id)
@@ -264,6 +278,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             self._ensure_user(session, payload.author_id, context)
@@ -284,6 +299,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_EVIDENCE)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             athlete = session.get(Athlete, payload.athlete_id)
@@ -302,6 +318,7 @@ class SqlAlchemyWorkflowRepository:
 
     def list_symptom_logs(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_EVIDENCE)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             logs = session.scalars(
@@ -316,6 +333,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_EVIDENCE)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             self._ensure_user(session, payload.recorded_by, context)
@@ -333,6 +351,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_EVIDENCE)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             tests = session.scalars(
@@ -347,6 +366,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_EVIDENCE)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             workload_session = WorkloadSession(
@@ -363,6 +383,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_EVIDENCE)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             sessions = session.scalars(
@@ -372,6 +393,7 @@ class SqlAlchemyWorkflowRepository:
 
     def get_readiness(self, case_id: str, context: RequestContext) -> dict:
         assert_permission(context, Permission.READ_READINESS)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             current_phase = next(
@@ -417,6 +439,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.RECORD_CLEARANCE_DECISIONS)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             if payload.decided_by != context.actor_id:
@@ -453,6 +476,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_SHARES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             raw_token = token_urlsafe(24)
@@ -536,6 +560,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
     ) -> dict:
         assert_permission(context, Permission.MANAGE_SHARES)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             share = session.scalar(
                 select(ShareToken).where(ShareToken.token_hash == self._hash_token(token))
@@ -565,6 +590,7 @@ class SqlAlchemyWorkflowRepository:
 
     def build_report(self, case_id: str, context: RequestContext) -> bytes:
         assert_permission(context, Permission.GENERATE_REPORTS)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             injury_case = self._get_case(session, case_id, context.organization_id)
             athlete = session.get(Athlete, injury_case.athlete_id)
@@ -587,6 +613,7 @@ class SqlAlchemyWorkflowRepository:
 
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_AUDIT_LOG)
+        self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             events = session.scalars(
@@ -596,7 +623,126 @@ class SqlAlchemyWorkflowRepository:
 
     def seed_demo(self, context: RequestContext) -> dict:
         assert_permission(context, Permission.SEED_DEMO)
+        self._ensure_active_context(context)
         return DemoSeedService(self).seed_demo(context)
+
+    def setup_organization(self, payload: OrganizationCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_ORGANIZATION)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            organization = session.get(Organization, context.organization_id)
+            if organization is None:
+                organization = Organization(
+                    id=context.organization_id,
+                    name=payload.name,
+                    timezone=payload.timezone,
+                    created_at=self._now(),
+                )
+                session.add(organization)
+            else:
+                organization.name = payload.name
+                organization.timezone = payload.timezone
+            self._ensure_user(session, context.actor_id, context)
+            self._record_organization_audit_event(
+                session,
+                organization.id,
+                "organization_configured",
+                context.actor_id,
+                None,
+                {"name": organization.name, "timezone": organization.timezone},
+            )
+            session.commit()
+            return self._organization_dict(organization)
+
+    def invite_user(self, payload: UserCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_USERS)
+        self._ensure_payload_organization(payload.organization_id, context)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            self._ensure_context_principal(session, context)
+            user = User(
+                id=self._new_id("user"),
+                **payload.model_dump(mode="python"),
+                active=True,
+                created_at=self._now(),
+            )
+            session.add(user)
+            self._record_organization_audit_event(
+                session,
+                payload.organization_id,
+                "user_invited",
+                context.actor_id,
+                user.id,
+                {"email": user.email, "role": user.role},
+            )
+            session.commit()
+            return self._user_dict(user)
+
+    def update_user_role(
+        self,
+        user_id: str,
+        payload: UserRoleUpdate,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_USERS)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            user = self._get_user(session, user_id, context.organization_id)
+            previous_role = user.role
+            user.role = payload.role.value
+            self._record_organization_audit_event(
+                session,
+                context.organization_id,
+                "user_role_updated",
+                context.actor_id,
+                user.id,
+                {"previous_role": previous_role, "new_role": user.role},
+            )
+            session.commit()
+            return self._user_dict(user)
+
+    def deactivate_user(
+        self,
+        user_id: str,
+        payload: UserDeactivateRequest,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_USERS)
+        self._ensure_active_context(context)
+        if payload.deactivated_by != context.actor_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Deactivation actor must match request context.",
+            )
+        with self.session_factory() as session:
+            user = self._get_user(session, user_id, context.organization_id)
+            user.active = False
+            self._record_organization_audit_event(
+                session,
+                context.organization_id,
+                "user_deactivated",
+                context.actor_id,
+                user.id,
+                {"email": user.email, "role": user.role},
+            )
+            session.commit()
+            return self._user_dict(user)
+
+    def get_organization_audit_log(
+        self,
+        organization_id: str | None,
+        context: RequestContext,
+    ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_ORGANIZATION_AUDIT_LOG)
+        self._ensure_requested_organization(organization_id, context)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            events = session.scalars(
+                select(OrganizationAuditLogEntry).where(
+                    OrganizationAuditLogEntry.organization_id == context.organization_id
+                )
+            ).all()
+            return {"items": [self._organization_audit_dict(event) for event in events]}
 
     def find_demo_case(self, context: RequestContext) -> dict | None:
         with self.session_factory() as session:
@@ -817,10 +963,29 @@ class SqlAlchemyWorkflowRepository:
                     email=f"{user_id}@example.local",
                     name=user_id,
                     role=context.role.value,
+                    active=True,
                     created_at=self._now(),
                 )
             )
             session.flush()
+
+    def _ensure_active_context(self, context: RequestContext) -> None:
+        with self.session_factory() as session:
+            user = session.get(User, context.actor_id)
+            if user is not None and not user.active:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="User is deactivated.",
+                )
+
+    def _get_user(self, session, user_id: str, organization_id: str) -> User:
+        user = session.get(User, user_id)
+        if user is None or user.organization_id != organization_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found.",
+            )
+        return user
 
     def _record_audit_event(
         self,
@@ -835,6 +1000,27 @@ class SqlAlchemyWorkflowRepository:
             injury_case_id=case_id,
             event_type=event_type,
             actor_id=actor_id,
+            created_at=self._now(),
+            metadata_json=metadata,
+        )
+        session.add(event)
+        return event
+
+    def _record_organization_audit_event(
+        self,
+        session,
+        organization_id: str,
+        event_type: str,
+        actor_id: str | None,
+        target_user_id: str | None,
+        metadata: dict,
+    ) -> OrganizationAuditLogEntry:
+        event = OrganizationAuditLogEntry(
+            id=self._new_id("org_audit"),
+            organization_id=organization_id,
+            event_type=event_type,
+            actor_id=actor_id,
+            target_user_id=target_user_id,
             created_at=self._now(),
             metadata_json=metadata,
         )
@@ -862,6 +1048,25 @@ class SqlAlchemyWorkflowRepository:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Requested organization does not match request context.",
             )
+
+    @staticmethod
+    def _organization_dict(organization: Organization) -> dict[str, Any]:
+        return {
+            "id": organization.id,
+            "name": organization.name,
+            "timezone": organization.timezone,
+        }
+
+    @staticmethod
+    def _user_dict(user: User) -> dict[str, Any]:
+        return {
+            "id": user.id,
+            "organization_id": user.organization_id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role,
+            "active": user.active,
+        }
 
     @staticmethod
     def _athlete_dict(athlete: Athlete) -> dict[str, Any]:
@@ -1032,6 +1237,18 @@ class SqlAlchemyWorkflowRepository:
             "injury_case_id": event.injury_case_id,
             "event_type": event.event_type,
             "actor_id": event.actor_id,
+            "created_at": event.created_at,
+            "metadata_json": event.metadata_json,
+        }
+
+    @staticmethod
+    def _organization_audit_dict(event: OrganizationAuditLogEntry) -> dict[str, Any]:
+        return {
+            "id": event.id,
+            "organization_id": event.organization_id,
+            "event_type": event.event_type,
+            "actor_id": event.actor_id,
+            "target_user_id": event.target_user_id,
             "created_at": event.created_at,
             "metadata_json": event.metadata_json,
         }

@@ -42,6 +42,8 @@ Live in the repo:
   mode, `/api/me`, local login/logout session endpoints, and token-mode tests.
 - Central role-to-permission matrix with route dependencies and repository
   service guards for protected workflow actions.
+- Admin organization and user management for organization setup, user
+  invitations, role changes, deactivation, and organization audit events.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into

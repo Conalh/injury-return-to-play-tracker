@@ -20,10 +20,14 @@ from return_play.models import (
     FunctionalTestCreate,
     InjuryCaseCreate,
     MilestoneResultUpdate,
+    OrganizationCreate,
     ReturnPlanTemplateWithPhasesCreate,
     ShareTokenCreate,
     ShareTokenRevoke,
     SymptomLogCreate,
+    UserCreate,
+    UserDeactivateRequest,
+    UserRoleUpdate,
     WorkloadSessionCreate,
 )
 from return_play.permissions import Permission
@@ -73,6 +77,15 @@ ReadAuditLogContext = Annotated[
 SeedDemoContext = Annotated[
     RequestContext, Depends(require_permission(Permission.SEED_DEMO))
 ]
+ManageOrganizationContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_ORGANIZATION))
+]
+ManageUsersContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_USERS))
+]
+ReadOrganizationAuditLogContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_ORGANIZATION_AUDIT_LOG))
+]
 
 
 def create_app(repository=None) -> FastAPI:
@@ -111,6 +124,40 @@ def create_app(repository=None) -> FastAPI:
             "role": context.role.value,
             "organization_id": context.organization_id,
         }
+
+    @api_router.post("/admin/organization", status_code=status.HTTP_201_CREATED)
+    def setup_organization(
+        payload: OrganizationCreate,
+        context: ManageOrganizationContext,
+    ) -> dict:
+        return repository.setup_organization(payload, context)
+
+    @api_router.post("/admin/users/invitations", status_code=status.HTTP_201_CREATED)
+    def invite_user(payload: UserCreate, context: ManageUsersContext) -> dict:
+        return repository.invite_user(payload, context)
+
+    @api_router.patch("/admin/users/{user_id}/role")
+    def update_user_role(
+        user_id: str,
+        payload: UserRoleUpdate,
+        context: ManageUsersContext,
+    ) -> dict:
+        return repository.update_user_role(user_id, payload, context)
+
+    @api_router.post("/admin/users/{user_id}/deactivate")
+    def deactivate_user(
+        user_id: str,
+        payload: UserDeactivateRequest,
+        context: ManageUsersContext,
+    ) -> dict:
+        return repository.deactivate_user(user_id, payload, context)
+
+    @api_router.get("/admin/audit-log")
+    def get_organization_audit_log(
+        context: ReadOrganizationAuditLogContext,
+        organization_id: str | None = Query(default=None),
+    ) -> dict[str, list[dict]]:
+        return repository.get_organization_audit_log(organization_id, context)
 
     @api_router.get("/athletes")
     def list_athletes(

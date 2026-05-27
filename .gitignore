@@ -39,6 +39,9 @@ logs/
 .worktrees/
 worktrees/
 
+# Local planning
+ROADMAP2.md
+
 # Environment and secrets
 .env
 .env.*

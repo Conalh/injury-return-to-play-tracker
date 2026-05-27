@@ -9,7 +9,7 @@ from return_play.repositories.templates import TemplatePlanRepositoryBoundary
 
 
 BOUNDARY_METHODS = {
-    AthleteRepositoryBoundary: {"create_athlete", "list_athletes"},
+    AthleteRepositoryBoundary: {"create_athlete", "update_athlete", "list_athletes"},
     CaseRepositoryBoundary: {
         "create_injury_case",
         "list_injury_cases",

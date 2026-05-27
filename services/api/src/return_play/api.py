@@ -15,6 +15,7 @@ from return_play.models import (
     ApplyTemplateRequest,
     AuthLoginRequest,
     AthleteCreate,
+    AthleteUpdate,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
@@ -169,6 +170,14 @@ def create_app(repository=None) -> FastAPI:
     @api_router.post("/athletes", status_code=status.HTTP_201_CREATED)
     def create_athlete(payload: AthleteCreate, context: ManageAthletesContext) -> dict:
         return repository.create_athlete(payload, context)
+
+    @api_router.patch("/athletes/{athlete_id}")
+    def update_athlete(
+        athlete_id: str,
+        payload: AthleteUpdate,
+        context: ManageAthletesContext,
+    ) -> dict:
+        return repository.update_athlete(athlete_id, payload, context)
 
     @api_router.post("/injury-cases", status_code=status.HTTP_201_CREATED)
     def create_injury_case(

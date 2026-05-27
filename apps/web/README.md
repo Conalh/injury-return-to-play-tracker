@@ -39,6 +39,16 @@ Goal 15 wires the dashboard to the FastAPI backend:
 - Playwright starts a real FastAPI server plus Next.js through
   `scripts/dev-with-api.ps1`.
 
+Goal 16 adds the clinician case creation path:
+
+- `/cases/new` creates an athlete, opens an injury case, applies a selected
+  return-plan template, and redirects to the new case detail.
+- `/athletes/[id]/edit` updates athlete profile fields used by clinical
+  workflows and shared views.
+- Form submissions use server actions backed by the API client, with visible
+  validation and failure states.
+- Playwright covers both the happy path and required-field validation.
+
 ## Local Commands
 
 ```powershell

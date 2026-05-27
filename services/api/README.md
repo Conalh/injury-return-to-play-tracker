@@ -153,6 +153,14 @@ Goal 15 exposes the case list needed by the frontend API integration:
 - The Next.js dashboard uses this endpoint with `/api/athletes`,
   `/api/injury-cases/{case_id}`, and readiness endpoints to render backend data.
 
+Goal 16 adds athlete profile editing for the clinician creation UI:
+
+- `PATCH /api/athletes/{athlete_id}` updates organization-scoped athlete
+  profile fields behind the same manage-athlete permission as creation.
+- The case creation UI continues to use `POST /api/athletes`,
+  `POST /api/injury-cases`, `GET /api/templates`, and
+  `POST /api/injury-cases/{case_id}/apply-template`.
+
 ## Local Setup
 
 ```powershell

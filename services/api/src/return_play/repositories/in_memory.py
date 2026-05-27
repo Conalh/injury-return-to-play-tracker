@@ -11,6 +11,7 @@ from return_play.auth import RequestContext
 from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
+    AthleteUpdate,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
@@ -75,6 +76,23 @@ class InMemoryWorkflowRepository:
             if athlete["organization_id"] == context.organization_id
         ]
         return {"items": athletes}
+
+    def update_athlete(
+        self,
+        athlete_id: str,
+        payload: AthleteUpdate,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_ATHLETES)
+        self._ensure_active_user(context)
+        athlete = self.athletes.get(athlete_id)
+        if athlete is None or athlete["organization_id"] != context.organization_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Athlete not found.",
+            )
+        athlete.update(payload.model_dump(mode="json", exclude_unset=True))
+        return athlete
 
     def create_injury_case(self, payload: InjuryCaseCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)

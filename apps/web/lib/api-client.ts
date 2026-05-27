@@ -38,17 +38,34 @@ export class UnauthorizedApiError extends Error {
 
 type ApiList<T> = { items: T[] };
 type DemoSeed = { injury_case_id: string; share_token: string | null };
-type ApiAthlete = {
+export type ApiAthlete = {
   id: string;
+  organization_id: string;
   name: string;
+  date_of_birth: string;
   sport: string;
   position: string | null;
+  guardian_contact: string | null;
+  active: boolean;
 };
 type ApiCase = {
   id: string;
+  organization_id: string;
   athlete_id: string;
   title: string;
+  injury_category: string;
+  body_region: string;
+  side: string;
+  date_of_injury: string;
+  clinician_owner_id: string;
   summary: string | null;
+};
+export type ApiTemplate = {
+  id: string;
+  name: string;
+  injury_category: string;
+  description: string | null;
+  active: boolean;
 };
 type ApiMilestone = {
   id: string;
@@ -121,6 +138,38 @@ type ApiShare = {
   clinician_note: string;
 };
 
+export type CaseCreationData = {
+  source: DataSource;
+  athletes: ApiAthlete[];
+  templates: ApiTemplate[];
+};
+
+export type AthletePayload = {
+  organization_id: string;
+  name: string;
+  date_of_birth: string;
+  sport: string;
+  position?: string | null;
+  guardian_contact?: string | null;
+  active?: boolean;
+};
+
+export type AthleteUpdatePayload = Partial<
+  Pick<AthletePayload, "name" | "date_of_birth" | "sport" | "position" | "guardian_contact" | "active">
+>;
+
+export type InjuryCasePayload = {
+  organization_id: string;
+  athlete_id: string;
+  title: string;
+  injury_category: string;
+  body_region: string;
+  side: string;
+  date_of_injury: string;
+  clinician_owner_id: string;
+  summary?: string | null;
+};
+
 export async function getDashboardData(): Promise<DashboardData> {
   if (!usesApi()) {
     return { source: "demo", athletes: demoAthletes };
@@ -175,6 +224,56 @@ export async function getSharePageData(token: string): Promise<SharePageData> {
   };
 }
 
+export async function getCaseCreationData(): Promise<CaseCreationData> {
+  if (!usesApi()) {
+    return { source: "demo", athletes: [], templates: [] };
+  }
+
+  await seedDemoIfConfigured();
+  const [athletes, templates] = await Promise.all([
+    apiRequest<ApiList<ApiAthlete>>("/api/athletes"),
+    apiRequest<ApiList<ApiTemplate>>("/api/templates"),
+  ]);
+  return {
+    source: "api",
+    athletes: athletes.items,
+    templates: templates.items.filter((template) => template.active),
+  };
+}
+
+export async function createAthlete(payload: AthletePayload): Promise<ApiAthlete> {
+  ensureWritableApiMode();
+  return apiRequest<ApiAthlete>("/api/athletes", jsonRequest("POST", payload));
+}
+
+export async function updateAthlete(
+  athleteId: string,
+  payload: AthleteUpdatePayload,
+): Promise<ApiAthlete> {
+  ensureWritableApiMode();
+  return apiRequest<ApiAthlete>(`/api/athletes/${athleteId}`, jsonRequest("PATCH", payload));
+}
+
+export async function createInjuryCase(payload: InjuryCasePayload): Promise<ApiCase> {
+  ensureWritableApiMode();
+  return apiRequest<ApiCase>("/api/injury-cases", jsonRequest("POST", payload));
+}
+
+export async function applyTemplate(caseId: string, templateId: string): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(`/api/injury-cases/${caseId}/apply-template`, jsonRequest("POST", {
+    template_id: templateId,
+  }));
+}
+
+export function currentOrganizationId(): string {
+  return process.env.RETURN_PLAY_ORGANIZATION_ID ?? "org_demo";
+}
+
+export function currentActorId(): string {
+  return process.env.RETURN_PLAY_ACTOR_ID ?? "clinician_demo";
+}
+
 async function getApiCasePageData(caseId: string): Promise<CasePageData> {
   const [detail, readiness, athletesResponse] = await Promise.all([
     apiRequest<ApiCaseDetail>(`/api/injury-cases/${caseId}`),
@@ -211,6 +310,22 @@ async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
     throw new Error(`API request failed with ${response.status}: ${path}`);
   }
   return response.json() as Promise<T>;
+}
+
+function jsonRequest(method: "POST" | "PATCH", payload: unknown): RequestInit {
+  return {
+    method,
+    body: JSON.stringify(payload),
+    headers: {
+      "content-type": "application/json",
+    },
+  };
+}
+
+function ensureWritableApiMode() {
+  if (!usesApi()) {
+    throw new Error("Case creation requires RETURN_PLAY_DATA_MODE=api or api-demo.");
+  }
 }
 
 function toCaseDetail(

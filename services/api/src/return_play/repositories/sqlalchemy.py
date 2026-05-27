@@ -33,6 +33,7 @@ from return_play.db import (
 from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
+    AthleteUpdate,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
@@ -87,6 +88,28 @@ class SqlAlchemyWorkflowRepository:
                 select(Athlete).where(Athlete.organization_id == context.organization_id)
             ).all()
             return {"items": [self._athlete_dict(athlete) for athlete in athletes]}
+
+    def update_athlete(
+        self,
+        athlete_id: str,
+        payload: AthleteUpdate,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_ATHLETES)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            athlete = session.get(Athlete, athlete_id)
+            if athlete is None or athlete.organization_id != context.organization_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Athlete not found.",
+                )
+            for field, value in payload.model_dump(
+                mode="python", exclude_unset=True
+            ).items():
+                setattr(athlete, field, value)
+            session.commit()
+            return self._athlete_dict(athlete)
 
     def create_injury_case(self, payload: InjuryCaseCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_CLINICAL_CASES)

@@ -111,6 +111,15 @@ class AthleteCreate(ApiSchema):
     active: bool = True
 
 
+class AthleteUpdate(ApiSchema):
+    name: str | None = Field(default=None, min_length=1)
+    date_of_birth: date | None = None
+    sport: str | None = Field(default=None, min_length=1)
+    position: str | None = None
+    guardian_contact: EmailStr | None = None
+    active: bool | None = None
+
+
 class InjuryCaseCreate(ApiSchema):
     organization_id: str = Field(min_length=1)
     athlete_id: str = Field(min_length=1)

@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 11 of the
+The project is a local production-path build, currently through Goal 16 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -46,6 +46,8 @@ Live in the repo:
   invitations, role changes, deactivation, and organization audit events.
 - API-backed frontend data fetching with explicit demo fallback mode and
   Playwright coverage against a live FastAPI test server.
+- Clinician case creation UI for athlete intake, injury case creation, staged
+  template application, validation errors, and athlete profile edits.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -59,8 +61,6 @@ Live in the repo:
 Still deferred:
 
 - Hosted identity-provider integration and token revocation.
-- Full role and permission matrix.
-- API-backed frontend data fetching.
 - Production deployment, backups, monitoring, and compliance review package.
 
 ## Run It Locally
@@ -199,7 +199,7 @@ Current coverage includes API contracts, schema contracts, migrations, clinician
 workflow behavior, evidence capture, readiness signals, privacy and permission
 checks, share/report/audit behavior, demo seed validation, persistent repository
 restart behavior, repository-boundary contracts, and browser coverage for the
-dashboard and limited share page.
+dashboard, API-backed case creation, case detail, and limited share page.
 
 ## Documentation
 

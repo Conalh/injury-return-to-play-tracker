@@ -28,3 +28,5 @@
   environment contract.
 - `operations/observability.md`: request IDs, structured API logs, error
   tracking seam, readiness, and metrics.
+- `operations/backups-and-recovery.md`: Postgres backup strategy, restore
+  runbook, verification checklist, RPO/RTO targets, and restore drill.

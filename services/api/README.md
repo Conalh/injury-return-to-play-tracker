@@ -292,6 +292,17 @@ Goal 30 adds the observability baseline:
 - `GET /metrics` exposes low-cardinality runtime counters.
 - `RETURN_PLAY_ERROR_TRACKING_DSN` enables the current error-capture seam.
 
+Goal 31 adds backup and recovery operations:
+
+- `scripts/backup/backup-postgres.ps1` creates a logical compose Postgres
+  backup.
+- `scripts/backup/restore-postgres.ps1` restores a backup behind an explicit
+  confirmation phrase.
+- `scripts/backup/restore-drill.ps1` proves backup and restore behavior in a
+  disposable local/CI database.
+- `docs/operations/backups-and-recovery.md` defines RPO/RTO targets and the
+  verification checklist.
+
 ## Local Setup
 
 ```powershell

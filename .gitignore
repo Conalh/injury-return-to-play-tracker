@@ -34,6 +34,7 @@ output/playwright/
 *.sqlite3
 *.log
 logs/
+backups/
 
 # Local worktrees
 .worktrees/

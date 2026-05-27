@@ -11,6 +11,7 @@ def test_ci_workflow_defines_required_pipeline_jobs() -> None:
     assert "web-build:" in workflow
     assert "web-playwright:" in workflow
     assert "docker-compose-build:" in workflow
+    assert "backup-restore-drill:" in workflow
     assert "dependency-audit:" in workflow
     assert ".\\.venv\\Scripts\\python.exe -m pytest" in workflow
     assert ".\\.venv\\Scripts\\alembic.exe heads" in workflow
@@ -18,6 +19,7 @@ def test_ci_workflow_defines_required_pipeline_jobs() -> None:
     assert "npm test" in workflow
     assert "docker compose -f compose.yml config" in workflow
     assert "docker compose -f compose.yml build api web" in workflow
+    assert "./scripts/backup/restore-drill.ps1" in workflow
     assert "npm audit --audit-level=high" in workflow
     assert "python -m pip freeze --exclude-editable > audit-requirements.txt" in workflow
     assert "pip-audit --strict -r audit-requirements.txt" in workflow
@@ -33,6 +35,7 @@ def test_required_status_checks_are_documented() -> None:
         "Web build",
         "Web Playwright",
         "Docker compose build",
+        "Backup restore drill",
         "Dependency audit",
         "Secret scan",
     ]:

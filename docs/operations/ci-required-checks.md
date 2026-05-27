@@ -12,14 +12,15 @@ production branch. These names match the workflow job names used by GitHub.
 - Web build
 - Web Playwright
 - Docker compose build
+- Backup restore drill
 - Dependency audit
 - Secret scan
 
 ## Workflow Sources
 
 - `.github/workflows/ci.yml` runs application tests, migration checks, frontend
-  build, Playwright coverage, Docker compose image builds, and dependency
-  audits.
+  build, Playwright coverage, Docker compose image builds, restore drills, and
+  dependency audits.
 - `.github/workflows/security.yml` runs the standalone security baseline checks,
   including Secret scan.
 

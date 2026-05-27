@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 30 of the
+The project is a local production-path build, currently through Goal 31 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -87,6 +87,8 @@ Live in the repo:
 - Observability baseline with request IDs, structured API request logs, an
   error-tracking integration seam, readiness endpoint, and basic JSON runtime
   metrics.
+- Backup and recovery baseline with Postgres backup/restore scripts, a restore
+  drill, RPO/RTO targets, and a documented verification checklist.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -282,6 +284,8 @@ share page.
   backend and frontend environment-variable contract.
 - [docs/operations/observability.md](docs/operations/observability.md):
   request IDs, structured logs, error capture seam, readiness, and metrics.
+- [docs/operations/backups-and-recovery.md](docs/operations/backups-and-recovery.md):
+  Postgres backup strategy, restore runbook, RPO/RTO targets, and restore drill.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

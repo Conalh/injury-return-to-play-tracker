@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.npm/
 .venv/
 venv/
 __pycache__/
@@ -13,13 +14,28 @@ dist/
 build/
 coverage/
 htmlcov/
+.turbo/
+.vercel/
 
 # Test artifacts
 test-results/
 playwright-report/
+.coverage
+.coverage.*
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+
+# Local databases and logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# Local worktrees
+.worktrees/
+worktrees/
 
 # Environment and secrets
 .env

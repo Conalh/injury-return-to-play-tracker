@@ -32,6 +32,10 @@ Create the FastAPI app, Pydantic schemas, database migrations, and repository
 layer for organizations, users, athletes, injury cases, templates, phases,
 milestones, logs, tests, workload sessions, clearances, and share tokens.
 
+Status: in progress. The backend skeleton, request contracts, SQLAlchemy
+metadata, and Alembic baseline exist. Repository methods and CRUD behavior are
+still deferred to the clinician MVP workflow.
+
 ## Goal 3: Clinician MVP Workflow
 
 Build the minimum useful clinician loop: roster, athlete creation, injury case
@@ -67,4 +71,3 @@ restricted share views, and non-diagnostic language.
 ## Goal 9: Demo And Validation
 
 Seed demo data and prove the complete workflow with pytest and Playwright.
-

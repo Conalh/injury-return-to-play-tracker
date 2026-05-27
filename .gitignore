@@ -4,6 +4,7 @@ node_modules/
 venv/
 __pycache__/
 *.py[cod]
+*.egg-info/
 
 # Build outputs
 .next/
@@ -30,4 +31,3 @@ playwright-report/
 Thumbs.db
 .idea/
 .vscode/
-

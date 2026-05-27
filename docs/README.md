@@ -36,7 +36,8 @@
   runbook, verification checklist, RPO/RTO targets, and restore drill.
 - `operations/beta-readiness.md`: controlled beta onboarding, feedback,
   limitations, support, incident, and launch-gate runbook.
-- `operations/auth-token-revocation.md`: local bearer-token IDs, logout
-  revocation behavior, operational limits, and production identity follow-up.
+- `operations/auth-token-revocation.md`: bearer-token IDs, logout revocation
+  behavior, durable persistent revocation, operational limits, and production
+  identity follow-up.
 - `operations/production-launch-gate.md`: final launch checklist, evidence
   requirements, residual risk register, and signoff table.

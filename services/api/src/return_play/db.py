@@ -62,6 +62,16 @@ class OrganizationAuditLogEntry(IdMixin, Base):
     metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
 
 
+class AuthTokenRevocation(Base):
+    __tablename__ = "auth_token_revocations"
+
+    token_id_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    actor_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    organization_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class Athlete(IdMixin, Base):
     __tablename__ = "athletes"
 

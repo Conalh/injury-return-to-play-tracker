@@ -1,11 +1,11 @@
 # Auth Token Revocation
 
-Status: Goal 38 token revocation foundation.
+Status: Goal 39 durable token revocation foundation.
 
-This runbook describes the local bearer-token revocation behavior for the
-production-path API. It narrows the previous stateless-token gap, but it is not
-a substitute for a hosted identity provider or a durable multi-instance session
-store.
+This runbook describes bearer-token revocation behavior for the production-path
+API. It narrows the previous stateless-token gap and persists revocations when
+the API runs with `RETURN_PLAY_DATABASE_URL`, but it is not a substitute for a
+hosted identity provider.
 
 ## Scope
 
@@ -15,12 +15,12 @@ Covered:
 - Token IDs on every newly issued API access token.
 - Logout-driven revocation for the current authenticated bearer token.
 - Rejection of revoked bearer tokens on protected API routes.
-- Automatic cleanup of expired revocation entries inside the API process.
+- Database-backed revocation records for persistent API deployments.
+- Automatic cleanup of expired revocation entries.
 
 Not covered:
 
 - Hosted OIDC provider validation.
-- Cross-process or cross-region revocation persistence.
 - Refresh tokens.
 - User-initiated device/session management.
 - Administrative global session termination.
@@ -59,14 +59,19 @@ are separately revoked.
 
 ## Operational Limits
 
-The revocation registry is process-local. That is acceptable for local
-production-path verification and single-process demos, but it is not enough for
-broad production if the API runs multiple workers or instances.
+The default local app uses an in-memory revocation registry. That is acceptable
+for local demos and unit tests only.
 
-Before real hosted production, choose one of:
+When `RETURN_PLAY_DATABASE_URL` is configured, the persistent app stores hashed
+token IDs in `auth_token_revocations`. This allows logout revocation to survive
+API restarts and be shared by API workers using the same database. Expired
+revocations are pruned during revoke and verification checks.
+
+Before real hosted production, choose or confirm one of:
 
 - Hosted identity provider session revocation.
-- A durable revocation store shared by all API workers.
+- The built-in durable revocation store shared by all API workers through the
+  production database.
 - Short-lived access tokens plus refresh/session revocation owned by the
   identity provider.
 - A documented compensating control accepted by security/legal reviewers.
@@ -81,6 +86,8 @@ The API authentication tests cover:
 - Logout revokes the current bearer token.
 - Token IDs are unique, so revoking one token does not revoke another token for
   the same actor.
+- Persistent apps write revocations to `auth_token_revocations`.
+- Revoked tokens remain rejected after a persistent app restart.
 
 Run:
 
@@ -91,7 +98,7 @@ cd services/api
 
 ## Launch Gate Impact
 
-Goal 38 resolves the local stateless-token logout gap. It does not complete the
-hosted identity-provider decision and does not prove durable multi-instance
-revocation. The production launch gate should continue to block broad launch
-until the deployment identity architecture is selected and verified.
+Goal 38 resolved the local stateless-token logout gap. Goal 39 adds durable
+database-backed revocation for persistent deployments. The production launch
+gate should continue to block broad launch until the hosted identity
+architecture is selected and verified.

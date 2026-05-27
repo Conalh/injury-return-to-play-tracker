@@ -124,11 +124,19 @@ Goal 38 adds the token revocation foundation:
 - Newly issued HMAC bearer tokens include a unique `jti` revocation ID.
 - Logout revokes the current authenticated bearer token until its expiration.
 - Protected API routes reject revoked bearer tokens.
-- Revocation is currently process-local. Hosted identity-provider integration
-  or a durable shared revocation store remains required before broad
-  multi-instance production.
 - `docs/operations/auth-token-revocation.md` records the runbook and launch
   gate limits.
+
+Goal 39 adds durable auth token revocation:
+
+- Persistent apps store hashed revoked token IDs in `auth_token_revocations`.
+- Logout revocation survives `create_persistent_app()` restarts.
+- API workers using the same production database share the same revocation
+  state.
+- The local in-memory fallback remains for tests and demos without
+  `RETURN_PLAY_DATABASE_URL`.
+- Hosted identity-provider integration remains a separate production launch
+  decision.
 
 Goal 13 formalizes authorization:
 

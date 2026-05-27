@@ -4,7 +4,10 @@ from fastapi import APIRouter, Depends, FastAPI, Query, Response, status
 
 from return_play.auth import (
     RequestContext,
+    InMemoryAuthTokenRevocationStore,
+    SqlAlchemyAuthTokenRevocationStore,
     authenticate_local_login,
+    configure_auth_token_revocation_store,
     create_auth_token,
     get_request_context,
     require_permission,
@@ -95,8 +98,11 @@ ReadOrganizationAuditLogContext = Annotated[
 ]
 
 
-def create_app(repository=None) -> FastAPI:
+def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     repository = repository or InMemoryWorkflowRepository()
+    configure_auth_token_revocation_store(
+        auth_token_revocation_store or InMemoryAuthTokenRevocationStore()
+    )
     app = FastAPI(
         title="Injury Return-To-Play Tracker API",
         version="0.1.0",
@@ -419,7 +425,10 @@ def create_app(repository=None) -> FastAPI:
 
 def create_persistent_app(database_url: str) -> FastAPI:
     session_factory = create_session_factory(database_url)
-    return create_app(SqlAlchemyWorkflowRepository(session_factory))
+    return create_app(
+        SqlAlchemyWorkflowRepository(session_factory),
+        SqlAlchemyAuthTokenRevocationStore(session_factory),
+    )
 
 
 def create_runtime_app() -> FastAPI:

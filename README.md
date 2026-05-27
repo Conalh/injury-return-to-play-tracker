@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 38 of the
+The project is a local production-path build, currently through Goal 39 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -105,8 +105,9 @@ Live in the repo:
   checklists. The package explicitly keeps broad launch blocked until deferred
   staging and production deployment work is completed.
 - Auth token revocation foundation with unique bearer-token IDs, logout
-  revocation, revoked-token rejection, and an explicit runbook for the remaining
-  hosted identity or durable multi-instance revocation decision.
+  revocation, revoked-token rejection, durable database-backed revocation for
+  persistent deployments, and an explicit runbook for the remaining hosted
+  identity decision.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -119,8 +120,7 @@ Live in the repo:
 
 Still deferred:
 
-- Hosted identity-provider integration and durable multi-instance token
-  revocation.
+- Hosted identity-provider integration.
 - Staging and production deployment.
 
 ## Run It Locally
@@ -233,6 +233,8 @@ contract is:
   verified bearer token.
 - Newly issued bearer tokens include unique revocation IDs, and logout revokes
   the current token for the lifetime of that token in the running API process.
+- Persistent API deployments store hashed revoked token IDs in the database so
+  logout revocation survives API restarts and can be shared by API workers.
 - Clinical workflows are limited to clinician, athletic trainer, and admin
   roles until the production role matrix lands.
 - Organization IDs scope roster, template, case, evidence, readiness,

@@ -32,7 +32,8 @@ Allowed launch candidate:
 - Production web and API services deployed over HTTPS.
 - Production database provisioned and migrated.
 - Production secrets configured through managed secret storage.
-- Hosted identity and durable token/session revocation decision completed.
+- Hosted identity decision completed and token/session revocation behavior
+  verified for the deployment topology.
 - Monitoring, alerting, backups, and incident owners assigned.
 - Legal/compliance review signed off for the customer/data posture.
 
@@ -86,8 +87,7 @@ Known required follow-up before real production:
 - Distributed/shared rate limiting if running multiple API workers.
 - Hosted WAF/platform edge rules if required by the customer risk review.
 - Dependency update automation.
-- Hosted identity-provider integration or a durable shared revocation store if
-  the API runs more than one process or instance.
+- Hosted identity-provider integration or an approved compensating control.
 
 Reference: `docs/product/security-baseline.md` and
 `docs/operations/auth-token-revocation.md`.
@@ -182,7 +182,7 @@ Use this table for final signoff. Add rows instead of hiding open risk.
 | Risk | Severity | Owner | Decision | Follow-up date |
 | --- | --- | --- | --- | --- |
 | Staging and production deployment are deferred in this repository state. | Blocker until Goals 32 and 33 are completed | Product/engineering owner | Do not launch broadly from this state | Before production launch |
-| Hosted identity-provider integration and durable multi-instance token revocation are deferred. | Blocker for broad production | Engineering/security owner | Resolve or document approved compensating control; Goal 38 covers local HMAC logout revocation only | Before production launch |
+| Hosted identity-provider integration is deferred. | Blocker for broad production | Engineering/security owner | Resolve or document approved compensating control; Goals 38 and 39 cover HMAC logout revocation, including database-backed persistent revocation | Before production launch |
 | Legal contracts and subprocessor list are not stored in this repository. | Blocker for real data | Legal/compliance owner | Attach approved external packet before launch | Before production launch |
 | Distributed rate limiting and platform edge controls are not implemented here. | Medium or high depending on hosting | Engineering/security owner | Decide during deployment architecture review | Before production launch |
 | Automated contrast/accessibility audit is not in CI. | Medium | Product/engineering owner | Complete or accept for limited launch | Before public launch |

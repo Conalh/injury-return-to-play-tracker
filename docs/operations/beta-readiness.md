@@ -109,9 +109,9 @@ Feedback handling rules:
 
 Current known limitations:
 
-- Hosted identity-provider integration and durable multi-instance token
-  revocation are deferred. Local HMAC logout revocation exists for the
-  production-path API, but it is process-local.
+- Hosted identity-provider integration is deferred. Local HMAC logout
+  revocation exists, and persistent API deployments can share database-backed
+  revocation state.
 - Staging and production deployment are deferred.
 - Production secret management, distributed rate limiting, WAF rules, and
   platform-level monitoring are not yet configured.

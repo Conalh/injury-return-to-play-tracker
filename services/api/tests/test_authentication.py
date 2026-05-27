@@ -1,8 +1,11 @@
 from fastapi.testclient import TestClient
 
 from helpers import auth_headers
-from return_play.api import create_app
+from return_play.api import create_app, create_persistent_app
 from return_play.auth import RequestContext, create_auth_token
+from sqlalchemy import select
+
+from return_play.db import AuthTokenRevocation, Base, create_engine_for_url, create_session_factory
 
 
 def test_token_mode_rejects_anonymous_and_trusted_header_requests(monkeypatch) -> None:
@@ -148,3 +151,40 @@ def test_auth_tokens_include_unique_revocation_ids(monkeypatch) -> None:
 
     client.headers.update({"Authorization": f"Bearer {second_token}"})
     assert client.get("/api/me").status_code == 200
+
+
+def test_persistent_logout_revocation_survives_app_restart(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_SECRET", "test-secret")
+    database_url = f"sqlite:///{tmp_path / 'auth-revocation.db'}"
+    engine = create_engine_for_url(database_url)
+    Base.metadata.create_all(engine)
+    token = create_auth_token(
+        RequestContext(
+            actor_id="clinician_demo",
+            role="clinician",
+            organization_id="org_demo",
+        ),
+        secret="test-secret",
+    )
+
+    first_client = TestClient(create_persistent_app(database_url))
+    first_client.headers.update({"Authorization": f"Bearer {token}"})
+    assert first_client.get("/api/me").status_code == 200
+    assert first_client.post("/api/auth/logout").status_code == 200
+    session_factory = create_session_factory(database_url)
+    with session_factory() as session:
+        stored_revocations = session.execute(select(AuthTokenRevocation)).scalars().all()
+    assert len(stored_revocations) == 1
+    assert stored_revocations[0].actor_id == "clinician_demo"
+    assert stored_revocations[0].organization_id == "org_demo"
+
+    second_client = TestClient(create_persistent_app(database_url))
+    second_client.headers.update({"Authorization": f"Bearer {token}"})
+    response = second_client.get("/api/me")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Bearer token has been revoked."

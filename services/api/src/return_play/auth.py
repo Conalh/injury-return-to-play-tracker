@@ -6,12 +6,15 @@ import hmac
 import json
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from secrets import token_urlsafe
-from typing import Annotated, Callable
+from typing import Annotated, Callable, Protocol
 
 from fastapi import Depends, Header, HTTPException, status
+from sqlalchemy import delete, select
 
 from return_play.config import get_settings
+from return_play.db import AuthTokenRevocation
 from return_play.models import UserRole
 
 
@@ -24,7 +27,96 @@ class RequestContext:
     token_expires_at: int | None = None
 
 
-_revoked_token_ids: dict[str, int] = {}
+class AuthTokenRevocationStore(Protocol):
+    def revoke(self, context: RequestContext) -> None:
+        ...
+
+    def is_revoked(self, token_id: str, now: int) -> bool:
+        ...
+
+
+class InMemoryAuthTokenRevocationStore:
+    def __init__(self) -> None:
+        self._revoked_token_ids: dict[str, int] = {}
+
+    def revoke(self, context: RequestContext) -> None:
+        if context.token_id is None or context.token_expires_at is None:
+            return
+
+        self._prune(int(time.time()))
+        self._revoked_token_ids[_hash_token_id(context.token_id)] = context.token_expires_at
+
+    def is_revoked(self, token_id: str, now: int) -> bool:
+        self._prune(now)
+        return _hash_token_id(token_id) in self._revoked_token_ids
+
+    def _prune(self, now: int) -> None:
+        expired_token_ids = [
+            token_id_hash
+            for token_id_hash, expires_at in self._revoked_token_ids.items()
+            if expires_at <= now
+        ]
+        for token_id_hash in expired_token_ids:
+            del self._revoked_token_ids[token_id_hash]
+
+
+class SqlAlchemyAuthTokenRevocationStore:
+    def __init__(self, session_factory) -> None:
+        self._session_factory = session_factory
+
+    def revoke(self, context: RequestContext) -> None:
+        if context.token_id is None or context.token_expires_at is None:
+            return
+
+        now = int(time.time())
+        revoked_at = _datetime_from_timestamp(now)
+        expires_at = _datetime_from_timestamp(context.token_expires_at)
+        token_id_hash = _hash_token_id(context.token_id)
+        with self._session_factory() as session:
+            self._prune(session, now)
+            existing = session.get(AuthTokenRevocation, token_id_hash)
+            if existing is None:
+                session.add(
+                    AuthTokenRevocation(
+                        token_id_hash=token_id_hash,
+                        actor_id=context.actor_id,
+                        organization_id=context.organization_id,
+                        expires_at=expires_at,
+                        revoked_at=revoked_at,
+                    )
+                )
+            else:
+                existing.expires_at = expires_at
+                existing.revoked_at = revoked_at
+            session.commit()
+
+    def is_revoked(self, token_id: str, now: int) -> bool:
+        with self._session_factory() as session:
+            self._prune(session, now)
+            token_id_hash = _hash_token_id(token_id)
+            result = session.execute(
+                select(AuthTokenRevocation.token_id_hash).where(
+                    AuthTokenRevocation.token_id_hash == token_id_hash
+                )
+            ).scalar_one_or_none()
+            session.commit()
+            return result is not None
+
+    def _prune(self, session, now: int) -> None:
+        session.execute(
+            delete(AuthTokenRevocation).where(
+                AuthTokenRevocation.expires_at <= _datetime_from_timestamp(now)
+            )
+        )
+
+
+_auth_token_revocation_store: AuthTokenRevocationStore = InMemoryAuthTokenRevocationStore()
+
+
+def configure_auth_token_revocation_store(store: AuthTokenRevocationStore) -> None:
+    global _auth_token_revocation_store
+
+    _auth_token_revocation_store = store
 
 
 def create_auth_token(
@@ -89,11 +181,7 @@ def authenticate_local_login(email: str, password: str) -> RequestContext:
 
 
 def revoke_auth_context(context: RequestContext) -> None:
-    if context.token_id is None or context.token_expires_at is None:
-        return
-
-    _prune_revoked_token_ids(int(time.time()))
-    _revoked_token_ids[context.token_id] = context.token_expires_at
+    _auth_token_revocation_store.revoke(context)
 
 
 def get_request_context(
@@ -188,7 +276,7 @@ def _verify_auth_token(token: str, secret: str) -> RequestContext:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token has expired.",
         )
-    if _is_token_revoked(str(token_id), now):
+    if _auth_token_revocation_store.is_revoked(str(token_id), now):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token has been revoked.",
@@ -238,16 +326,9 @@ def _invalid_token() -> HTTPException:
     )
 
 
-def _is_token_revoked(token_id: str, now: int) -> bool:
-    _prune_revoked_token_ids(now)
-    return token_id in _revoked_token_ids
+def _hash_token_id(token_id: str) -> str:
+    return hashlib.sha256(token_id.encode("utf-8")).hexdigest()
 
 
-def _prune_revoked_token_ids(now: int) -> None:
-    expired_token_ids = [
-        token_id
-        for token_id, expires_at in _revoked_token_ids.items()
-        if expires_at <= now
-    ]
-    for token_id in expired_token_ids:
-        del _revoked_token_ids[token_id]
+def _datetime_from_timestamp(timestamp: int) -> datetime:
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc)

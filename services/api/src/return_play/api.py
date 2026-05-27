@@ -20,6 +20,7 @@ from return_play.models import (
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
+    GuardianAcknowledgmentCreate,
     InjuryCaseCreate,
     MilestoneResultUpdate,
     OrganizationCreate,
@@ -331,6 +332,16 @@ def create_app(repository=None) -> FastAPI:
         payload: AthleteSymptomCheckIn,
     ) -> dict:
         return repository.create_athlete_symptom_check_in(token, payload)
+
+    @api_router.post(
+        "/share/{token}/guardian-acknowledgment",
+        status_code=status.HTTP_201_CREATED,
+    )
+    def create_guardian_acknowledgment(
+        token: str,
+        payload: GuardianAcknowledgmentCreate,
+    ) -> dict:
+        return repository.create_guardian_acknowledgment(token, payload)
 
     @api_router.post("/demo/seed", status_code=status.HTTP_201_CREATED)
     def seed_demo(context: SeedDemoContext, response: Response) -> dict:

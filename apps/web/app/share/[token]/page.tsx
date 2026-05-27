@@ -1,5 +1,8 @@
 import { Activity, Ban, CalendarDays, CheckCircle2, HeartPulse, LockKeyhole, ShieldAlert } from "lucide-react";
-import { submitAthleteSymptomCheckInAction } from "@/app/share/[token]/actions";
+import {
+  submitAthleteSymptomCheckInAction,
+  submitGuardianAcknowledgmentAction,
+} from "@/app/share/[token]/actions";
 import { ErrorState, UnauthorizedState } from "@/components/state-panels";
 import { getSharePageData, UnauthorizedApiError } from "@/lib/api-client";
 
@@ -30,6 +33,16 @@ export default async function SharePage({
     return (
       <AthletePortal
         checkInReceived={singleQueryValue(query.checkin) === "received"}
+        share={share}
+        source={source}
+        token={token}
+      />
+    );
+  }
+  if (share.audience === "guardian") {
+    return (
+      <GuardianPortal
+        acknowledgmentRecorded={singleQueryValue(query.acknowledgment) === "recorded"}
         share={share}
         source={source}
         token={token}
@@ -190,6 +203,100 @@ function AthletePortal({
           <button className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 bg-pine px-4 text-sm font-semibold text-white">
             <HeartPulse aria-hidden="true" className="h-4 w-4" />
             Submit symptom check-in
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+
+function GuardianPortal({
+  acknowledgmentRecorded,
+  share,
+  source,
+  token,
+}: {
+  acknowledgmentRecorded: boolean;
+  share: Awaited<ReturnType<typeof getSharePageData>>["share"];
+  source: string;
+  token: string;
+}) {
+  return (
+    <main data-source={source} data-testid="share-view">
+      <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-pine">Guardian portal</p>
+            <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">{share.athleteName}</h1>
+            <p className="mt-3 max-w-2xl text-base text-slate-600">
+              Conservative participation summary for family support. Clinical evidence and private case details are not included.
+            </p>
+          </div>
+          <div className="inline-flex min-h-10 items-center gap-2 bg-white px-3 py-2 text-sm font-semibold text-pine shadow-panel">
+            <LockKeyhole aria-hidden="true" className="h-4 w-4" />
+            Limited guardian view
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-4xl gap-5 px-4 pb-8 sm:px-6 lg:px-8">
+        {acknowledgmentRecorded ? (
+          <p className="border border-pine/25 bg-pine/10 px-4 py-3 text-sm font-semibold text-pine">
+            Guardian acknowledgment recorded.
+          </p>
+        ) : null}
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <StatusPanel
+            icon={<Activity aria-hidden="true" className="h-5 w-5 text-pine" />}
+            title="Participation status"
+            body={share.participationStatus}
+          />
+          <StatusPanel
+            icon={<Ban aria-hidden="true" className="h-5 w-5 text-rust" />}
+            title="Restrictions"
+            body={share.restrictedActivities}
+          />
+          <StatusPanel
+            icon={<CalendarDays aria-hidden="true" className="h-5 w-5 text-pine" />}
+            title="Next review"
+            body={share.nextReviewDate}
+          />
+          <StatusPanel
+            icon={<CheckCircle2 aria-hidden="true" className="h-5 w-5 text-pine" />}
+            title="Allowed activities"
+            body={share.allowedActivities}
+          />
+        </div>
+
+        <div className="bg-ink p-5 text-white shadow-panel">
+          <h2 className="text-lg font-semibold">Clinician note</h2>
+          <p className="mt-2 text-sm text-white/75">{share.clinicianNote}</p>
+          <p className="mt-4 text-sm text-white/75">
+            This view is not medical clearance and does not include the full clinical record.
+          </p>
+        </div>
+
+        <form action={submitGuardianAcknowledgmentAction} className="bg-white p-5 shadow-panel">
+          <input name="token" type="hidden" value={token} />
+          <h2 className="text-lg font-semibold text-ink">Guardian acknowledgment</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-slate-700">
+              Guardian name
+              <input className="mt-1 w-full border border-mist px-3 py-2" name="acknowledged_by" required />
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Relationship
+              <input className="mt-1 w-full border border-mist px-3 py-2" name="relationship" required />
+            </label>
+          </div>
+          <label className="mt-3 block text-sm font-medium text-slate-700">
+            Acknowledgment note
+            <textarea className="mt-1 min-h-20 w-full border border-mist px-3 py-2" name="message" />
+          </label>
+          <button className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 bg-pine px-4 text-sm font-semibold text-white">
+            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+            Record acknowledgment
           </button>
         </form>
       </section>

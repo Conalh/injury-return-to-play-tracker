@@ -97,6 +97,16 @@ Goal 21 adds the athlete portal path:
   detail page.
 - Playwright proves the check-in flow and limited-data boundary.
 
+Goal 22 adds the guardian portal path:
+
+- Guardian-audience share links render a conservative guardian portal.
+- The portal shows participation status, restrictions, next review, clinician
+  note, and non-diagnostic limited-view language.
+- Guardian acknowledgments post through the share token and redirect to an
+  acknowledgment confirmation.
+- Playwright proves the guardian portal excludes raw clinical evidence and
+  records an acknowledgment.
+
 ## Local Commands
 
 ```powershell

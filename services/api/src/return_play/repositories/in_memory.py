@@ -17,6 +17,7 @@ from return_play.models import (
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
+    GuardianAcknowledgmentCreate,
     InjuryCaseCreate,
     InjuryCaseStatus,
     MilestoneResultStatus,
@@ -633,6 +634,36 @@ class InMemoryWorkflowRepository:
             {"symptom_log_id": symptom_log["id"], "share_id": share["id"]},
         )
         return symptom_log
+
+    def create_guardian_acknowledgment(
+        self,
+        token: str,
+        payload: GuardianAcknowledgmentCreate,
+    ) -> dict:
+        share = self._get_active_share_by_token(token)
+        if share["audience"] != ShareAudience.GUARDIAN.value:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acknowledgments require a guardian share.",
+            )
+        acknowledgment = {
+            **payload.model_dump(mode="json"),
+            "id": self._new_id("guardian_ack"),
+            "share_id": share["id"],
+            "injury_case_id": share["injury_case_id"],
+            "created_at": self._now(),
+        }
+        self._record_audit_event(
+            share["injury_case_id"],
+            "guardian_acknowledgment_recorded",
+            None,
+            {
+                "share_id": share["id"],
+                "acknowledged_by": acknowledgment["acknowledged_by"],
+                "relationship": acknowledgment["relationship"],
+            },
+        )
+        return acknowledgment
 
     def revoke_share(
         self,

@@ -288,6 +288,11 @@ export type AthleteSymptomCheckInPayload = {
   confidence: number;
   notes?: string | null;
 };
+export type GuardianAcknowledgmentPayload = {
+  acknowledged_by: string;
+  relationship: string;
+  message?: string | null;
+};
 export type AuditEvent = {
   id: string;
   eventType: string;
@@ -505,6 +510,17 @@ export async function submitAthleteSymptomCheckIn(
 ): Promise<void> {
   ensureWritableApiMode();
   await apiRequest(`/api/share/${token}/symptoms`, jsonRequest("POST", payload));
+}
+
+export async function submitGuardianAcknowledgment(
+  token: string,
+  payload: GuardianAcknowledgmentPayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(
+    `/api/share/${token}/guardian-acknowledgment`,
+    jsonRequest("POST", payload),
+  );
 }
 
 export function currentOrganizationId(): string {

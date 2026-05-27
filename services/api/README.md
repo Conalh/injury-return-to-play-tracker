@@ -206,6 +206,14 @@ Goal 21 adds athlete symptom check-ins through limited share tokens:
 - Accepted check-ins write `athlete_symptom_check_in` audit events and appear in
   clinician case detail symptom logs.
 
+Goal 22 adds guardian acknowledgments through limited share tokens:
+
+- `POST /api/share/{token}/guardian-acknowledgment` accepts acknowledgments for
+  guardian audience share tokens.
+- The endpoint derives the case from the token and rejects non-guardian shares.
+- Accepted acknowledgments write `guardian_acknowledgment_recorded` audit
+  events.
+
 ## Local Setup
 
 ```powershell

@@ -235,6 +235,12 @@ class ShareTokenRevoke(ApiSchema):
     revoked_by: str = Field(min_length=1)
 
 
+class GuardianAcknowledgmentCreate(ApiSchema):
+    acknowledged_by: str = Field(min_length=1)
+    relationship: str = Field(min_length=1)
+    message: str | None = None
+
+
 class TemplateMilestoneCreate(ApiSchema):
     title: str = Field(min_length=1)
     kind: MilestoneKind

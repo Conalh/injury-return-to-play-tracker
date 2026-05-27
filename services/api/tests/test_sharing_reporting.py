@@ -110,6 +110,31 @@ def test_athlete_share_token_can_submit_symptom_check_in() -> None:
     assert audit_response.json()["items"][-1]["event_type"] == "athlete_symptom_check_in"
 
 
+def test_guardian_share_token_can_record_acknowledgment() -> None:
+    client = create_client()
+    injury_case = _create_case(client)
+    share = _create_share(client, injury_case["id"], audience="guardian")
+
+    response = client.post(
+        f"/api/share/{share['token']}/guardian-acknowledgment",
+        json={
+            "acknowledged_by": "Riley Guardian",
+            "relationship": "guardian",
+            "message": "I understand this is a limited status view.",
+        },
+    )
+
+    assert response.status_code == 201
+    acknowledgment = response.json()
+    assert acknowledgment["share_id"] == share["id"]
+    assert acknowledgment["injury_case_id"] == injury_case["id"]
+    assert acknowledgment["acknowledged_by"] == "Riley Guardian"
+
+    audit_response = client.get(f"/api/injury-cases/{injury_case['id']}/audit-log")
+    assert audit_response.status_code == 200
+    assert audit_response.json()["items"][-1]["event_type"] == "guardian_acknowledgment_recorded"
+
+
 def test_pdf_report_endpoint_returns_pdf_and_records_audit_event() -> None:
     client = create_client()
     injury_case = _create_case(client)

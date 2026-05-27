@@ -3,7 +3,12 @@ from __future__ import annotations
 from typing import Protocol
 
 from return_play.auth import RequestContext
-from return_play.models import AthleteSymptomCheckIn, ShareTokenCreate, ShareTokenRevoke
+from return_play.models import (
+    AthleteSymptomCheckIn,
+    GuardianAcknowledgmentCreate,
+    ShareTokenCreate,
+    ShareTokenRevoke,
+)
 
 
 class SharingReportingAuditRepositoryBoundary(Protocol):
@@ -22,6 +27,13 @@ class SharingReportingAuditRepositoryBoundary(Protocol):
         self,
         token: str,
         payload: AthleteSymptomCheckIn,
+    ) -> dict:
+        ...
+
+    def create_guardian_acknowledgment(
+        self,
+        token: str,
+        payload: GuardianAcknowledgmentCreate,
     ) -> dict:
         ...
 

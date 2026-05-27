@@ -29,7 +29,7 @@ def test_clinical_routes_reject_coach_role() -> None:
     )
 
     assert response.status_code == 403
-    assert response.json()["detail"] == "Role is not permitted for this action."
+    assert response.json()["detail"] == "Permission is not permitted for this action."
 
 
 def test_organization_context_blocks_cross_tenant_case_access() -> None:

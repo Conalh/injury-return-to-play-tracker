@@ -124,6 +124,18 @@ def require_roles(*allowed_roles: UserRole) -> Callable[[RequestContext], Reques
     return dependency
 
 
+def require_permission(permission) -> Callable[[RequestContext], RequestContext]:
+    def dependency(
+        context: Annotated[RequestContext, Depends(get_request_context)],
+    ) -> RequestContext:
+        from return_play.permissions import assert_permission
+
+        assert_permission(context, permission)
+        return context
+
+    return dependency
+
+
 def _context_from_authorization_header(authorization: str | None) -> RequestContext:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(

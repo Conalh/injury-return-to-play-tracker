@@ -45,6 +45,7 @@ from return_play.models import (
     SymptomLogCreate,
     WorkloadSessionCreate,
 )
+from return_play.permissions import Permission, assert_permission
 from return_play.readiness import build_readiness
 from return_play.repositories.demo import DemoSeedService
 from return_play.reports import build_case_report_pdf
@@ -55,6 +56,7 @@ class SqlAlchemyWorkflowRepository:
         self.session_factory = session_factory
 
     def create_athlete(self, payload: AthleteCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_ATHLETES)
         self._ensure_payload_organization(payload.organization_id, context)
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
@@ -71,6 +73,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_ATHLETES)
         self._ensure_requested_organization(organization_id, context)
         with self.session_factory() as session:
             athletes = session.scalars(
@@ -79,6 +82,7 @@ class SqlAlchemyWorkflowRepository:
             return {"items": [self._athlete_dict(athlete) for athlete in athletes]}
 
     def create_injury_case(self, payload: InjuryCaseCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         self._ensure_payload_organization(payload.organization_id, context)
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
@@ -101,6 +105,7 @@ class SqlAlchemyWorkflowRepository:
             return self._case_dict(injury_case)
 
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.READ_CLINICAL_CASES)
         with self.session_factory() as session:
             injury_case = self._get_case(session, case_id, context.organization_id)
             return self._case_detail(session, injury_case)
@@ -110,6 +115,7 @@ class SqlAlchemyWorkflowRepository:
         payload: ReturnPlanTemplateWithPhasesCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_TEMPLATES)
         self._ensure_payload_organization(payload.organization_id, context)
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
@@ -154,6 +160,7 @@ class SqlAlchemyWorkflowRepository:
         context: RequestContext,
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_TEMPLATES)
         self._ensure_requested_organization(organization_id, context)
         with self.session_factory() as session:
             templates = session.scalars(
@@ -169,6 +176,7 @@ class SqlAlchemyWorkflowRepository:
         payload: ApplyTemplateRequest,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             template = self._get_template(session, payload.template_id, context.organization_id)
@@ -200,6 +208,7 @@ class SqlAlchemyWorkflowRepository:
             }
 
     def list_case_phases(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_CLINICAL_CASES)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             return {"items": self._case_phases(session, case_id)}
@@ -211,6 +220,7 @@ class SqlAlchemyWorkflowRepository:
         payload: MilestoneResultUpdate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             milestone = session.get(Milestone, milestone_id)
@@ -253,6 +263,7 @@ class SqlAlchemyWorkflowRepository:
         payload: ClinicianNoteCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             self._ensure_user(session, payload.author_id, context)
@@ -272,6 +283,7 @@ class SqlAlchemyWorkflowRepository:
         payload: SymptomLogCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_EVIDENCE)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             athlete = session.get(Athlete, payload.athlete_id)
@@ -289,6 +301,7 @@ class SqlAlchemyWorkflowRepository:
             return self._symptom_dict(symptom_log)
 
     def list_symptom_logs(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_EVIDENCE)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             logs = session.scalars(
@@ -302,6 +315,7 @@ class SqlAlchemyWorkflowRepository:
         payload: FunctionalTestCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_EVIDENCE)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             self._ensure_user(session, payload.recorded_by, context)
@@ -318,6 +332,7 @@ class SqlAlchemyWorkflowRepository:
         case_id: str,
         context: RequestContext,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_EVIDENCE)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             tests = session.scalars(
@@ -331,6 +346,7 @@ class SqlAlchemyWorkflowRepository:
         payload: WorkloadSessionCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_EVIDENCE)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             workload_session = WorkloadSession(
@@ -346,6 +362,7 @@ class SqlAlchemyWorkflowRepository:
         case_id: str,
         context: RequestContext,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_EVIDENCE)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             sessions = session.scalars(
@@ -354,6 +371,7 @@ class SqlAlchemyWorkflowRepository:
             return {"items": [self._workload_dict(item) for item in sessions]}
 
     def get_readiness(self, case_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.READ_READINESS)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             current_phase = next(
@@ -398,6 +416,7 @@ class SqlAlchemyWorkflowRepository:
         payload: ClearanceDecisionCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.RECORD_CLEARANCE_DECISIONS)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             if payload.decided_by != context.actor_id:
@@ -433,6 +452,7 @@ class SqlAlchemyWorkflowRepository:
         payload: ShareTokenCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_SHARES)
         with self.session_factory() as session:
             self._validate_evidence_case(session, case_id, payload.injury_case_id, context)
             raw_token = token_urlsafe(24)
@@ -515,6 +535,7 @@ class SqlAlchemyWorkflowRepository:
         payload: ShareTokenRevoke,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_SHARES)
         with self.session_factory() as session:
             share = session.scalar(
                 select(ShareToken).where(ShareToken.token_hash == self._hash_token(token))
@@ -543,6 +564,7 @@ class SqlAlchemyWorkflowRepository:
             return self._share_dict(share)
 
     def build_report(self, case_id: str, context: RequestContext) -> bytes:
+        assert_permission(context, Permission.GENERATE_REPORTS)
         with self.session_factory() as session:
             injury_case = self._get_case(session, case_id, context.organization_id)
             athlete = session.get(Athlete, injury_case.athlete_id)
@@ -564,6 +586,7 @@ class SqlAlchemyWorkflowRepository:
             )
 
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_AUDIT_LOG)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             events = session.scalars(
@@ -572,6 +595,7 @@ class SqlAlchemyWorkflowRepository:
             return {"items": [self._audit_dict(event) for event in events]}
 
     def seed_demo(self, context: RequestContext) -> dict:
+        assert_permission(context, Permission.SEED_DEMO)
         return DemoSeedService(self).seed_demo(context)
 
     def find_demo_case(self, context: RequestContext) -> dict | None:

@@ -24,6 +24,7 @@ from return_play.models import (
     SymptomLogCreate,
     WorkloadSessionCreate,
 )
+from return_play.permissions import Permission, assert_permission
 from return_play.repositories.demo import DemoSeedService
 from return_play.reports import build_case_report_pdf
 from return_play.readiness import build_readiness
@@ -44,6 +45,7 @@ class InMemoryWorkflowRepository:
         self.audit_log_entries: dict[str, list[dict]] = {}
 
     def create_athlete(self, payload: AthleteCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_ATHLETES)
         self._ensure_payload_organization(payload.organization_id, context)
         athlete = payload.model_dump(mode="json")
         athlete["id"] = self._new_id("athlete")
@@ -55,6 +57,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_ATHLETES)
         self._ensure_requested_organization(organization_id, context)
         athletes = list(self.athletes.values())
         athletes = [
@@ -65,6 +68,7 @@ class InMemoryWorkflowRepository:
         return {"items": athletes}
 
     def create_injury_case(self, payload: InjuryCaseCreate, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         self._ensure_payload_organization(payload.organization_id, context)
         athlete = self.athletes.get(payload.athlete_id)
         if athlete is None or athlete["organization_id"] != context.organization_id:
@@ -82,6 +86,7 @@ class InMemoryWorkflowRepository:
         return injury_case
 
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.READ_CLINICAL_CASES)
         injury_case = self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id, [])
         current_phase = next(
@@ -104,6 +109,7 @@ class InMemoryWorkflowRepository:
         payload: ReturnPlanTemplateWithPhasesCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_TEMPLATES)
         self._ensure_payload_organization(payload.organization_id, context)
         template = payload.model_dump(mode="json", exclude={"phases"})
         template["id"] = self._new_id("template")
@@ -129,6 +135,7 @@ class InMemoryWorkflowRepository:
         context: RequestContext,
         organization_id: str | None = None,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_TEMPLATES)
         self._ensure_requested_organization(organization_id, context)
         templates = list(self.templates.values())
         templates = [
@@ -144,6 +151,7 @@ class InMemoryWorkflowRepository:
         payload: ApplyTemplateRequest,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         self._get_case(case_id, context.organization_id)
         template = self._get_template(payload.template_id, context.organization_id)
         phases: list[dict] = []
@@ -191,6 +199,7 @@ class InMemoryWorkflowRepository:
         }
 
     def list_case_phases(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_CLINICAL_CASES)
         self._get_case(case_id, context.organization_id)
         return {"items": self.case_plans.get(case_id, [])}
 
@@ -201,6 +210,7 @@ class InMemoryWorkflowRepository:
         payload: MilestoneResultUpdate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id)
         if phases is None:
@@ -230,6 +240,7 @@ class InMemoryWorkflowRepository:
         payload: ClinicianNoteCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_CLINICAL_CASES)
         self._get_case(case_id, context.organization_id)
         note = payload.model_dump(mode="json")
         note["id"] = self._new_id("note")
@@ -244,6 +255,7 @@ class InMemoryWorkflowRepository:
         payload: SymptomLogCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_EVIDENCE)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         athlete = self.athletes.get(payload.athlete_id)
         if athlete is None or athlete["organization_id"] != context.organization_id:
@@ -258,6 +270,7 @@ class InMemoryWorkflowRepository:
         return symptom_log
 
     def list_symptom_logs(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_EVIDENCE)
         self._get_case(case_id, context.organization_id)
         return {"items": self.symptom_logs.get(case_id, [])}
 
@@ -267,6 +280,7 @@ class InMemoryWorkflowRepository:
         payload: FunctionalTestCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_EVIDENCE)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         functional_test = payload.model_dump(mode="json")
         functional_test["id"] = self._new_id("functional_test")
@@ -279,6 +293,7 @@ class InMemoryWorkflowRepository:
         case_id: str,
         context: RequestContext,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_EVIDENCE)
         self._get_case(case_id, context.organization_id)
         return {"items": self.functional_tests.get(case_id, [])}
 
@@ -288,6 +303,7 @@ class InMemoryWorkflowRepository:
         payload: WorkloadSessionCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_EVIDENCE)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         workload_session = payload.model_dump(mode="json")
         workload_session["id"] = self._new_id("workload")
@@ -300,10 +316,12 @@ class InMemoryWorkflowRepository:
         case_id: str,
         context: RequestContext,
     ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_EVIDENCE)
         self._get_case(case_id, context.organization_id)
         return {"items": self.workload_sessions.get(case_id, [])}
 
     def get_readiness(self, case_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.READ_READINESS)
         self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id, [])
         current_phase = next(
@@ -324,6 +342,7 @@ class InMemoryWorkflowRepository:
         payload: ClearanceDecisionCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.RECORD_CLEARANCE_DECISIONS)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         if payload.decided_by != context.actor_id:
             raise HTTPException(
@@ -353,6 +372,7 @@ class InMemoryWorkflowRepository:
         payload: ShareTokenCreate,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_SHARES)
         self._validate_evidence_case(case_id, payload.injury_case_id, context)
         raw_token = token_urlsafe(24)
         token_hash = self._hash_token(raw_token)
@@ -418,6 +438,7 @@ class InMemoryWorkflowRepository:
         payload: ShareTokenRevoke,
         context: RequestContext,
     ) -> dict:
+        assert_permission(context, Permission.MANAGE_SHARES)
         share = self._get_share_by_token(token)
         self._get_case(share["injury_case_id"], context.organization_id)
         if payload.revoked_by != context.actor_id:
@@ -436,6 +457,7 @@ class InMemoryWorkflowRepository:
         return share
 
     def build_report(self, case_id: str, context: RequestContext) -> bytes:
+        assert_permission(context, Permission.GENERATE_REPORTS)
         injury_case = self._get_case(case_id, context.organization_id)
         athlete = self.athletes[injury_case["athlete_id"]]
         readiness = self.get_readiness(case_id, context)
@@ -454,10 +476,12 @@ class InMemoryWorkflowRepository:
         )
 
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_AUDIT_LOG)
         self._get_case(case_id, context.organization_id)
         return {"items": self.audit_log_entries.get(case_id, [])}
 
     def seed_demo(self, context: RequestContext) -> dict:
+        assert_permission(context, Permission.SEED_DEMO)
         return DemoSeedService(self).seed_demo(context)
 
     def find_demo_case(self, context: RequestContext) -> dict | None:

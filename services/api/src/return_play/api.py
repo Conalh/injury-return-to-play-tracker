@@ -8,7 +8,7 @@ from return_play.auth import (
     authenticate_local_login,
     create_auth_token,
     get_request_context,
-    require_roles,
+    require_permission,
 )
 from return_play.db import create_session_factory
 from return_play.models import (
@@ -24,24 +24,54 @@ from return_play.models import (
     ShareTokenCreate,
     ShareTokenRevoke,
     SymptomLogCreate,
-    UserRole,
     WorkloadSessionCreate,
 )
+from return_play.permissions import Permission
 from return_play.repositories import InMemoryWorkflowRepository, SqlAlchemyWorkflowRepository
 
 
 AuthenticatedContext = Annotated[RequestContext, Depends(get_request_context)]
-
-
-ClinicalContext = Annotated[
-    RequestContext,
-    Depends(
-        require_roles(
-            UserRole.CLINICIAN,
-            UserRole.ATHLETIC_TRAINER,
-            UserRole.ADMIN,
-        )
-    ),
+ReadAthletesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_ATHLETES))
+]
+ManageAthletesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_ATHLETES))
+]
+ReadClinicalCasesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_CLINICAL_CASES))
+]
+ManageClinicalCasesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_CLINICAL_CASES))
+]
+ReadTemplatesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_TEMPLATES))
+]
+ManageTemplatesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_TEMPLATES))
+]
+ReadEvidenceContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_EVIDENCE))
+]
+ManageEvidenceContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_EVIDENCE))
+]
+ReadReadinessContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_READINESS))
+]
+RecordClearanceContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.RECORD_CLEARANCE_DECISIONS))
+]
+ManageSharesContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.MANAGE_SHARES))
+]
+GenerateReportsContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.GENERATE_REPORTS))
+]
+ReadAuditLogContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.READ_AUDIT_LOG))
+]
+SeedDemoContext = Annotated[
+    RequestContext, Depends(require_permission(Permission.SEED_DEMO))
 ]
 
 
@@ -84,33 +114,37 @@ def create_app(repository=None) -> FastAPI:
 
     @api_router.get("/athletes")
     def list_athletes(
-        context: ClinicalContext,
+        context: ReadAthletesContext,
         organization_id: str | None = Query(default=None),
     ) -> dict[str, list[dict]]:
         return repository.list_athletes(context, organization_id)
 
     @api_router.post("/athletes", status_code=status.HTTP_201_CREATED)
-    def create_athlete(payload: AthleteCreate, context: ClinicalContext) -> dict:
+    def create_athlete(payload: AthleteCreate, context: ManageAthletesContext) -> dict:
         return repository.create_athlete(payload, context)
 
     @api_router.post("/injury-cases", status_code=status.HTTP_201_CREATED)
-    def create_injury_case(payload: InjuryCaseCreate, context: ClinicalContext) -> dict:
+    def create_injury_case(
+        payload: InjuryCaseCreate, context: ManageClinicalCasesContext
+    ) -> dict:
         return repository.create_injury_case(payload, context)
 
     @api_router.get("/injury-cases/{case_id}")
-    def get_injury_case(case_id: str, context: ClinicalContext) -> dict:
+    def get_injury_case(case_id: str, context: ReadClinicalCasesContext) -> dict:
         return repository.get_injury_case_detail(case_id, context)
 
     @api_router.post("/injury-cases/{case_id}/apply-template")
     def apply_template(
         case_id: str,
         payload: ApplyTemplateRequest,
-        context: ClinicalContext,
+        context: ManageClinicalCasesContext,
     ) -> dict:
         return repository.apply_template(case_id, payload, context)
 
     @api_router.get("/injury-cases/{case_id}/phases")
-    def list_case_phases(case_id: str, context: ClinicalContext) -> dict[str, list[dict]]:
+    def list_case_phases(
+        case_id: str, context: ReadClinicalCasesContext
+    ) -> dict[str, list[dict]]:
         return repository.list_case_phases(case_id, context)
 
     @api_router.patch("/injury-cases/{case_id}/milestones/{milestone_id}")
@@ -118,7 +152,7 @@ def create_app(repository=None) -> FastAPI:
         case_id: str,
         milestone_id: str,
         payload: MilestoneResultUpdate,
-        context: ClinicalContext,
+        context: ManageClinicalCasesContext,
     ) -> dict:
         return repository.update_milestone(case_id, milestone_id, payload, context)
 
@@ -129,7 +163,7 @@ def create_app(repository=None) -> FastAPI:
     def create_note(
         case_id: str,
         payload: ClinicianNoteCreate,
-        context: ClinicalContext,
+        context: ManageClinicalCasesContext,
     ) -> dict:
         return repository.create_note(case_id, payload, context)
 
@@ -140,12 +174,14 @@ def create_app(repository=None) -> FastAPI:
     def create_symptom_log(
         case_id: str,
         payload: SymptomLogCreate,
-        context: ClinicalContext,
+        context: ManageEvidenceContext,
     ) -> dict:
         return repository.create_symptom_log(case_id, payload, context)
 
     @api_router.get("/injury-cases/{case_id}/symptoms")
-    def list_symptom_logs(case_id: str, context: ClinicalContext) -> dict[str, list[dict]]:
+    def list_symptom_logs(
+        case_id: str, context: ReadEvidenceContext
+    ) -> dict[str, list[dict]]:
         return repository.list_symptom_logs(case_id, context)
 
     @api_router.post(
@@ -155,14 +191,14 @@ def create_app(repository=None) -> FastAPI:
     def create_functional_test(
         case_id: str,
         payload: FunctionalTestCreate,
-        context: ClinicalContext,
+        context: ManageEvidenceContext,
     ) -> dict:
         return repository.create_functional_test(case_id, payload, context)
 
     @api_router.get("/injury-cases/{case_id}/functional-tests")
     def list_functional_tests(
         case_id: str,
-        context: ClinicalContext,
+        context: ReadEvidenceContext,
     ) -> dict[str, list[dict]]:
         return repository.list_functional_tests(case_id, context)
 
@@ -173,19 +209,19 @@ def create_app(repository=None) -> FastAPI:
     def create_workload_session(
         case_id: str,
         payload: WorkloadSessionCreate,
-        context: ClinicalContext,
+        context: ManageEvidenceContext,
     ) -> dict:
         return repository.create_workload_session(case_id, payload, context)
 
     @api_router.get("/injury-cases/{case_id}/workload-sessions")
     def list_workload_sessions(
         case_id: str,
-        context: ClinicalContext,
+        context: ReadEvidenceContext,
     ) -> dict[str, list[dict]]:
         return repository.list_workload_sessions(case_id, context)
 
     @api_router.get("/injury-cases/{case_id}/readiness")
-    def get_readiness(case_id: str, context: ClinicalContext) -> dict:
+    def get_readiness(case_id: str, context: ReadReadinessContext) -> dict:
         return repository.get_readiness(case_id, context)
 
     @api_router.post(
@@ -195,23 +231,30 @@ def create_app(repository=None) -> FastAPI:
     def create_clearance_decision(
         case_id: str,
         payload: ClearanceDecisionCreate,
-        context: ClinicalContext,
+        context: RecordClearanceContext,
     ) -> dict:
         return repository.create_clearance_decision(case_id, payload, context)
 
     @api_router.post("/injury-cases/{case_id}/share", status_code=status.HTTP_201_CREATED)
-    def create_share(case_id: str, payload: ShareTokenCreate, context: ClinicalContext) -> dict:
+    def create_share(
+        case_id: str,
+        payload: ShareTokenCreate,
+        context: ManageSharesContext,
+    ) -> dict:
         return repository.create_share(case_id, payload, context)
 
     @api_router.get("/injury-cases/{case_id}/report")
-    def get_report(case_id: str, context: ClinicalContext) -> Response:
+    def get_report(case_id: str, context: GenerateReportsContext) -> Response:
         return Response(
             content=repository.build_report(case_id, context),
             media_type="application/pdf",
         )
 
     @api_router.get("/injury-cases/{case_id}/audit-log")
-    def get_audit_log(case_id: str, context: ClinicalContext) -> dict[str, list[dict]]:
+    def get_audit_log(
+        case_id: str,
+        context: ReadAuditLogContext,
+    ) -> dict[str, list[dict]]:
         return repository.get_audit_log(case_id, context)
 
     @api_router.get("/share/{token}")
@@ -219,19 +262,23 @@ def create_app(repository=None) -> FastAPI:
         return repository.get_share(token)
 
     @api_router.post("/demo/seed", status_code=status.HTTP_201_CREATED)
-    def seed_demo(context: ClinicalContext, response: Response) -> dict:
+    def seed_demo(context: SeedDemoContext, response: Response) -> dict:
         demo = repository.seed_demo(context)
         if demo["already_seeded"]:
             response.status_code = status.HTTP_200_OK
         return demo
 
     @api_router.post("/share/{token}/revoke")
-    def revoke_share(token: str, payload: ShareTokenRevoke, context: ClinicalContext) -> dict:
+    def revoke_share(
+        token: str,
+        payload: ShareTokenRevoke,
+        context: ManageSharesContext,
+    ) -> dict:
         return repository.revoke_share(token, payload, context)
 
     @api_router.get("/templates")
     def list_templates(
-        context: ClinicalContext,
+        context: ReadTemplatesContext,
         organization_id: str | None = Query(default=None),
     ) -> dict[str, list[dict]]:
         return repository.list_templates(context, organization_id)
@@ -239,7 +286,7 @@ def create_app(repository=None) -> FastAPI:
     @api_router.post("/templates", status_code=status.HTTP_201_CREATED)
     def create_template(
         payload: ReturnPlanTemplateWithPhasesCreate,
-        context: ClinicalContext,
+        context: ManageTemplatesContext,
     ) -> dict:
         return repository.create_template(payload, context)
 

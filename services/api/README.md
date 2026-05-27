@@ -120,6 +120,17 @@ The `dev_headers` mode is still a local development contract for tests and
 manual API work. Production deployments should use token mode or a future OIDC
 provider adapter, never trusted request headers.
 
+Goal 13 formalizes authorization:
+
+- `return_play.permissions` defines named permissions and the role matrix.
+- API routes depend on `require_permission(...)` instead of broad clinical role
+  lists.
+- Concrete repositories call `assert_permission(...)` at public workflow entry
+  points, so direct service calls cannot bypass route-level checks.
+- Coaches, athletes, and guardians retain only shared-status permission until
+  their portal surfaces exist.
+- `docs/product/permission-matrix.md` is the human-readable matrix.
+
 ## Local Setup
 
 ```powershell

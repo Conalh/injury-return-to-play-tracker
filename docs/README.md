@@ -11,4 +11,5 @@
 - `product/product-spec.md`: safety-first V1 product specification.
 - `product/safety-and-compliance-notes.md`: source-backed safety, privacy, and
   compliance notes that shape implementation.
-
+- `product/permission-matrix.md`: current role-to-permission matrix and
+  enforcement points.

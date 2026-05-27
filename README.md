@@ -40,6 +40,8 @@ Live in the repo:
   logs, and demo seeding.
 - Authentication foundation with explicit local-header mode, HMAC bearer-token
   mode, `/api/me`, local login/logout session endpoints, and token-mode tests.
+- Central role-to-permission matrix with route dependencies and repository
+  service guards for protected workflow actions.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -204,6 +206,8 @@ dashboard and limited share page.
   product specification.
 - [docs/product/safety-and-compliance-notes.md](docs/product/safety-and-compliance-notes.md):
   safety, privacy, and compliance notes.
+- [docs/product/permission-matrix.md](docs/product/permission-matrix.md):
+  current role-to-permission matrix and enforcement points.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

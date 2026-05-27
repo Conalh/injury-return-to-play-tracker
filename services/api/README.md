@@ -75,11 +75,21 @@ Goal 9 adds demo seeding and complete workflow validation:
 - The endpoint is intended for local/demo validation only and uses the
   in-memory repository.
 
-The runtime repository is currently in-memory. SQLAlchemy metadata and Alembic
-migrations are kept aligned with the workflow concepts, but request handlers do
-not yet persist to Postgres. The Goal 8 request context is a local development
-contract for tests and future integration; production identity, sessions, and
-token verification remain deferred.
+Goal 10 adds the first persistent repository path:
+
+- `RETURN_PLAY_DATABASE_URL` switches the runtime app from the in-memory
+  repository to a SQLAlchemy-backed repository.
+- The persistent repository supports the current workflow surface, including
+  demo seed, roster, case detail, evidence, readiness, sharing, reports, and
+  audit events.
+- Runtime share and clearance columns are represented in SQLAlchemy metadata
+  and Alembic migration `0004_goal_10`.
+- In-memory remains the default when `RETURN_PLAY_DATABASE_URL` is not set, so
+  local unit-style tests and demos can run without a database.
+
+The Goal 8 request context is still a local development contract for tests and
+future integration; production identity, sessions, and token verification remain
+deferred.
 
 ## Local Setup
 
@@ -119,4 +129,10 @@ The default `alembic.ini` URL points to local Postgres:
 
 ```text
 postgresql://postgres:postgres@localhost:5432/return_play
+```
+
+The API runtime uses this environment variable for the persistent repository:
+
+```text
+RETURN_PLAY_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/return_play
 ```

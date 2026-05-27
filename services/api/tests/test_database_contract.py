@@ -34,3 +34,19 @@ def test_tenant_scoped_tables_include_organization_id() -> None:
 
     for table_name in tenant_tables:
         assert "organization_id" in Base.metadata.tables[table_name].columns
+
+
+def test_goal_10_metadata_contains_runtime_persistence_columns() -> None:
+    share_columns = Base.metadata.tables["share_tokens"].columns
+    clearance_columns = Base.metadata.tables["clearance_decisions"].columns
+
+    for column_name in [
+        "created_at",
+        "allowed_activities",
+        "restricted_activities",
+        "clinician_note",
+        "next_review_date",
+    ]:
+        assert column_name in share_columns
+
+    assert "decided_by_role" in clearance_columns

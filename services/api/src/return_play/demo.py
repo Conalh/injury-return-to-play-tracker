@@ -17,10 +17,9 @@ from return_play.models import (
 
 
 def seed_demo_workflow(repository, context: RequestContext) -> dict:
-    existing_demo = _find_demo_case(repository, context)
+    existing_demo = repository.find_demo_case(context)
     if existing_demo is not None:
-        return _demo_seed_response(
-            repository,
+        return repository.demo_seed_response(
             existing_demo,
             context,
             already_seeded=True,
@@ -216,52 +215,4 @@ def seed_demo_workflow(repository, context: RequestContext) -> dict:
         "can_auto_clear": readiness["can_auto_clear"],
         "readiness_signal_count": len(readiness["signals"]),
         "already_seeded": False,
-    }
-
-
-def _find_demo_case(repository, context: RequestContext) -> dict | None:
-    for injury_case in repository.injury_cases.values():
-        if (
-            injury_case["organization_id"] == context.organization_id
-            and injury_case["title"] == "Left ankle sprain"
-            and repository.athletes[injury_case["athlete_id"]]["name"] == "Riley Chen"
-        ):
-            return injury_case
-    return None
-
-
-def _demo_seed_response(
-    repository,
-    injury_case: dict,
-    context: RequestContext,
-    *,
-    already_seeded: bool,
-) -> dict:
-    athlete = repository.athletes[injury_case["athlete_id"]]
-    phases = repository.case_plans.get(injury_case["id"], [])
-    current_phase = next(
-        (phase for phase in phases if phase["status"] == "current"),
-        None,
-    )
-    share = next(
-        (
-            share_token
-            for share_token in repository.share_tokens.values()
-            if share_token["injury_case_id"] == injury_case["id"]
-            and share_token["audience"] == "coach"
-            and share_token["revoked_at"] is None
-        ),
-        None,
-    )
-    readiness = repository.get_readiness(injury_case["id"], context)
-
-    return {
-        "athlete_id": athlete["id"],
-        "athlete_name": athlete["name"],
-        "injury_case_id": injury_case["id"],
-        "current_phase": current_phase["name"] if current_phase else None,
-        "share_token": share["token"] if share else None,
-        "can_auto_clear": readiness["can_auto_clear"],
-        "readiness_signal_count": len(readiness["signals"]),
-        "already_seeded": already_seeded,
     }

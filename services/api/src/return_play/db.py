@@ -1,12 +1,25 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, JSON, String, Text, create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 
 class Base(DeclarativeBase):
     pass
+
+
+def create_engine_for_url(database_url: str) -> Engine:
+    connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
+    return create_engine(database_url, connect_args=connect_args)
+
+
+def create_session_factory(database_url: str) -> sessionmaker:
+    return sessionmaker(
+        bind=create_engine_for_url(database_url),
+        expire_on_commit=False,
+    )
 
 
 class IdMixin:
@@ -164,9 +177,9 @@ class FunctionalTest(IdMixin, Base):
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     test_date: Mapped[Any] = mapped_column(Date, nullable=False)
-    result_value: Mapped[float | None] = mapped_column()
+    result_value: Mapped[float | None] = mapped_column(Float)
     unit: Mapped[str | None] = mapped_column(String(64))
-    side_to_side_difference_percent: Mapped[float | None] = mapped_column()
+    side_to_side_difference_percent: Mapped[float | None] = mapped_column(Float)
     passed: Mapped[bool] = mapped_column(Boolean, nullable=False)
     recorded_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text)
@@ -198,6 +211,7 @@ class ClearanceDecisionRecord(IdMixin, Base):
     )
     decision: Mapped[str] = mapped_column(String(32), nullable=False)
     decided_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    decided_by_role: Mapped[str] = mapped_column(String(64), nullable=False)
     decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     rationale: Mapped[str] = mapped_column(Text, nullable=False)
     restrictions: Mapped[str | None] = mapped_column(Text)
@@ -234,5 +248,10 @@ class ShareToken(IdMixin, Base):
     )
     audience: Mapped[str] = mapped_column(String(32), nullable=False)
     token_hash: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    allowed_activities: Mapped[str] = mapped_column(Text, nullable=False)
+    restricted_activities: Mapped[str] = mapped_column(Text, nullable=False)
+    clinician_note: Mapped[str] = mapped_column(Text, nullable=False)
+    next_review_date: Mapped[Any | None] = mapped_column(Date)

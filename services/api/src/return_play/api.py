@@ -1,8 +1,10 @@
+import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, FastAPI, Query, Response, status
 
 from return_play.auth import RequestContext, require_roles
+from return_play.db import create_session_factory
 from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
@@ -19,6 +21,7 @@ from return_play.models import (
     WorkloadSessionCreate,
 )
 from return_play.repository import InMemoryWorkflowRepository
+from return_play.sql_repository import SqlAlchemyWorkflowRepository
 
 
 ClinicalContext = Annotated[
@@ -33,8 +36,8 @@ ClinicalContext = Annotated[
 ]
 
 
-def create_app() -> FastAPI:
-    repository = InMemoryWorkflowRepository()
+def create_app(repository=None) -> FastAPI:
+    repository = repository or InMemoryWorkflowRepository()
     app = FastAPI(
         title="Injury Return-To-Play Tracker API",
         version="0.1.0",
@@ -215,4 +218,15 @@ def create_app() -> FastAPI:
     return app
 
 
-app = create_app()
+def create_persistent_app(database_url: str) -> FastAPI:
+    return create_app(SqlAlchemyWorkflowRepository(create_session_factory(database_url)))
+
+
+def create_runtime_app() -> FastAPI:
+    database_url = os.getenv("RETURN_PLAY_DATABASE_URL")
+    if database_url:
+        return create_persistent_app(database_url)
+    return create_app()
+
+
+app = create_runtime_app()

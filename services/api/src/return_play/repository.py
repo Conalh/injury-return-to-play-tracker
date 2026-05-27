@@ -460,6 +460,52 @@ class InMemoryWorkflowRepository:
     def seed_demo(self, context: RequestContext) -> dict:
         return seed_demo_workflow(self, context)
 
+    def find_demo_case(self, context: RequestContext) -> dict | None:
+        for injury_case in self.injury_cases.values():
+            if (
+                injury_case["organization_id"] == context.organization_id
+                and injury_case["title"] == "Left ankle sprain"
+                and self.athletes[injury_case["athlete_id"]]["name"] == "Riley Chen"
+            ):
+                return injury_case
+        return None
+
+    def demo_seed_response(
+        self,
+        injury_case: dict,
+        context: RequestContext,
+        *,
+        already_seeded: bool,
+    ) -> dict:
+        athlete = self.athletes[injury_case["athlete_id"]]
+        phases = self.case_plans.get(injury_case["id"], [])
+        current_phase = next(
+            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            None,
+        )
+        share = next(
+            (
+                share_token
+                for share_token in self.share_tokens.values()
+                if share_token["injury_case_id"] == injury_case["id"]
+                and share_token["audience"] == "coach"
+                and share_token["revoked_at"] is None
+            ),
+            None,
+        )
+        readiness = self.get_readiness(injury_case["id"], context)
+
+        return {
+            "athlete_id": athlete["id"],
+            "athlete_name": athlete["name"],
+            "injury_case_id": injury_case["id"],
+            "current_phase": current_phase["name"] if current_phase else None,
+            "share_token": share["token"] if share else None,
+            "can_auto_clear": readiness["can_auto_clear"],
+            "readiness_signal_count": len(readiness["signals"]),
+            "already_seeded": already_seeded,
+        }
+
     def _get_case(self, case_id: str, organization_id: str | None = None) -> dict:
         try:
             injury_case = self.injury_cases[case_id]

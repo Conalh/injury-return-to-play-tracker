@@ -87,10 +87,32 @@ textarea {
 }
 
 .rp-shell {
+  position: relative;
   display: grid;
   grid-template-columns: var(--rp-sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
   background: var(--rp-bg-app);
+}
+
+.rp-skip-link {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 50;
+  transform: translateY(-140%);
+  border: 2px solid var(--rp-accent);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-surface);
+  color: var(--rp-text-1);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px 12px;
+  box-shadow: var(--rp-shadow-2);
+}
+
+.rp-skip-link:focus {
+  transform: translateY(0);
+  outline: none;
 }
 
 .rp-sidebar {
@@ -317,6 +339,10 @@ textarea {
 
 .rp-content {
   min-width: 0;
+}
+
+.rp-content:focus {
+  outline: none;
 }
 
 .rp-card {

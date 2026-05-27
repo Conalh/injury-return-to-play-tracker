@@ -37,6 +37,9 @@ const navSections = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="rp-shell">
+      <a className="rp-skip-link" href="#clinical-workspace">
+        Skip to clinical workspace
+      </a>
       <aside className="rp-sidebar">
         <Link aria-label="Stagewise dashboard" className="rp-brand" href="/">
           <span className="rp-brand-mark">S</span>
@@ -85,7 +88,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="rp-role-chip">Physician</div>
           </div>
         </header>
-        <div className="rp-content">{children}</div>
+        <div className="rp-content" id="clinical-workspace" tabIndex={-1}>
+          {children}
+        </div>
       </div>
     </div>
   );

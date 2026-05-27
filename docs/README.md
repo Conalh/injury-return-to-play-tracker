@@ -19,6 +19,8 @@
   size limits, dependency scan, and secret scan baseline.
 - `product/legal-compliance-review-package.md`: data flow map, access matrix,
   controls summary, HIPAA/FTC review notes, policy inputs, and BAA checklist.
+- `product/usability-review.md`: Goal 35 copy, state, mobile, accessibility,
+  workflow timing, and beta polish review.
 
 ## Operations
 

@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 34 of the
+The project is a local production-path build, currently through Goal 35 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -93,6 +93,9 @@ Live in the repo:
 - Legal and compliance review package with a data flow map, user role/data
   access matrix, security controls summary, HIPAA/FTC review notes, terms and
   privacy-policy inputs, and BAA decision checklist.
+- Product polish and usability review covering non-diagnostic copy, empty/error
+  states, mobile layout, keyboard accessibility, clinician workflow timing, and
+  beta polish backlog.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -283,6 +286,9 @@ share page.
 - [docs/product/legal-compliance-review-package.md](docs/product/legal-compliance-review-package.md):
   data flow map, access matrix, controls summary, HIPAA/FTC review notes,
   policy inputs, and BAA checklist.
+- [docs/product/usability-review.md](docs/product/usability-review.md):
+  copy, empty/error state, mobile, accessibility, workflow timing, and beta
+  polish review.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
 - [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):

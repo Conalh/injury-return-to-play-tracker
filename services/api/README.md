@@ -196,6 +196,16 @@ Goal 20 uses the existing sharing API from the clinician UI:
   audit trail.
 - Revoked tokens continue to return unavailable shared-view responses.
 
+Goal 21 adds athlete symptom check-ins through limited share tokens:
+
+- `POST /api/share/{token}/symptoms` accepts symptom check-ins for athlete
+  audience share tokens.
+- The endpoint derives injury case and athlete IDs from the token instead of
+  accepting clinician-scoped identifiers from the browser.
+- Coach and guardian shares cannot submit athlete symptoms.
+- Accepted check-ins write `athlete_symptom_check_in` audit events and appear in
+  clinician case detail symptom logs.
+
 ## Local Setup
 
 ```powershell

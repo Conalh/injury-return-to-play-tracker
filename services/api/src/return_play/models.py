@@ -179,6 +179,14 @@ class SymptomLogCreate(ApiSchema):
     notes: str | None = None
 
 
+class AthleteSymptomCheckIn(ApiSchema):
+    date: date
+    pain: int = Field(ge=0, le=10)
+    swelling: SwellingLevel
+    confidence: int = Field(ge=1, le=5)
+    notes: str | None = None
+
+
 class FunctionalTestCreate(ApiSchema):
     injury_case_id: str = Field(min_length=1)
     name: str = Field(min_length=1)

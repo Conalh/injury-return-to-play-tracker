@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 from return_play.auth import RequestContext
 from return_play.models import (
     ApplyTemplateRequest,
+    AthleteSymptomCheckIn,
     AthleteCreate,
     AthleteUpdate,
     ClearanceDecision,
@@ -23,6 +24,7 @@ from return_play.models import (
     OrganizationCreate,
     PhaseStatus,
     ReturnPlanTemplateWithPhasesCreate,
+    ShareAudience,
     ShareTokenCreate,
     ShareTokenRevoke,
     SymptomLogCreate,
@@ -578,17 +580,7 @@ class InMemoryWorkflowRepository:
         return share
 
     def get_share(self, token: str) -> dict:
-        share = self._get_share_by_token(token)
-        if share["revoked_at"] is not None:
-            raise HTTPException(
-                status_code=status.HTTP_410_GONE,
-                detail="Share token has been revoked.",
-            )
-        if datetime.fromisoformat(share["expires_at"]) <= datetime.now(UTC):
-            raise HTTPException(
-                status_code=status.HTTP_410_GONE,
-                detail="Share token has expired.",
-            )
+        share = self._get_active_share_by_token(token)
 
         injury_case = self._get_case(share["injury_case_id"])
         athlete = self.athletes[injury_case["athlete_id"]]
@@ -613,6 +605,34 @@ class InMemoryWorkflowRepository:
             ),
             "clinician_note": share["clinician_note"],
         }
+
+    def create_athlete_symptom_check_in(
+        self,
+        token: str,
+        payload: AthleteSymptomCheckIn,
+    ) -> dict:
+        share = self._get_active_share_by_token(token)
+        if share["audience"] != ShareAudience.ATHLETE.value:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Symptom check-ins require an athlete share.",
+            )
+        injury_case = self._get_case(share["injury_case_id"])
+        symptom_log = {
+            **payload.model_dump(mode="json"),
+            "id": self._new_id("symptom"),
+            "injury_case_id": injury_case["id"],
+            "athlete_id": injury_case["athlete_id"],
+            "recorded_at": self._now(),
+        }
+        self.symptom_logs.setdefault(injury_case["id"], []).append(symptom_log)
+        self._record_audit_event(
+            injury_case["id"],
+            "athlete_symptom_check_in",
+            injury_case["athlete_id"],
+            {"symptom_log_id": symptom_log["id"], "share_id": share["id"]},
+        )
+        return symptom_log
 
     def revoke_share(
         self,
@@ -901,6 +921,20 @@ class InMemoryWorkflowRepository:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Share token not found.",
             ) from exc
+
+    def _get_active_share_by_token(self, token: str) -> dict:
+        share = self._get_share_by_token(token)
+        if share["revoked_at"] is not None:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share token has been revoked.",
+            )
+        if datetime.fromisoformat(share["expires_at"]) <= datetime.now(UTC):
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share token has expired.",
+            )
+        return share
 
     def _record_audit_event(
         self,

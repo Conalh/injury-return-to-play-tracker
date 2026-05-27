@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from return_play.auth import RequestContext
-from return_play.models import ShareTokenCreate, ShareTokenRevoke
+from return_play.models import AthleteSymptomCheckIn, ShareTokenCreate, ShareTokenRevoke
 
 
 class SharingReportingAuditRepositoryBoundary(Protocol):
@@ -16,6 +16,13 @@ class SharingReportingAuditRepositoryBoundary(Protocol):
         ...
 
     def get_share(self, token: str) -> dict:
+        ...
+
+    def create_athlete_symptom_check_in(
+        self,
+        token: str,
+        payload: AthleteSymptomCheckIn,
+    ) -> dict:
         ...
 
     def revoke_share(

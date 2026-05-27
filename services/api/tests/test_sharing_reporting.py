@@ -79,6 +79,37 @@ def test_share_token_can_be_revoked() -> None:
     ]
 
 
+def test_athlete_share_token_can_submit_symptom_check_in() -> None:
+    client = create_client()
+    injury_case = _create_case(client)
+    share = _create_share(client, injury_case["id"], audience="athlete")
+
+    response = client.post(
+        f"/api/share/{share['token']}/symptoms",
+        json={
+            "date": "2026-05-27",
+            "pain": 3,
+            "swelling": "mild",
+            "confidence": 4,
+            "notes": "Felt steady after assigned rehab.",
+        },
+    )
+
+    assert response.status_code == 201
+    symptom = response.json()
+    assert symptom["injury_case_id"] == injury_case["id"]
+    assert symptom["pain"] == 3
+    assert symptom["notes"] == "Felt steady after assigned rehab."
+
+    case_response = client.get(f"/api/injury-cases/{injury_case['id']}")
+    assert case_response.status_code == 200
+    assert case_response.json()["symptom_logs"][-1]["id"] == symptom["id"]
+
+    audit_response = client.get(f"/api/injury-cases/{injury_case['id']}/audit-log")
+    assert audit_response.status_code == 200
+    assert audit_response.json()["items"][-1]["event_type"] == "athlete_symptom_check_in"
+
+
 def test_pdf_report_endpoint_returns_pdf_and_records_audit_event() -> None:
     client = create_client()
     injury_case = _create_case(client)
@@ -125,12 +156,12 @@ def _create_case(client: TestClient) -> dict:
     return case_response.json()
 
 
-def _create_share(client: TestClient, case_id: str) -> dict:
+def _create_share(client: TestClient, case_id: str, audience: str = "guardian") -> dict:
     share_response = client.post(
         f"/api/injury-cases/{case_id}/share",
         json={
             "injury_case_id": case_id,
-            "audience": "guardian",
+            "audience": audience,
             "expires_in_days": 7,
             "created_by": "clinician_demo",
             "allowed_activities": "Rehab work only.",

@@ -32,6 +32,7 @@ from return_play.db import (
 )
 from return_play.models import (
     ApplyTemplateRequest,
+    AthleteSymptomCheckIn,
     AthleteCreate,
     AthleteUpdate,
     ClearanceDecision,
@@ -45,6 +46,7 @@ from return_play.models import (
     OrganizationCreate,
     PhaseStatus,
     ReturnPlanTemplateWithPhasesCreate,
+    ShareAudience,
     ShareTokenCreate,
     ShareTokenRevoke,
     SymptomLogCreate,
@@ -700,24 +702,7 @@ class SqlAlchemyWorkflowRepository:
 
     def get_share(self, token: str) -> dict:
         with self.session_factory() as session:
-            share = session.scalar(
-                select(ShareToken).where(ShareToken.token_hash == self._hash_token(token))
-            )
-            if share is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Share token not found.",
-                )
-            if share.revoked_at is not None:
-                raise HTTPException(
-                    status_code=status.HTTP_410_GONE,
-                    detail="Share token has been revoked.",
-                )
-            if share.expires_at <= self._now():
-                raise HTTPException(
-                    status_code=status.HTTP_410_GONE,
-                    detail="Share token has expired.",
-                )
+            share = self._get_active_share_by_token(session, token)
             injury_case = session.get(InjuryCase, share.injury_case_id)
             athlete = session.get(Athlete, injury_case.athlete_id)
             current_phase = next(
@@ -744,6 +729,38 @@ class SqlAlchemyWorkflowRepository:
                 ),
                 "clinician_note": share.clinician_note,
             }
+
+    def create_athlete_symptom_check_in(
+        self,
+        token: str,
+        payload: AthleteSymptomCheckIn,
+    ) -> dict:
+        with self.session_factory() as session:
+            share = self._get_active_share_by_token(session, token)
+            if share.audience != ShareAudience.ATHLETE.value:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Symptom check-ins require an athlete share.",
+                )
+            injury_case = session.get(InjuryCase, share.injury_case_id)
+            symptom_log = SymptomLog(
+                id=self._new_id("symptom"),
+                recorded_at=self._now(),
+                injury_case_id=injury_case.id,
+                athlete_id=injury_case.athlete_id,
+                **payload.model_dump(mode="python"),
+            )
+            session.add(symptom_log)
+            session.flush()
+            self._record_audit_event(
+                session,
+                injury_case.id,
+                "athlete_symptom_check_in",
+                injury_case.athlete_id,
+                {"symptom_log_id": symptom_log.id, "share_id": share.id},
+            )
+            session.commit()
+            return self._symptom_dict(symptom_log)
 
     def revoke_share(
         self,
@@ -1443,6 +1460,27 @@ class SqlAlchemyWorkflowRepository:
             "clinician_note": share.clinician_note,
             "next_review_date": share.next_review_date,
         }
+
+    def _get_active_share_by_token(self, session, token: str) -> ShareToken:
+        share = session.scalar(
+            select(ShareToken).where(ShareToken.token_hash == self._hash_token(token))
+        )
+        if share is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Share token not found.",
+            )
+        if share.revoked_at is not None:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share token has been revoked.",
+            )
+        if share.expires_at <= self._now():
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share token has expired.",
+            )
+        return share
 
     @staticmethod
     def _audit_dict(event: AuditLogEntry) -> dict[str, Any]:

@@ -1,9 +1,17 @@
-import { Activity, Ban, CalendarDays, CheckCircle2, LockKeyhole, ShieldAlert } from "lucide-react";
+import { Activity, Ban, CalendarDays, CheckCircle2, HeartPulse, LockKeyhole, ShieldAlert } from "lucide-react";
+import { submitAthleteSymptomCheckInAction } from "@/app/share/[token]/actions";
 import { ErrorState, UnauthorizedState } from "@/components/state-panels";
 import { getSharePageData, UnauthorizedApiError } from "@/lib/api-client";
 
-export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
+export default async function SharePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { token } = await params;
+  const query = await searchParams;
   const data = await loadSharePageData(token);
   if (data.status === "unauthorized") {
     return <UnauthorizedState />;
@@ -18,6 +26,16 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
   }
 
   const { share, source } = data;
+  if (share.audience === "athlete") {
+    return (
+      <AthletePortal
+        checkInReceived={singleQueryValue(query.checkin) === "received"}
+        share={share}
+        source={source}
+        token={token}
+      />
+    );
+  }
 
   return (
     <main data-source={source} data-testid="share-view">
@@ -84,6 +102,101 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
   );
 }
 
+function AthletePortal({
+  checkInReceived,
+  share,
+  source,
+  token,
+}: {
+  checkInReceived: boolean;
+  share: Awaited<ReturnType<typeof getSharePageData>>["share"];
+  source: string;
+  token: string;
+}) {
+  return (
+    <main data-source={source} data-testid="share-view">
+      <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-pine">Athlete portal</p>
+            <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">{share.athleteName}</h1>
+            <p className="mt-3 max-w-2xl text-base text-slate-600">
+              Track today&apos;s assigned work and report symptoms for clinician review. This is not medical clearance.
+            </p>
+          </div>
+          <div className="inline-flex min-h-10 items-center gap-2 bg-white px-3 py-2 text-sm font-semibold text-pine shadow-panel">
+            <LockKeyhole aria-hidden="true" className="h-4 w-4" />
+            Limited athlete view
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-4xl gap-5 px-4 pb-8 sm:px-6 lg:px-8">
+        {checkInReceived ? (
+          <p className="border border-pine/25 bg-pine/10 px-4 py-3 text-sm font-semibold text-pine">
+            Symptom check-in received.
+          </p>
+        ) : null}
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <StatusPanel
+            icon={<Activity aria-hidden="true" className="h-5 w-5 text-pine" />}
+            title="Current phase"
+            body={share.currentPhase}
+          />
+          <StatusPanel
+            icon={<CheckCircle2 aria-hidden="true" className="h-5 w-5 text-pine" />}
+            title="Assigned activities"
+            body={share.allowedActivities}
+          />
+          <StatusPanel
+            icon={<CalendarDays aria-hidden="true" className="h-5 w-5 text-pine" />}
+            title="Today's instructions"
+            body={share.restrictedActivities}
+          />
+          <StatusPanel
+            icon={<HeartPulse aria-hidden="true" className="h-5 w-5 text-rust" />}
+            title="Clinician message"
+            body={share.clinicianNote}
+          />
+        </div>
+
+        <form action={submitAthleteSymptomCheckInAction} className="bg-white p-5 shadow-panel">
+          <input name="token" type="hidden" value={token} />
+          <h2 className="text-lg font-semibold text-ink">Symptom check-in</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <label className="block text-sm font-medium text-slate-700">
+              Pain score
+              <input className="mt-1 w-full border border-mist px-3 py-2" max="10" min="0" name="pain" required type="number" />
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Swelling
+              <select className="mt-1 w-full border border-mist px-3 py-2" name="swelling">
+                <option value="none">None</option>
+                <option value="mild">Mild</option>
+                <option value="moderate">Moderate</option>
+                <option value="severe">Severe</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Confidence
+              <input className="mt-1 w-full border border-mist px-3 py-2" max="5" min="1" name="confidence" required type="number" />
+            </label>
+          </div>
+          <label className="mt-3 block text-sm font-medium text-slate-700">
+            Symptom notes
+            <textarea className="mt-1 min-h-20 w-full border border-mist px-3 py-2" name="notes" />
+          </label>
+          <button className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 bg-pine px-4 text-sm font-semibold text-white">
+            <HeartPulse aria-hidden="true" className="h-4 w-4" />
+            Submit symptom check-in
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+
 async function loadSharePageData(token: string) {
   try {
     const data = await getSharePageData(token);
@@ -116,4 +229,8 @@ function StatusPanel({
       </div>
     </div>
   );
+}
+
+function singleQueryValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }

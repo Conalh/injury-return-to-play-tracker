@@ -13,6 +13,7 @@ from return_play.auth import (
 from return_play.db import create_session_factory
 from return_play.models import (
     ApplyTemplateRequest,
+    AthleteSymptomCheckIn,
     AuthLoginRequest,
     AthleteCreate,
     AthleteUpdate,
@@ -323,6 +324,13 @@ def create_app(repository=None) -> FastAPI:
     @api_router.get("/share/{token}")
     def get_share(token: str) -> dict:
         return repository.get_share(token)
+
+    @api_router.post("/share/{token}/symptoms", status_code=status.HTTP_201_CREATED)
+    def create_athlete_symptom_check_in(
+        token: str,
+        payload: AthleteSymptomCheckIn,
+    ) -> dict:
+        return repository.create_athlete_symptom_check_in(token, payload)
 
     @api_router.post("/demo/seed", status_code=status.HTTP_201_CREATED)
     def seed_demo(context: SeedDemoContext, response: Response) -> dict:

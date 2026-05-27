@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 20 of the
+The project is a local production-path build, currently through Goal 21 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -59,6 +59,9 @@ Live in the repo:
 - Share management UI on case detail for creating limited coach, athlete, or
   guardian links, copying the share URL, revoking links, and reviewing audit
   events.
+- Athlete portal for token-scoped current phase, assigned activities,
+  instructions, clinician message, non-diagnostic language, and symptom
+  check-ins without clinician-only data exposure.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -211,7 +214,8 @@ workflow behavior, evidence capture, readiness signals, privacy and permission
 checks, share/report/audit behavior, demo seed validation, persistent repository
 restart behavior, repository-boundary contracts, and browser coverage for the
 dashboard, API-backed case creation, template builder, evidence entry, clearance
-decisions, share management, case detail, and limited share page.
+decisions, share management, athlete portal, case detail, and limited share
+page.
 
 ## Documentation
 

@@ -86,6 +86,17 @@ Goal 20 adds share management on case detail:
 - Playwright proves a coach share excludes clinical detail and revoked links
   render the unavailable state.
 
+Goal 21 adds the athlete portal path:
+
+- Athlete-audience share links render an athlete-facing portal instead of the
+  coach status view.
+- The portal shows current phase, assigned activities, today's instructions,
+  clinician message, and non-diagnostic progress language.
+- Athlete symptom check-ins post through the share token without exposing
+  symptom trends, functional tests, guardian contact, or the clinician case
+  detail page.
+- Playwright proves the check-in flow and limited-data boundary.
+
 ## Local Commands
 
 ```powershell

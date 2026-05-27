@@ -281,6 +281,13 @@ export type ShareTokenPayload = {
   clinician_note: string;
   next_review_date?: string | null;
 };
+export type AthleteSymptomCheckInPayload = {
+  date: string;
+  pain: number;
+  swelling: "none" | "mild" | "moderate" | "severe";
+  confidence: number;
+  notes?: string | null;
+};
 export type AuditEvent = {
   id: string;
   eventType: string;
@@ -490,6 +497,14 @@ export async function revokeShareToken(token: string): Promise<void> {
   await apiRequest(`/api/share/${token}/revoke`, jsonRequest("POST", {
     revoked_by: currentActorId(),
   }));
+}
+
+export async function submitAthleteSymptomCheckIn(
+  token: string,
+  payload: AthleteSymptomCheckInPayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(`/api/share/${token}/symptoms`, jsonRequest("POST", payload));
 }
 
 export function currentOrganizationId(): string {

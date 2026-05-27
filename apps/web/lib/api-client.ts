@@ -716,8 +716,27 @@ function toReadinessSignal(signal: ApiReadiness["signals"][number]): ReadinessSi
     type: titleCase(signal.type),
     severity: signal.severity,
     message: signal.message,
-    source: Object.values(signal.source_facts).join(", "),
+    source: sourceFactsToText(signal.source_facts),
   };
+}
+
+function sourceFactsToText(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "No source facts recorded.";
+  }
+  if (Array.isArray(value)) {
+    return value.map(sourceFactsToText).filter(Boolean).join("; ");
+  }
+  if (typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>);
+    if (entries.length === 0) {
+      return "No source facts recorded.";
+    }
+    return entries
+      .map(([key, nestedValue]) => `${titleCase(key.replaceAll("_", " "))}: ${sourceFactsToText(nestedValue)}`)
+      .join(", ");
+  }
+  return String(value);
 }
 
 function toAuditEvent(event: ApiAuditEvent): AuditEvent {

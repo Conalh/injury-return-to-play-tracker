@@ -35,7 +35,7 @@ test("clinician records evidence and readiness updates from case detail", async 
   await page.getByLabel("Symptom response").fill("Pain increase during final interval.");
   await page.getByRole("button", { name: "Record workload" }).click();
 
-  await expect(page.getByText("Jog intervals")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Jog intervals" })).toBeVisible();
   await expect(page.getByText("Workload progression incomplete.")).toBeVisible();
 
   await page.getByLabel("Milestone status").selectOption("failed");

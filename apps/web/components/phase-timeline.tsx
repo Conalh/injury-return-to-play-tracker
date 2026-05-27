@@ -3,26 +3,31 @@ import { StatusBadge } from "./status-badge";
 
 export function PhaseTimeline({ phases }: { phases: Phase[] }) {
   return (
-    <section className="bg-white px-4 py-5 shadow-panel sm:px-5">
-      <h2 className="text-base font-semibold text-ink">Phase timeline</h2>
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
+    <section className="rp-detail-card">
+      <div className="rp-detail-card-header">
+        <div>
+          <h2>Return-to-play phase progression</h2>
+          <p>Protocol phases remain gated by evidence and clinician review.</p>
+        </div>
+      </div>
+      <div className="rp-phase-grid">
         {phases.map((phase) => (
-          <div key={phase.id} className="min-w-0 border-l-4 border-pine bg-field p-4">
-            <div className="flex items-start justify-between gap-3">
+          <div key={phase.id} className="rp-phase-card">
+            <div className="rp-phase-card-top">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="rp-phase-kicker">
                   {phase.status === "current"
                     ? "Current phase"
                     : phase.status === "held"
                       ? "Held phase"
                       : "Next phase"}
                 </p>
-                <h3 className="mt-1 text-lg font-semibold text-ink">{phase.name}</h3>
+                <h3>{phase.name}</h3>
               </div>
               <StatusBadge status={phase.status} />
             </div>
-            <p className="mt-3 break-words text-sm text-slate-600">{phase.objective}</p>
-            <p className="mt-3 text-xs font-semibold text-slate-500">{phase.days} days tracked</p>
+            <p className="rp-phase-objective">{phase.objective}</p>
+            <p className="rp-muted">{phase.days} days tracked</p>
           </div>
         ))}
       </div>

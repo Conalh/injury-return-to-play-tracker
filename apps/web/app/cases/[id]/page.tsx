@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, FileDown, ShieldAlert } from "lucide-react";
+import { ArrowLeft, FileDown, Plus, Share2, ShieldAlert } from "lucide-react";
 import { ClearancePanel } from "@/components/clearance-panel";
 import { FunctionalTestTable, SymptomTrend, WorkloadProgression } from "@/components/evidence-panels";
 import { EvidenceEntryPanel } from "@/components/evidence-entry-panel";
@@ -8,6 +8,7 @@ import { PhaseTimeline } from "@/components/phase-timeline";
 import { ReadinessCard } from "@/components/readiness-card";
 import { ShareManagementPanel } from "@/components/share-management-panel";
 import { ErrorState, UnauthorizedState } from "@/components/state-panels";
+import { AthleteAvatar, ClinicalBadge } from "@/components/ui-primitives";
 import { getCasePageData, UnauthorizedApiError } from "@/lib/api-client";
 
 export default async function CaseDetailPage({
@@ -40,71 +41,102 @@ export default async function CaseDetailPage({
   const shareAudience = singleQueryValue(query.share_audience);
 
   return (
-    <main data-source={source} data-testid="case-detail">
-      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link href="/" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-pine">
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Roster
-        </Link>
-        <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-pine">{detail.athlete.sport} · {detail.athlete.position}</p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">{detail.athlete.name}</h1>
-            <p className="mt-3 max-w-3xl text-base text-slate-600">{detail.summary}</p>
-            <Link
-              className="mt-4 inline-flex min-h-10 items-center gap-2 bg-pine px-4 py-2 text-sm font-semibold text-white"
-              href={`/cases/${detail.id}/report`}
-            >
+    <main className="rp-case-page" data-source={source} data-testid="case-detail">
+      <section className="rp-case-header">
+        <div className="rp-case-header-top">
+          <Link href="/" className="rp-back-link">
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            Roster
+          </Link>
+          <div className="rp-case-actions">
+            <Link className="rp-secondary-button" href="#share-access">
+              <Share2 aria-hidden="true" className="h-4 w-4" />
+              Share access
+            </Link>
+            <Link className="rp-secondary-button" href={`/cases/${detail.id}/report`}>
               <FileDown aria-hidden="true" className="h-4 w-4" />
               Download PDF report
             </Link>
-          </div>
-          <div className="bg-white p-4 shadow-panel">
-            <div className="flex items-start gap-3">
-              <ShieldAlert aria-hidden="true" className="mt-0.5 h-5 w-5 text-rust" />
-              <div>
-                <p className="font-semibold text-ink">{detail.injuryTitle}</p>
-                <p className="mt-1 text-sm text-slate-600">{detail.athlete.participationStatus}</p>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-sm text-slate-600">
-              <CalendarDays aria-hidden="true" className="h-4 w-4 text-pine" />
-              {detail.athlete.daysInPhase} days in current phase
-            </div>
+            <a className="rp-primary-button" href="#record-evidence">
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              Add evidence
+            </a>
           </div>
         </div>
+
+        <div className="rp-case-hero">
+          <AthleteAvatar id={detail.athleteId} name={detail.athlete.name} size="lg" />
+          <div className="min-w-0">
+            <div className="rp-case-title-row">
+              <h1>{detail.athlete.name}</h1>
+              <ClinicalBadge tone={currentPhase.status === "held" ? "bad" : "info"}>
+                {currentPhase.status === "held" ? "Held phase" : currentPhase.status}
+              </ClinicalBadge>
+              <ClinicalBadge tone="hold">{detail.athlete.participationStatus}</ClinicalBadge>
+            </div>
+            <div className="rp-case-meta">
+              <span>{detail.athlete.sport} - {detail.athlete.position}</span>
+              <span>Case {detail.id}</span>
+              <span>{detail.injuryTitle}</span>
+              <span>{detail.athlete.daysInPhase} days in current phase</span>
+            </div>
+            <p className="rp-case-summary">{detail.summary}</p>
+          </div>
+        </div>
+
+        <div className="rp-risk-banner">
+          <ShieldAlert aria-hidden="true" className="mt-0.5 h-4 w-4" />
+          <div>
+            <strong>Clinician review required before advancement.</strong>
+            <span> Current restrictions and readiness signals are inputs only; this workflow never substitutes for a named clearance decision.</span>
+          </div>
+        </div>
+
+        <nav aria-label="Case detail sections" className="rp-case-tabs">
+          <a href="#overview">Overview</a>
+          <a href="#record-evidence">Evidence</a>
+          <a href="#clearance">Decisions</a>
+          <a href="#share-access">Share access</a>
+          <a href="#share-access">Audit history</a>
+        </nav>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-5 px-4 pb-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8">
-        <div className="grid min-w-0 gap-5">
+      <section className="rp-case-grid" id="overview">
+        <div className="rp-case-main">
           <PhaseTimeline phases={detail.phases} />
           <MilestoneChecklist milestones={currentPhase.milestones} />
-          <div className="grid min-w-0 gap-5 xl:grid-cols-2">
+          <div className="rp-evidence-grid">
             <SymptomTrend symptomLogs={detail.symptomLogs} />
             <FunctionalTestTable functionalTests={detail.functionalTests} />
           </div>
           <WorkloadProgression workloadSessions={detail.workloadSessions} />
         </div>
-        <div className="grid min-w-0 content-start gap-5">
-          <EvidenceEntryPanel
-            athleteId={detail.athleteId}
-            caseId={detail.id}
-            currentPhase={currentPhase}
-          />
+        <div className="rp-case-rail">
           <ReadinessCard signals={detail.readinessSignals} />
-          <ClearancePanel
-            caseId={detail.id}
-            phaseId={currentPhase.id}
-            restrictions={detail.restrictions}
-            note={detail.clinicianNote}
-          />
-          <ShareManagementPanel
-            auditEvents={auditEvents}
-            caseId={detail.id}
-            shareAudience={shareAudience}
-            shareRevoked={singleQueryValue(query.share_revoked) === "1"}
-            shareToken={shareToken}
-          />
+          <div id="record-evidence">
+            <EvidenceEntryPanel
+              athleteId={detail.athleteId}
+              caseId={detail.id}
+              currentPhase={currentPhase}
+            />
+          </div>
+          <div id="clearance">
+            <ClearancePanel
+              caseId={detail.id}
+              phaseId={currentPhase.id}
+              restrictions={detail.restrictions}
+              note={detail.clinicianNote}
+            />
+          </div>
+          <div id="share-access">
+            <ShareManagementPanel
+              auditEvents={auditEvents}
+              caseId={detail.id}
+              shareAudience={shareAudience}
+              shareRevoked={singleQueryValue(query.share_revoked) === "1"}
+              shareToken={shareToken}
+            />
+          </div>
         </div>
       </section>
     </main>

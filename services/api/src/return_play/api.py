@@ -20,8 +20,7 @@ from return_play.models import (
     UserRole,
     WorkloadSessionCreate,
 )
-from return_play.repository import InMemoryWorkflowRepository
-from return_play.sql_repository import SqlAlchemyWorkflowRepository
+from return_play.repositories import InMemoryWorkflowRepository, SqlAlchemyWorkflowRepository
 
 
 ClinicalContext = Annotated[

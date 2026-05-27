@@ -95,6 +95,21 @@ class InMemoryWorkflowRepository:
         self.injury_cases[injury_case["id"]] = injury_case
         return injury_case
 
+    def list_injury_cases(
+        self,
+        context: RequestContext,
+        organization_id: str | None = None,
+    ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_CLINICAL_CASES)
+        self._ensure_active_user(context)
+        self._ensure_requested_organization(organization_id, context)
+        injury_cases = [
+            injury_case
+            for injury_case in self.injury_cases.values()
+            if injury_case["organization_id"] == context.organization_id
+        ]
+        return {"items": injury_cases}
+
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
         assert_permission(context, Permission.READ_CLINICAL_CASES)
         self._ensure_active_user(context)

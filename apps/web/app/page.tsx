@@ -1,7 +1,28 @@
 import { ClipboardList, ShieldCheck } from "lucide-react";
 import { RosterTable } from "@/components/roster-table";
+import { EmptyState, ErrorState, UnauthorizedState } from "@/components/state-panels";
+import { getDashboardData, UnauthorizedApiError } from "@/lib/api-client";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const data = await loadDashboardData();
+  if (data.status === "unauthorized") {
+    return <UnauthorizedState />;
+  }
+  if (data.status === "error") {
+    return (
+      <ErrorState
+        title="Workspace unavailable"
+        body="The return-to-play API could not be reached for this dashboard."
+      />
+    );
+  }
+
+  const activeCases = data.athletes.length;
+  const missingGates = data.athletes.reduce(
+    (total, athlete) => total + athlete.missingGateCount,
+    0,
+  );
+
   return (
     <main>
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -16,18 +37,37 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white p-4 shadow-panel">
               <ClipboardList aria-hidden="true" className="h-5 w-5 text-pine" />
-              <p className="mt-3 text-2xl font-semibold text-ink">3</p>
+              <p className="mt-3 text-2xl font-semibold text-ink">{activeCases}</p>
               <p className="text-sm text-slate-600">Active cases</p>
             </div>
             <div className="bg-white p-4 shadow-panel">
               <ShieldCheck aria-hidden="true" className="h-5 w-5 text-rust" />
-              <p className="mt-3 text-2xl font-semibold text-ink">4</p>
+              <p className="mt-3 text-2xl font-semibold text-ink">{missingGates}</p>
               <p className="text-sm text-slate-600">Missing gates</p>
             </div>
           </div>
         </div>
       </section>
-      <RosterTable />
+      {data.athletes.length === 0 ? (
+        <EmptyState
+          title="No active cases"
+          body="Create an athlete and injury case to begin tracking return-to-play evidence."
+        />
+      ) : (
+        <RosterTable athletes={data.athletes} source={data.source} />
+      )}
     </main>
   );
+}
+
+async function loadDashboardData() {
+  try {
+    const data = await getDashboardData();
+    return { status: "ok" as const, ...data };
+  } catch (error) {
+    if (error instanceof UnauthorizedApiError) {
+      return { status: "unauthorized" as const };
+    }
+    return { status: "error" as const };
+  }
 }

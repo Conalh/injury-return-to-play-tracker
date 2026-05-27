@@ -112,6 +112,20 @@ class SqlAlchemyWorkflowRepository:
             session.commit()
             return self._case_dict(injury_case)
 
+    def list_injury_cases(
+        self,
+        context: RequestContext,
+        organization_id: str | None = None,
+    ) -> dict[str, list[dict]]:
+        assert_permission(context, Permission.READ_CLINICAL_CASES)
+        self._ensure_active_context(context)
+        self._ensure_requested_organization(organization_id, context)
+        with self.session_factory() as session:
+            injury_cases = session.scalars(
+                select(InjuryCase).where(InjuryCase.organization_id == context.organization_id)
+            ).all()
+            return {"items": [self._case_dict(injury_case) for injury_case in injury_cases]}
+
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
         assert_permission(context, Permission.READ_CLINICAL_CASES)
         self._ensure_active_context(context)

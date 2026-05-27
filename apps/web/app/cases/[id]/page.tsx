@@ -5,15 +5,29 @@ import { FunctionalTestTable, SymptomTrend, WorkloadProgression } from "@/compon
 import { MilestoneChecklist } from "@/components/milestone-checklist";
 import { PhaseTimeline } from "@/components/phase-timeline";
 import { ReadinessCard } from "@/components/readiness-card";
-import { getCaseDetail } from "@/lib/demo-data";
+import { ErrorState, UnauthorizedState } from "@/components/state-panels";
+import { getCasePageData, UnauthorizedApiError } from "@/lib/api-client";
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const detail = getCaseDetail(id);
+  const data = await loadCasePageData(id);
+  if (data.status === "unauthorized") {
+    return <UnauthorizedState />;
+  }
+  if (data.status === "error") {
+    return (
+      <ErrorState
+        title="Case unavailable"
+        body="The case detail could not be loaded from the return-to-play API."
+      />
+    );
+  }
+
+  const { detail, source } = data;
   const currentPhase = detail.phases.find((phase) => phase.status === "current") ?? detail.phases[0];
 
   return (
-    <main>
+    <main data-source={source} data-testid="case-detail">
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Link href="/" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-pine">
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -58,4 +72,16 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       </section>
     </main>
   );
+}
+
+async function loadCasePageData(caseId: string) {
+  try {
+    const data = await getCasePageData(caseId);
+    return { status: "ok" as const, ...data };
+  } catch (error) {
+    if (error instanceof UnauthorizedApiError) {
+      return { status: "unauthorized" as const };
+    }
+    return { status: "error" as const };
+  }
 }

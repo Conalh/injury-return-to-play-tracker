@@ -44,6 +44,8 @@ Live in the repo:
   service guards for protected workflow actions.
 - Admin organization and user management for organization setup, user
   invitations, role changes, deactivation, and organization audit events.
+- API-backed frontend data fetching with explicit demo fallback mode and
+  Playwright coverage against a live FastAPI test server.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -101,8 +103,9 @@ npm run dev
 
 Open `http://127.0.0.1:3217`.
 
-The web app currently uses local demo data shaped to match the backend concepts.
-Goal 15 wires it to live FastAPI responses.
+The web app defaults to local demo data. Set `RETURN_PLAY_DATA_MODE=api` or
+`RETURN_PLAY_DATA_MODE=api-demo` plus `RETURN_PLAY_API_BASE_URL` to render from
+FastAPI.
 
 ## Demo Seed
 

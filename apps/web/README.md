@@ -26,9 +26,18 @@ Goal 7 adds the first limited shared view:
 - Non-diagnostic clearance wording that states the page is not medical
   clearance.
 
-The UI currently uses local demo data from `lib/demo-data.ts`. It is wired to
-match the backend API concepts, but it does not yet fetch from the FastAPI
-service.
+Goal 15 wires the dashboard to the FastAPI backend:
+
+- `lib/api-client.ts` fetches athletes, injury cases, case detail, readiness,
+  and limited share views from the API.
+- `RETURN_PLAY_DATA_MODE=demo` keeps the static local fallback.
+- `RETURN_PLAY_DATA_MODE=api` uses the configured API without demo seeding.
+- `RETURN_PLAY_DATA_MODE=api-demo` seeds the local demo workflow first, then
+  renders backend data.
+- Dashboard, case detail, and share views include loading, empty, error, and
+  unauthorized states.
+- Playwright starts a real FastAPI server plus Next.js through
+  `scripts/dev-with-api.ps1`.
 
 ## Local Commands
 
@@ -43,4 +52,15 @@ The local dev server runs at:
 
 ```text
 http://127.0.0.1:3217
+```
+
+API-backed local mode:
+
+```powershell
+$env:RETURN_PLAY_DATA_MODE="api-demo"
+$env:RETURN_PLAY_API_BASE_URL="http://127.0.0.1:8000"
+$env:RETURN_PLAY_ACTOR_ID="clinician_demo"
+$env:RETURN_PLAY_ACTOR_ROLE="clinician"
+$env:RETURN_PLAY_ORGANIZATION_ID="org_demo"
+npm run dev
 ```

@@ -7,13 +7,13 @@ export default defineConfig({
     timeout: 5_000,
   },
   webServer: {
-    command: "npm run dev",
-    url: "http://127.0.0.1:3217",
-    reuseExistingServer: !process.env.CI,
+    command: "powershell -ExecutionPolicy Bypass -File ./scripts/dev-with-api.ps1",
+    url: "http://127.0.0.1:3227",
+    reuseExistingServer: false,
     timeout: 120_000,
   },
   use: {
-    baseURL: "http://127.0.0.1:3217",
+    baseURL: "http://127.0.0.1:3227",
     trace: "on-first-retry",
   },
   projects: [

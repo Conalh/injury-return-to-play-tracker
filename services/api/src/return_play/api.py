@@ -176,6 +176,13 @@ def create_app(repository=None) -> FastAPI:
     ) -> dict:
         return repository.create_injury_case(payload, context)
 
+    @api_router.get("/injury-cases")
+    def list_injury_cases(
+        context: ReadClinicalCasesContext,
+        organization_id: str | None = Query(default=None),
+    ) -> dict[str, list[dict]]:
+        return repository.list_injury_cases(context, organization_id)
+
     @api_router.get("/injury-cases/{case_id}")
     def get_injury_case(case_id: str, context: ReadClinicalCasesContext) -> dict:
         return repository.get_injury_case_detail(case_id, context)

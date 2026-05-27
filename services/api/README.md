@@ -146,6 +146,13 @@ Goal 14 adds organization and user administration:
 - Alembic migration `0005_goal_14` adds `users.active` and
   `organization_audit_log_entries`.
 
+Goal 15 exposes the case list needed by the frontend API integration:
+
+- `GET /api/injury-cases` returns organization-scoped injury cases for the
+  authenticated clinical workflow user.
+- The Next.js dashboard uses this endpoint with `/api/athletes`,
+  `/api/injury-cases/{case_id}`, and readiness endpoints to render backend data.
+
 ## Local Setup
 
 ```powershell

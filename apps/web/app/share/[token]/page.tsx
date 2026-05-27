@@ -1,12 +1,26 @@
 import { Activity, Ban, CalendarDays, CheckCircle2, LockKeyhole, ShieldAlert } from "lucide-react";
-import { getShareView } from "@/lib/demo-data";
+import { ErrorState, UnauthorizedState } from "@/components/state-panels";
+import { getSharePageData, UnauthorizedApiError } from "@/lib/api-client";
 
 export default async function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const share = getShareView(token);
+  const data = await loadSharePageData(token);
+  if (data.status === "unauthorized") {
+    return <UnauthorizedState />;
+  }
+  if (data.status === "error") {
+    return (
+      <ErrorState
+        title="Share unavailable"
+        body="This shared status view could not be loaded."
+      />
+    );
+  }
+
+  const { share, source } = data;
 
   return (
-    <main>
+    <main data-source={source} data-testid="share-view">
       <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -68,6 +82,18 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
       </section>
     </main>
   );
+}
+
+async function loadSharePageData(token: string) {
+  try {
+    const data = await getSharePageData(token);
+    return { status: "ok" as const, ...data };
+  } catch (error) {
+    if (error instanceof UnauthorizedApiError) {
+      return { status: "unauthorized" as const };
+    }
+    return { status: "error" as const };
+  }
 }
 
 function StatusPanel({

@@ -1,10 +1,26 @@
 import Link from "next/link";
 import { ArrowRight, AlertTriangle } from "lucide-react";
-import { athletes } from "@/lib/demo-data";
+import type { AthleteSummary } from "@/lib/demo-data";
+import type { DataSource } from "@/lib/api-client";
 
-export function RosterTable() {
+export function RosterTable({
+  athletes,
+  source,
+}: {
+  athletes: AthleteSummary[];
+  source: DataSource;
+}) {
+  const attentionItems = athletes.reduce(
+    (total, athlete) => total + athlete.missingGateCount,
+    0,
+  );
+
   return (
-    <section className="overflow-hidden border-y border-mist bg-white">
+    <section
+      className="overflow-hidden border-y border-mist bg-white"
+      data-source={source}
+      data-testid="roster-table"
+    >
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -13,7 +29,7 @@ export function RosterTable() {
           </div>
           <div className="flex items-center gap-2 text-sm font-medium text-rust">
             <AlertTriangle aria-hidden="true" className="h-4 w-4" />
-            3 attention items
+            {attentionItems} attention items
           </div>
         </div>
 

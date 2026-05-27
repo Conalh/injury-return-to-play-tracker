@@ -12,6 +12,7 @@ BOUNDARY_METHODS = {
     AthleteRepositoryBoundary: {"create_athlete", "list_athletes"},
     CaseRepositoryBoundary: {
         "create_injury_case",
+        "list_injury_cases",
         "get_injury_case_detail",
         "list_case_phases",
         "update_milestone",

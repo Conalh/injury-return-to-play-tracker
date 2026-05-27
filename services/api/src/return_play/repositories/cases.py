@@ -19,6 +19,13 @@ class CaseRepositoryBoundary(Protocol):
     ) -> dict:
         ...
 
+    def list_injury_cases(
+        self,
+        context: RequestContext,
+        organization_id: str | None = None,
+    ) -> dict[str, list[dict]]:
+        ...
+
     def get_injury_case_detail(self, case_id: str, context: RequestContext) -> dict:
         ...
 

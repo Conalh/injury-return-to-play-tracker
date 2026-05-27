@@ -34,3 +34,5 @@
   tracking seam, readiness, and metrics.
 - `operations/backups-and-recovery.md`: Postgres backup strategy, restore
   runbook, verification checklist, RPO/RTO targets, and restore drill.
+- `operations/beta-readiness.md`: controlled beta onboarding, feedback,
+  limitations, support, incident, and launch-gate runbook.

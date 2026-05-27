@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 35 of the
+The project is a local production-path build, currently through Goal 36 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -96,6 +96,9 @@ Live in the repo:
 - Product polish and usability review covering non-diagnostic copy, empty/error
   states, mobile layout, keyboard accessibility, clinician workflow timing, and
   beta polish backlog.
+- Beta readiness operations package with onboarding checklist, feedback triage,
+  known limitations, support runbook, incident response starter plan, and
+  no-developer-access beta organization workflow.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -289,6 +292,9 @@ share page.
 - [docs/product/usability-review.md](docs/product/usability-review.md):
   copy, empty/error state, mobile, accessibility, workflow timing, and beta
   polish review.
+- [docs/operations/beta-readiness.md](docs/operations/beta-readiness.md):
+  controlled beta onboarding, feedback, limitations, support, incident, and
+  launch-gate runbook.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
 - [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):

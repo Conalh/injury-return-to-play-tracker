@@ -4,9 +4,12 @@ from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
     ClinicianNoteCreate,
+    FunctionalTestCreate,
     InjuryCaseCreate,
     MilestoneResultUpdate,
     ReturnPlanTemplateWithPhasesCreate,
+    SymptomLogCreate,
+    WorkloadSessionCreate,
 )
 from return_play.repository import InMemoryWorkflowRepository
 
@@ -68,6 +71,39 @@ def create_app() -> FastAPI:
     )
     def create_note(case_id: str, payload: ClinicianNoteCreate) -> dict:
         return repository.create_note(case_id, payload)
+
+    @api_router.post(
+        "/injury-cases/{case_id}/symptoms",
+        status_code=status.HTTP_201_CREATED,
+    )
+    def create_symptom_log(case_id: str, payload: SymptomLogCreate) -> dict:
+        return repository.create_symptom_log(case_id, payload)
+
+    @api_router.get("/injury-cases/{case_id}/symptoms")
+    def list_symptom_logs(case_id: str) -> dict[str, list[dict]]:
+        return repository.list_symptom_logs(case_id)
+
+    @api_router.post(
+        "/injury-cases/{case_id}/functional-tests",
+        status_code=status.HTTP_201_CREATED,
+    )
+    def create_functional_test(case_id: str, payload: FunctionalTestCreate) -> dict:
+        return repository.create_functional_test(case_id, payload)
+
+    @api_router.get("/injury-cases/{case_id}/functional-tests")
+    def list_functional_tests(case_id: str) -> dict[str, list[dict]]:
+        return repository.list_functional_tests(case_id)
+
+    @api_router.post(
+        "/injury-cases/{case_id}/workload-sessions",
+        status_code=status.HTTP_201_CREATED,
+    )
+    def create_workload_session(case_id: str, payload: WorkloadSessionCreate) -> dict:
+        return repository.create_workload_session(case_id, payload)
+
+    @api_router.get("/injury-cases/{case_id}/workload-sessions")
+    def list_workload_sessions(case_id: str) -> dict[str, list[dict]]:
+        return repository.list_workload_sessions(case_id)
 
     @api_router.get("/templates")
     def list_templates(

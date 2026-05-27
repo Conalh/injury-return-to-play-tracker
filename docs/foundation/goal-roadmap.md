@@ -51,6 +51,11 @@ notes. Postgres-backed repositories remain deferred.
 Add symptom logs, functional test logs, workload sessions, and milestone
 evidence.
 
+Status: complete. The API can create and list symptom logs, functional tests,
+and workload sessions for an injury case. Case detail responses include the
+captured evidence collections. Runtime persistence remains in-memory until the
+Postgres repository goal.
+
 ## Goal 5: Readiness Engine
 
 Implement explain-only readiness signals for missing milestones, symptom

@@ -9,11 +9,14 @@ from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
     ClinicianNoteCreate,
+    FunctionalTestCreate,
     InjuryCaseCreate,
     MilestoneResultStatus,
     MilestoneResultUpdate,
     PhaseStatus,
     ReturnPlanTemplateWithPhasesCreate,
+    SymptomLogCreate,
+    WorkloadSessionCreate,
 )
 
 
@@ -24,6 +27,9 @@ class InMemoryWorkflowRepository:
         self.templates: dict[str, dict] = {}
         self.case_plans: dict[str, list[dict]] = {}
         self.notes: dict[str, list[dict]] = {}
+        self.symptom_logs: dict[str, list[dict]] = {}
+        self.functional_tests: dict[str, list[dict]] = {}
+        self.workload_sessions: dict[str, list[dict]] = {}
 
     def create_athlete(self, payload: AthleteCreate) -> dict:
         athlete = payload.model_dump(mode="json")
@@ -68,6 +74,9 @@ class InMemoryWorkflowRepository:
             "phases": phases,
             "current_phase": current_phase,
             "notes": self.notes.get(case_id, []),
+            "symptom_logs": self.symptom_logs.get(case_id, []),
+            "functional_tests": self.functional_tests.get(case_id, []),
+            "workload_sessions": self.workload_sessions.get(case_id, []),
         }
 
     def create_template(self, payload: ReturnPlanTemplateWithPhasesCreate) -> dict:
@@ -188,6 +197,55 @@ class InMemoryWorkflowRepository:
         self.notes.setdefault(case_id, []).append(note)
         return note
 
+    def create_symptom_log(self, case_id: str, payload: SymptomLogCreate) -> dict:
+        self._validate_evidence_case(case_id, payload.injury_case_id)
+        if payload.athlete_id not in self.athletes:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Athlete not found.",
+            )
+        symptom_log = payload.model_dump(mode="json")
+        symptom_log["id"] = self._new_id("symptom")
+        symptom_log["recorded_at"] = self._now()
+        self.symptom_logs.setdefault(case_id, []).append(symptom_log)
+        return symptom_log
+
+    def list_symptom_logs(self, case_id: str) -> dict[str, list[dict]]:
+        self._get_case(case_id)
+        return {"items": self.symptom_logs.get(case_id, [])}
+
+    def create_functional_test(
+        self,
+        case_id: str,
+        payload: FunctionalTestCreate,
+    ) -> dict:
+        self._validate_evidence_case(case_id, payload.injury_case_id)
+        functional_test = payload.model_dump(mode="json")
+        functional_test["id"] = self._new_id("functional_test")
+        functional_test["recorded_at"] = self._now()
+        self.functional_tests.setdefault(case_id, []).append(functional_test)
+        return functional_test
+
+    def list_functional_tests(self, case_id: str) -> dict[str, list[dict]]:
+        self._get_case(case_id)
+        return {"items": self.functional_tests.get(case_id, [])}
+
+    def create_workload_session(
+        self,
+        case_id: str,
+        payload: WorkloadSessionCreate,
+    ) -> dict:
+        self._validate_evidence_case(case_id, payload.injury_case_id)
+        workload_session = payload.model_dump(mode="json")
+        workload_session["id"] = self._new_id("workload")
+        workload_session["recorded_at"] = self._now()
+        self.workload_sessions.setdefault(case_id, []).append(workload_session)
+        return workload_session
+
+    def list_workload_sessions(self, case_id: str) -> dict[str, list[dict]]:
+        self._get_case(case_id)
+        return {"items": self.workload_sessions.get(case_id, [])}
+
     def _get_case(self, case_id: str) -> dict:
         try:
             return self.injury_cases[case_id]
@@ -205,6 +263,14 @@ class InMemoryWorkflowRepository:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Template not found.",
             ) from exc
+
+    def _validate_evidence_case(self, route_case_id: str, payload_case_id: str) -> None:
+        self._get_case(route_case_id)
+        if route_case_id != payload_case_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Evidence payload case does not match route.",
+            )
 
     @staticmethod
     def _new_id(prefix: str) -> str:

@@ -23,6 +23,14 @@ Goal 3 adds the first clinician workflow behavior:
 - Update milestone status with evidence metadata.
 - Add clinician notes.
 
+Goal 4 adds evidence capture:
+
+- Create and list symptom logs.
+- Create and list functional test logs.
+- Create and list workload sessions.
+- Include evidence collections on injury case detail responses.
+- Keep milestone evidence metadata on milestone status updates.
+
 The runtime repository is currently in-memory. SQLAlchemy metadata and Alembic
 migrations are kept aligned with the workflow concepts, but request handlers do
 not yet persist to Postgres. Authentication, permissions, readiness logic, and

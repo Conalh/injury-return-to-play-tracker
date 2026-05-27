@@ -36,3 +36,5 @@
   runbook, verification checklist, RPO/RTO targets, and restore drill.
 - `operations/beta-readiness.md`: controlled beta onboarding, feedback,
   limitations, support, incident, and launch-gate runbook.
+- `operations/production-launch-gate.md`: final launch checklist, evidence
+  requirements, residual risk register, and signoff table.

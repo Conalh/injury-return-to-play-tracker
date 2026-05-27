@@ -5,7 +5,7 @@ description = "FastAPI backend for the Injury Return-To-Play Tracker."
 requires-python = ">=3.11"
 dependencies = [
   "alembic>=1.13",
-  "fastapi>=0.111",
+  "fastapi>=0.111,<0.136.3",
   "psycopg[binary]>=3.2",
   "pydantic[email]>=2.7",
   "pydantic-settings>=2.3",

@@ -99,11 +99,13 @@ def test_security_workflow_blocks_high_dependency_risk_and_scans_secrets() -> No
     root = Path(__file__).parents[3]
     workflow = (root / ".github" / "workflows" / "security.yml").read_text()
     secret_scan = (root / "scripts" / "scan-secrets.ps1").read_text()
+    pyproject = (root / "services" / "api" / "pyproject.toml").read_text()
 
     assert "npm audit --audit-level=high" in workflow
     assert "python -m pip freeze --exclude-editable > audit-requirements.txt" in workflow
     assert "pip-audit --strict -r audit-requirements.txt" in workflow
     assert "scripts/scan-secrets.ps1" in workflow
+    assert '"fastapi>=0.111,<0.136.3"' in pyproject
     assert '"/scripts/scan-secrets.ps1"' in secret_scan
     assert '.FullName.Replace("\\", "/")' in secret_scan
     assert "BEGIN " + "PRIVATE KEY" in secret_scan

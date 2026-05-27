@@ -30,8 +30,9 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 31 of the
-ignored production roadmap. It is not hosted yet.
+The project is a local production-path build, currently through Goal 34 of the
+ignored production roadmap, with hosting goals intentionally deferred. It is not
+hosted yet.
 
 Live in the repo:
 
@@ -89,6 +90,9 @@ Live in the repo:
   metrics.
 - Backup and recovery baseline with Postgres backup/restore scripts, a restore
   drill, RPO/RTO targets, and a documented verification checklist.
+- Legal and compliance review package with a data flow map, user role/data
+  access matrix, security controls summary, HIPAA/FTC review notes, terms and
+  privacy-policy inputs, and BAA decision checklist.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -102,7 +106,7 @@ Live in the repo:
 Still deferred:
 
 - Hosted identity-provider integration and token revocation.
-- Production deployment, backups, monitoring, and compliance review package.
+- Staging and production deployment.
 
 ## Run It Locally
 
@@ -276,6 +280,9 @@ share page.
 - [docs/product/security-baseline.md](docs/product/security-baseline.md):
   secure headers, CORS, rate limits, input limits, dependency scanning, and
   secret scanning.
+- [docs/product/legal-compliance-review-package.md](docs/product/legal-compliance-review-package.md):
+  data flow map, access matrix, controls summary, HIPAA/FTC review notes,
+  policy inputs, and BAA checklist.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
 - [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):

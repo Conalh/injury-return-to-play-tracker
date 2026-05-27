@@ -17,6 +17,8 @@
   retention hooks, export/delete request plan, and PHI checklist.
 - `product/security-baseline.md`: secure headers, CORS, rate limits, input
   size limits, dependency scan, and secret scan baseline.
+- `product/legal-compliance-review-package.md`: data flow map, access matrix,
+  controls summary, HIPAA/FTC review notes, policy inputs, and BAA checklist.
 
 ## Operations
 

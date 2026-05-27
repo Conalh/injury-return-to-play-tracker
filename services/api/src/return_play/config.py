@@ -14,9 +14,11 @@ class ReturnPlaySettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="RETURN_PLAY_", extra="ignore")
 
     env: Environment = "local"
+    service_name: str = "return-play-api"
     database_url: str | None = None
     auth_mode: AuthMode = "dev_headers"
     auth_secret: str | None = None
+    error_tracking_dsn: str | None = None
     cors_origins: str | None = None
     max_request_bytes: int = Field(default=1_048_576, ge=1)
     auth_rate_limit_per_minute: int = Field(default=20, ge=1)

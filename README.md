@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 29 of the
+The project is a local production-path build, currently through Goal 30 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -84,6 +84,9 @@ Live in the repo:
 - Explicit environment configuration with typed backend settings, frontend
   environment contract helpers, `.env.example`, and production startup
   validation for required runtime variables.
+- Observability baseline with request IDs, structured API request logs, an
+  error-tracking integration seam, readiness endpoint, and basic JSON runtime
+  metrics.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -172,6 +175,7 @@ apps/web
 services/api
   FastAPI app factory + route surface
   auth.py            local request-context role gates
+  observability.py   request IDs, structured logs, readiness, metrics
   audit.py           audit event taxonomy
   privacy.py         field filters + data-control policy hooks
   security.py        secure headers, CORS, size limits, rate limits
@@ -216,6 +220,8 @@ contract is:
   filtering before leaving the API.
 - API responses carry baseline security headers; CORS, request body size, and
   auth/share route rate limits are centrally configured.
+- API responses include request IDs, and runtime request logs use structured
+  JSON without clinical payloads.
 - Clearance decisions require a named actor and rationale.
 - Readiness responses explicitly include `can_auto_clear: false`.
 - Shared pages use non-diagnostic language and exclude symptom detail, guardian
@@ -274,6 +280,8 @@ share page.
   local Docker Compose production-path runbook.
 - [docs/operations/environment-configuration.md](docs/operations/environment-configuration.md):
   backend and frontend environment-variable contract.
+- [docs/operations/observability.md](docs/operations/observability.md):
+  request IDs, structured logs, error capture seam, readiness, and metrics.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

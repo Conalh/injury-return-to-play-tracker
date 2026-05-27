@@ -26,3 +26,5 @@
   Compose runbook.
 - `operations/environment-configuration.md`: backend and frontend runtime
   environment contract.
+- `operations/observability.md`: request IDs, structured API logs, error
+  tracking seam, readiness, and metrics.

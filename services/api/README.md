@@ -285,6 +285,13 @@ Goal 29 adds explicit environment configuration:
   required production values.
 - `.env.example` documents local placeholders without committed secrets.
 
+Goal 30 adds the observability baseline:
+
+- `return_play.observability` adds request IDs and structured request logs.
+- `GET /ready` reports application readiness.
+- `GET /metrics` exposes low-cardinality runtime counters.
+- `RETURN_PLAY_ERROR_TRACKING_DSN` enables the current error-capture seam.
+
 ## Local Setup
 
 ```powershell
@@ -373,3 +380,14 @@ RETURN_PLAY_CORS_ORIGINS=https://app.example.com
 
 Production startup rejects trusted local-header auth and the local login
 provider.
+
+## Observability
+
+Every response includes `x-request-id`. The API emits JSON request logs through
+the `return_play.requests` logger and exposes:
+
+```text
+GET /health
+GET /ready
+GET /metrics
+```

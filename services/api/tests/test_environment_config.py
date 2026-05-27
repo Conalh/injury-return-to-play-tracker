@@ -66,9 +66,11 @@ def test_env_example_documents_required_backend_and_frontend_contract() -> None:
 
     for name in [
         "RETURN_PLAY_ENV",
+        "RETURN_PLAY_SERVICE_NAME",
         "RETURN_PLAY_DATABASE_URL",
         "RETURN_PLAY_AUTH_MODE",
         "RETURN_PLAY_AUTH_SECRET",
+        "RETURN_PLAY_ERROR_TRACKING_DSN",
         "RETURN_PLAY_CORS_ORIGINS",
         "RETURN_PLAY_DATA_MODE",
         "RETURN_PLAY_API_BASE_URL",

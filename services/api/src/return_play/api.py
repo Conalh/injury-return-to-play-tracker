@@ -33,6 +33,7 @@ from return_play.models import (
     UserRoleUpdate,
     WorkloadSessionCreate,
 )
+from return_play.observability import configure_observability
 from return_play.permissions import Permission
 from return_play.privacy import privacy_data_controls
 from return_play.repositories import InMemoryWorkflowRepository, SqlAlchemyWorkflowRepository
@@ -101,6 +102,7 @@ def create_app(repository=None) -> FastAPI:
         summary="Evidence tracking backend for staged return-to-play workflows.",
     )
     configure_security(app)
+    observability = configure_observability(app)
 
     @app.get("/health", tags=["system"])
     def health() -> dict[str, str]:
@@ -108,6 +110,17 @@ def create_app(repository=None) -> FastAPI:
             "service": "return-play-api",
             "status": "ok",
         }
+
+    @app.get("/ready", tags=["system"])
+    def ready() -> dict[str, str]:
+        return {
+            "service": "return-play-api",
+            "status": "ready",
+        }
+
+    @app.get("/metrics", tags=["system"])
+    def metrics() -> dict:
+        return observability.snapshot()
 
     api_router = APIRouter(prefix="/api")
 
@@ -403,7 +416,8 @@ def create_app(repository=None) -> FastAPI:
 
 
 def create_persistent_app(database_url: str) -> FastAPI:
-    return create_app(SqlAlchemyWorkflowRepository(create_session_factory(database_url)))
+    session_factory = create_session_factory(database_url)
+    return create_app(SqlAlchemyWorkflowRepository(session_factory))
 
 
 def create_runtime_app() -> FastAPI:

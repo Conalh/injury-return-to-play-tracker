@@ -211,6 +211,42 @@ export type TemplatePayload = {
     }>;
   }>;
 };
+export type SymptomLogPayload = {
+  injury_case_id: string;
+  athlete_id: string;
+  date: string;
+  pain: number;
+  swelling: string;
+  confidence: number;
+  notes?: string | null;
+};
+export type FunctionalTestPayload = {
+  injury_case_id: string;
+  name: string;
+  test_date: string;
+  result_value?: number | null;
+  unit?: string | null;
+  side_to_side_difference_percent?: number | null;
+  passed: boolean;
+  recorded_by: string;
+  notes?: string | null;
+};
+export type WorkloadSessionPayload = {
+  injury_case_id: string;
+  date: string;
+  activity: string;
+  duration_minutes: number;
+  intensity: number;
+  symptom_response?: string | null;
+  completed: boolean;
+  notes?: string | null;
+};
+export type MilestoneEvidencePayload = {
+  status: "not_started" | "passed" | "failed" | "waived";
+  recorded_by: string;
+  notes?: string | null;
+  evidence_json: Record<string, string>;
+};
 
 export async function getDashboardData(): Promise<DashboardData> {
   if (!usesApi()) {
@@ -350,6 +386,48 @@ export async function archiveTemplate(templateId: string): Promise<ApiTemplate> 
   });
 }
 
+export async function createSymptomLog(
+  caseId: string,
+  payload: SymptomLogPayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(`/api/injury-cases/${caseId}/symptoms`, jsonRequest("POST", payload));
+}
+
+export async function createFunctionalTest(
+  caseId: string,
+  payload: FunctionalTestPayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(
+    `/api/injury-cases/${caseId}/functional-tests`,
+    jsonRequest("POST", payload),
+  );
+}
+
+export async function createWorkloadSession(
+  caseId: string,
+  payload: WorkloadSessionPayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(
+    `/api/injury-cases/${caseId}/workload-sessions`,
+    jsonRequest("POST", payload),
+  );
+}
+
+export async function updateMilestoneEvidence(
+  caseId: string,
+  milestoneId: string,
+  payload: MilestoneEvidencePayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(
+    `/api/injury-cases/${caseId}/milestones/${milestoneId}`,
+    jsonRequest("PATCH", payload),
+  );
+}
+
 export function currentOrganizationId(): string {
   return process.env.RETURN_PLAY_ORGANIZATION_ID ?? "org_demo";
 }
@@ -423,6 +501,7 @@ function toCaseDetail(
 
   return {
     id: detail.id,
+    athleteId: detail.athlete_id,
     athlete: athleteSummary,
     injuryTitle: detail.title,
     summary: detail.summary ?? "No case summary recorded.",

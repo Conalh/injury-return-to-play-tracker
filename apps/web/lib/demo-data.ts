@@ -60,6 +60,7 @@ export type ReadinessSignal = {
 
 export type CaseDetail = {
   id: string;
+  athleteId: string;
   athlete: AthleteSummary;
   injuryTitle: string;
   summary: string;
@@ -131,6 +132,7 @@ export const athletes: AthleteSummary[] = [
 
 export const caseDetail: CaseDetail = {
   id: "case_demo",
+  athleteId: "athlete_demo",
   athlete: athletes[0],
   injuryTitle: "Left ankle sprain",
   summary: "Rolled ankle during match. Current work is focused on motion, symptom response, and controlled loading.",

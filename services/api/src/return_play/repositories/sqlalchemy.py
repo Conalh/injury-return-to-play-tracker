@@ -365,6 +365,16 @@ class SqlAlchemyWorkflowRepository:
                 result.recorded_at = self._now()
                 result.notes = payload.notes
                 result.evidence_json = payload.evidence_json
+            self._record_audit_event(
+                session,
+                case_id,
+                "milestone_evidence_recorded",
+                payload.recorded_by,
+                {
+                    "milestone_id": milestone_id,
+                    "status": payload.status.value,
+                },
+            )
             session.commit()
             return self._milestone_result_dict(result)
 
@@ -410,6 +420,13 @@ class SqlAlchemyWorkflowRepository:
                 **payload.model_dump(mode="python"),
             )
             session.add(symptom_log)
+            self._record_audit_event(
+                session,
+                case_id,
+                "symptom_logged",
+                context.actor_id,
+                {"symptom_log_id": symptom_log.id, "pain": symptom_log.pain},
+            )
             session.commit()
             return self._symptom_dict(symptom_log)
 
@@ -439,6 +456,16 @@ class SqlAlchemyWorkflowRepository:
                 **payload.model_dump(mode="python"),
             )
             session.add(functional_test)
+            self._record_audit_event(
+                session,
+                case_id,
+                "functional_test_logged",
+                payload.recorded_by,
+                {
+                    "functional_test_id": functional_test.id,
+                    "passed": functional_test.passed,
+                },
+            )
             session.commit()
             return self._functional_test_dict(functional_test)
 
@@ -471,6 +498,16 @@ class SqlAlchemyWorkflowRepository:
                 **payload.model_dump(mode="python"),
             )
             session.add(workload_session)
+            self._record_audit_event(
+                session,
+                case_id,
+                "workload_session_logged",
+                context.actor_id,
+                {
+                    "workload_session_id": workload_session.id,
+                    "completed": workload_session.completed,
+                },
+            )
             session.commit()
             return self._workload_dict(workload_session)
 

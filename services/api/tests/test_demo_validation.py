@@ -53,13 +53,18 @@ def test_demo_seed_proves_complete_return_to_play_workflow() -> None:
 
     audit_response = client.get(f"/api/injury-cases/{case_id}/audit-log")
     assert audit_response.status_code == 200
-    assert [
-        event["event_type"] for event in audit_response.json()["items"]
-    ] == [
+    event_types = [event["event_type"] for event in audit_response.json()["items"]]
+    assert event_types[-3:] == [
         "clearance_decision_recorded",
         "share_created",
         "report_generated",
     ]
+    assert {
+        "milestone_evidence_recorded",
+        "symptom_logged",
+        "functional_test_logged",
+        "workload_session_logged",
+    }.issubset(event_types)
 
 
 def test_demo_seed_is_idempotent_for_local_validation() -> None:

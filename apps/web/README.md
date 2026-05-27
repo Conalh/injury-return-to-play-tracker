@@ -58,6 +58,14 @@ Goal 17 adds the template builder path:
   historical versions.
 - Playwright proves a created template can be applied to a new case.
 
+Goal 18 adds case-detail evidence entry:
+
+- Case detail includes forms for symptom logs, functional tests, workload
+  sessions, and current-phase milestone evidence.
+- Evidence submissions use server actions and refresh the API-backed case view.
+- Readiness signals update after symptom and workload evidence is recorded.
+- Playwright proves browser-entered evidence appears on the case detail page.
+
 ## Local Commands
 
 ```powershell

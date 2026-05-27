@@ -321,6 +321,15 @@ class InMemoryWorkflowRepository:
                     milestone["recorded_at"] = self._now()
                     milestone["notes"] = payload.notes
                     milestone["evidence_json"] = payload.evidence_json
+                    self._record_audit_event(
+                        case_id,
+                        "milestone_evidence_recorded",
+                        payload.recorded_by,
+                        {
+                            "milestone_id": milestone_id,
+                            "status": payload.status.value,
+                        },
+                    )
                     return milestone
 
         raise HTTPException(
@@ -363,6 +372,12 @@ class InMemoryWorkflowRepository:
         symptom_log["id"] = self._new_id("symptom")
         symptom_log["recorded_at"] = self._now()
         self.symptom_logs.setdefault(case_id, []).append(symptom_log)
+        self._record_audit_event(
+            case_id,
+            "symptom_logged",
+            context.actor_id,
+            {"symptom_log_id": symptom_log["id"], "pain": symptom_log["pain"]},
+        )
         return symptom_log
 
     def list_symptom_logs(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
@@ -384,6 +399,15 @@ class InMemoryWorkflowRepository:
         functional_test["id"] = self._new_id("functional_test")
         functional_test["recorded_at"] = self._now()
         self.functional_tests.setdefault(case_id, []).append(functional_test)
+        self._record_audit_event(
+            case_id,
+            "functional_test_logged",
+            payload.recorded_by,
+            {
+                "functional_test_id": functional_test["id"],
+                "passed": functional_test["passed"],
+            },
+        )
         return functional_test
 
     def list_functional_tests(
@@ -409,6 +433,15 @@ class InMemoryWorkflowRepository:
         workload_session["id"] = self._new_id("workload")
         workload_session["recorded_at"] = self._now()
         self.workload_sessions.setdefault(case_id, []).append(workload_session)
+        self._record_audit_event(
+            case_id,
+            "workload_session_logged",
+            context.actor_id,
+            {
+                "workload_session_id": workload_session["id"],
+                "completed": workload_session["completed"],
+            },
+        )
         return workload_session
 
     def list_workload_sessions(

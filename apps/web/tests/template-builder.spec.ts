@@ -42,7 +42,7 @@ test("clinician creates a staged template and applies it to a new case", async (
   await expect(page).toHaveURL(/\/cases\/case_/);
   await expect(page.getByRole("heading", { name: athleteName })).toBeVisible();
   await expect(page.getByText("Restore stride")).toBeVisible();
-  await expect(page.getByText("Pain-free jog")).toBeVisible();
+  await expect(page.getByText("Pain-free jog", { exact: true })).toBeVisible();
 });
 
 test("clinician edits a template into a new version and archives it", async ({ page }) => {

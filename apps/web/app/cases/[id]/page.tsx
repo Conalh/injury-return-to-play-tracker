@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, CalendarDays, ShieldAlert } from "lucide-react";
 import { ClearancePanel } from "@/components/clearance-panel";
 import { FunctionalTestTable, SymptomTrend, WorkloadProgression } from "@/components/evidence-panels";
+import { EvidenceEntryPanel } from "@/components/evidence-entry-panel";
 import { MilestoneChecklist } from "@/components/milestone-checklist";
 import { PhaseTimeline } from "@/components/phase-timeline";
 import { ReadinessCard } from "@/components/readiness-card";
@@ -66,6 +67,11 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           <WorkloadProgression workloadSessions={detail.workloadSessions} />
         </div>
         <div className="grid min-w-0 content-start gap-5">
+          <EvidenceEntryPanel
+            athleteId={detail.athleteId}
+            caseId={detail.id}
+            currentPhase={currentPhase}
+          />
           <ReadinessCard signals={detail.readinessSignals} />
           <ClearancePanel restrictions={detail.restrictions} note={detail.clinicianNote} />
         </div>

@@ -51,6 +51,8 @@ Live in the repo:
 - Template builder UI for listing templates, creating staged phases and
   milestones, editing as a new version, archiving inactive plans, and applying
   active templates to cases.
+- Evidence entry UI on case detail for symptom logs, functional tests, workload
+  sessions, and milestone evidence updates with audit events.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -202,8 +204,8 @@ Current coverage includes API contracts, schema contracts, migrations, clinician
 workflow behavior, evidence capture, readiness signals, privacy and permission
 checks, share/report/audit behavior, demo seed validation, persistent repository
 restart behavior, repository-boundary contracts, and browser coverage for the
-dashboard, API-backed case creation, template builder, case detail, and limited
-share page.
+dashboard, API-backed case creation, template builder, evidence entry, case
+detail, and limited share page.
 
 ## Documentation
 

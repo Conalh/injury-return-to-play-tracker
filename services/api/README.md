@@ -170,6 +170,13 @@ Goal 17 adds template builder support:
 - `POST /api/templates/{template_id}/archive` marks a template inactive.
 - Archived templates cannot be applied to injury cases.
 
+Goal 18 adds audit coverage for evidence entry:
+
+- Symptom logs write `symptom_logged` audit events.
+- Functional tests write `functional_test_logged` audit events.
+- Workload sessions write `workload_session_logged` audit events.
+- Milestone evidence updates write `milestone_evidence_recorded` audit events.
+
 ## Local Setup
 
 ```powershell

@@ -5,7 +5,7 @@ test("clinician dashboard shows roster and evidence summary", async ({ page }) =
 
   await expect(page.getByRole("heading", { name: "Return-to-play tracker" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Riley Chen/ })).toBeVisible();
-  await expect(page.getByText("Left ankle sprain")).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Left ankle sprain" }).first()).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Missing gates" })).toBeVisible();
   await expect(page.getByText("Review symptoms before advancing.")).toBeVisible();
 });

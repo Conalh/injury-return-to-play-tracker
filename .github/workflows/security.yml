@@ -34,7 +34,7 @@ jobs:
           python -m pip install pip-audit
       - name: Block known vulnerable API dependencies
         working-directory: services/api
-        run: pip-audit --strict
+        run: pip-audit --strict --skip-editable
 
   secret-scan:
     name: Secret scan

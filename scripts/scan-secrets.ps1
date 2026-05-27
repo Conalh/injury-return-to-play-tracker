@@ -1,14 +1,14 @@
 $ErrorActionPreference = "Stop"
 
 $excludedPathFragments = @(
-  "\.git\",
-  "\.next\",
-  "\.venv\",
-  "\node_modules\",
-  "\__pycache__\",
-  "\test-results\",
-  "\playwright-report\",
-  "\scripts\scan-secrets.ps1"
+  "/.git/",
+  "/.next/",
+  "/.venv/",
+  "/node_modules/",
+  "/__pycache__/",
+  "/test-results/",
+  "/playwright-report/",
+  "/scripts/scan-secrets.ps1"
 )
 
 $patterns = [ordered]@{
@@ -24,7 +24,7 @@ $findings = @()
 
 Get-ChildItem -Path $root -Recurse -File -Force |
   Where-Object {
-    $path = $_.FullName
+    $path = $_.FullName.Replace("\", "/")
     -not ($excludedPathFragments | Where-Object { $path.Contains($_) })
   } |
   ForEach-Object {

@@ -116,6 +116,9 @@ Before real athlete data:
 - Field-level response filtering is required for restricted share surfaces.
 - Export and deletion requests must follow a documented review path.
 - Retention hooks must exist before records are deleted or retained by policy.
+- Secure headers, CORS allowlisting, input size limits, and rate limits are
+  required before hosted deployment.
+- Dependency and secret scans must run in CI before production releases.
 - Share tokens must expire and be revocable.
 - Share tokens must be stored hashed, not in plaintext.
 - Demo data must be synthetic.

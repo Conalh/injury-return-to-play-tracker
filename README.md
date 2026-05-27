@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 25 of the
+The project is a local production-path build, currently through Goal 26 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -73,6 +73,9 @@ Live in the repo:
 - Privacy controls with centralized share-view field filtering, explicit
   restricted-surface data contracts, retention policy hooks, an export/delete
   request plan, and a PHI handling checklist.
+- Security baseline controls for secure response headers, CORS allowlisting,
+  request size limits, auth/share route rate limits, dependency scanning, and
+  secret scanning.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -163,6 +166,7 @@ services/api
   auth.py            local request-context role gates
   audit.py           audit event taxonomy
   privacy.py         field filters + data-control policy hooks
+  security.py        secure headers, CORS, size limits, rate limits
   models.py          Pydantic request contracts
   db.py              SQLAlchemy metadata
   repositories/      in-memory + SQLAlchemy workflow repositories
@@ -202,6 +206,8 @@ contract is:
   events.
 - Restricted share responses use an explicit data contract and field-level
   filtering before leaving the API.
+- API responses carry baseline security headers; CORS, request body size, and
+  auth/share route rate limits are centrally configured.
 - Clearance decisions require a named actor and rationale.
 - Readiness responses explicitly include `can_auto_clear: false`.
 - Shared pages use non-diagnostic language and exclude symptom detail, guardian
@@ -228,12 +234,13 @@ npm audit --audit-level=high
 
 Current coverage includes API contracts, schema contracts, migrations, clinician
 workflow behavior, evidence capture, readiness signals, privacy and permission
-checks, privacy-control contracts, share/report/audit behavior, audit filtering
-and immutability, demo seed validation, persistent repository restart behavior,
-repository-boundary contracts, and browser coverage for the dashboard,
-API-backed case creation, template builder, evidence entry, clearance decisions,
-share management, athlete and guardian portals, report download, audit
-filtering, case detail, and limited share page.
+checks, privacy-control contracts, security-baseline middleware and workflow
+contracts, share/report/audit behavior, audit filtering and immutability, demo
+seed validation, persistent repository restart behavior, repository-boundary
+contracts, and browser coverage for the dashboard, API-backed case creation,
+template builder, evidence entry, clearance decisions, share management, athlete
+and guardian portals, report download, audit filtering, case detail, and limited
+share page.
 
 ## Documentation
 
@@ -250,6 +257,9 @@ filtering, case detail, and limited share page.
 - [docs/product/privacy-controls.md](docs/product/privacy-controls.md):
   field filtering, share-view contracts, retention hooks, export/delete request
   plan, and PHI checklist.
+- [docs/product/security-baseline.md](docs/product/security-baseline.md):
+  secure headers, CORS, rate limits, input limits, dependency scanning, and
+  secret scanning.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

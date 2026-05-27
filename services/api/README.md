@@ -248,6 +248,19 @@ Goal 25 adds privacy controls and data minimization:
 - Tests prove restricted share surfaces do not receive blocked clinical fields
   and restricted roles remain blocked from clinical detail endpoints.
 
+Goal 26 establishes the first security baseline:
+
+- `return_play.security` configures secure response headers, CORS allowlisting,
+  request body size limits, and per-process rate limits for `/api/auth/login`
+  and `/api/share/*` routes.
+- `RETURN_PLAY_CORS_ORIGINS`, `RETURN_PLAY_MAX_REQUEST_BYTES`,
+  `RETURN_PLAY_AUTH_RATE_LIMIT_PER_MINUTE`, and
+  `RETURN_PLAY_SHARE_RATE_LIMIT_PER_MINUTE` configure the runtime controls.
+- `.github/workflows/security.yml` runs `npm audit --audit-level=high`,
+  `pip-audit --strict`, and the repository secret scan.
+- `scripts/scan-secrets.ps1` blocks common committed private key and token
+  patterns.
+
 ## Local Setup
 
 ```powershell

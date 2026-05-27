@@ -15,3 +15,5 @@
   enforcement points.
 - `product/privacy-controls.md`: field filtering, share-view data contract,
   retention hooks, export/delete request plan, and PHI checklist.
+- `product/security-baseline.md`: secure headers, CORS, rate limits, input
+  size limits, dependency scan, and secret scan baseline.

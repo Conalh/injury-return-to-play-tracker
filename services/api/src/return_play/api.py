@@ -36,6 +36,7 @@ from return_play.models import (
 from return_play.permissions import Permission
 from return_play.privacy import privacy_data_controls
 from return_play.repositories import InMemoryWorkflowRepository, SqlAlchemyWorkflowRepository
+from return_play.security import configure_security
 
 
 AuthenticatedContext = Annotated[RequestContext, Depends(get_request_context)]
@@ -99,6 +100,7 @@ def create_app(repository=None) -> FastAPI:
         version="0.1.0",
         summary="Evidence tracking backend for staged return-to-play workflows.",
     )
+    configure_security(app)
 
     @app.get("/health", tags=["system"])
     def health() -> dict[str, str]:

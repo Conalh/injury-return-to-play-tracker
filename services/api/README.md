@@ -151,6 +151,16 @@ Goal 40 adds the hosted identity OIDC adapter:
 - `docs/operations/hosted-identity-oidc.md` records the provider adapter
   contract and the remaining hosted-tenant launch work.
 
+Goal 41 adds the hosted identity tenant rollout package:
+
+- `docs/operations/identity-provider-tenant-rollout.md` defines the provider
+  tenant setup checklist.
+- The package covers account lifecycle, MFA/password policy, provider-side
+  session and refresh-token policy, claim mapping, smoke tests, and launch-gate
+  evidence.
+- The repository still does not deploy or configure a real identity provider
+  tenant.
+
 Goal 13 formalizes authorization:
 
 - `return_play.permissions` defines named permissions and the role matrix.

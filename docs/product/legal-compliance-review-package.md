@@ -119,7 +119,9 @@ Known gaps before real data:
 
 - Hosted identity-provider tenant deployment is deferred. The API has an OIDC
   validation adapter and durable local revocation, but provider-side account
-  lifecycle, MFA/password policy, and session controls are not configured.
+  lifecycle, MFA/password policy, and session controls are not configured. The
+  required rollout evidence package is
+  `docs/operations/identity-provider-tenant-rollout.md`.
 - Staging and production hosting are not deployed.
 - Production secret management, distributed rate limiting, WAF rules, and
   deployment-platform controls are not configured.

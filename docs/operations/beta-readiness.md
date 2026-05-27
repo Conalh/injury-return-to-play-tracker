@@ -111,7 +111,9 @@ Current known limitations:
 
 - Hosted identity-provider tenant deployment is deferred. The API has an OIDC
   validation adapter and durable local revocation, but provider-side account
-  lifecycle, MFA/password policy, and session controls are not configured.
+  lifecycle, MFA/password policy, and session controls are not configured. Use
+  `docs/operations/identity-provider-tenant-rollout.md` before any hosted
+  identity beta.
 - Staging and production deployment are deferred.
 - Production secret management, distributed rate limiting, WAF rules, and
   platform-level monitoring are not yet configured.

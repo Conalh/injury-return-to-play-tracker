@@ -41,5 +41,8 @@
   identity follow-up.
 - `operations/hosted-identity-oidc.md`: OIDC provider adapter configuration,
   token claim contract, revocation boundary, and launch-gate limits.
+- `operations/identity-provider-tenant-rollout.md`: hosted identity tenant
+  setup, account lifecycle, MFA/password, session policy, smoke tests, and
+  evidence checklist.
 - `operations/production-launch-gate.md`: final launch checklist, evidence
   requirements, residual risk register, and signoff table.

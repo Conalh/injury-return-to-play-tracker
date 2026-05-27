@@ -73,4 +73,6 @@ cd services/api
 Goal 40 removes the code-level blocker for hosted OIDC validation. Broad launch
 remains blocked until a real identity provider tenant is configured, tested
 against the deployed environment, reviewed for legal/security posture, and
-included in the support and incident runbooks.
+included in the support and incident runbooks. Use
+`docs/operations/identity-provider-tenant-rollout.md` as the rollout evidence
+package for that work.

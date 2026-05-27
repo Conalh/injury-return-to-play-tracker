@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 40 of the
+The project is a local production-path build, currently through Goal 41 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -111,6 +111,9 @@ Live in the repo:
 - Hosted identity OIDC adapter with RS256 JWT verification, issuer/audience
   validation, JWKS support, role/organization claim mapping, and production
   startup checks for OIDC configuration.
+- Hosted identity tenant rollout package for provider setup, account lifecycle,
+  MFA/password policy, provider-side session controls, claim mapping, smoke
+  tests, and launch-gate evidence.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -123,8 +126,8 @@ Live in the repo:
 
 Still deferred:
 
-- Hosted identity-provider tenant deployment, account lifecycle, MFA/password,
-  and provider-side session policy.
+- Hosted identity-provider tenant deployment and live smoke evidence in a
+  target environment.
 - Staging and production deployment.
 
 ## Run It Locally
@@ -323,6 +326,9 @@ share page.
   limits.
 - [docs/operations/hosted-identity-oidc.md](docs/operations/hosted-identity-oidc.md):
   OIDC provider adapter configuration, token contract, and launch-gate limits.
+- [docs/operations/identity-provider-tenant-rollout.md](docs/operations/identity-provider-tenant-rollout.md):
+  hosted identity tenant setup, lifecycle, MFA/password, session, smoke-test,
+  and evidence checklist.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
 - [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):

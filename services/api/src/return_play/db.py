@@ -214,6 +214,18 @@ class ClinicianNoteRecord(IdMixin, Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class AuditLogEntry(IdMixin, Base):
+    __tablename__ = "audit_log_entries"
+
+    injury_case_id: Mapped[str] = mapped_column(
+        ForeignKey("injury_cases.id"), nullable=False, index=True
+    )
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    actor_id: Mapped[str | None] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+
+
 class ShareToken(IdMixin, Base):
     __tablename__ = "share_tokens"
 

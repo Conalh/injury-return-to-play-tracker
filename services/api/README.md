@@ -41,6 +41,15 @@ Goal 5 adds the readiness engine:
 - Source facts on every signal.
 - Explicit `can_auto_clear: false` response field.
 
+Goal 7 adds sharing, reports, and audit events:
+
+- `POST /api/injury-cases/{case_id}/share`.
+- `GET /api/share/{token}` for limited athlete, coach, or guardian status views.
+- `POST /api/share/{token}/revoke`.
+- `GET /api/injury-cases/{case_id}/report` for PDF status reports.
+- `GET /api/injury-cases/{case_id}/audit-log`.
+- Audit events for share creation, share revocation, and report generation.
+
 The runtime repository is currently in-memory. SQLAlchemy metadata and Alembic
 migrations are kept aligned with the workflow concepts, but request handlers do
 not yet persist to Postgres. Authentication, permissions, reporting, and

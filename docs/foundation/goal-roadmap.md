@@ -80,6 +80,11 @@ checks. Live FastAPI integration remains deferred.
 Add athlete, coach, and guardian views with limited information, expiring share
 links, revocation, PDF reports, and audit logging.
 
+Status: complete. The API can create expiring share tokens, return a limited
+share payload, revoke tokens, generate a PDF status report, and record audit
+events for share/report activity. The web app includes a demo coach share view
+that intentionally omits clinical evidence detail and private contact data.
+
 ## Goal 8: Privacy, Permissions, And Audit Hardening
 
 Harden authentication, role-based access, organization isolation, audit logs,

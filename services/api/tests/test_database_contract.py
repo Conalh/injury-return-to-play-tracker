@@ -17,6 +17,7 @@ def test_metadata_contains_goal_2_tables() -> None:
         "workload_sessions",
         "clearance_decisions",
         "clinician_notes",
+        "audit_log_entries",
         "share_tokens",
     }
 

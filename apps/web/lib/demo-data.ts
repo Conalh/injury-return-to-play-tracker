@@ -72,6 +72,21 @@ export type CaseDetail = {
   clinicianNote: string;
 };
 
+export type ShareView = {
+  token: string;
+  audience: "coach" | "guardian" | "athlete";
+  athleteName: string;
+  sport: string;
+  injuryTitle: string;
+  currentPhase: string;
+  participationStatus: string;
+  allowedActivities: string;
+  restrictedActivities: string;
+  nextReviewDate: string;
+  clearanceStatus: string;
+  clinicianNote: string;
+};
+
 export const athletes: AthleteSummary[] = [
   {
     id: "case_demo",
@@ -227,5 +242,22 @@ export function getCaseDetail(caseId: string): CaseDetail {
     ...caseDetail,
     id: caseId,
     athlete: athletes.find((athlete) => athlete.id === caseId) ?? athletes[0],
+  };
+}
+
+export function getShareView(token: string): ShareView {
+  return {
+    token,
+    audience: "coach",
+    athleteName: "Riley Chen",
+    sport: "Soccer",
+    injuryTitle: "Left ankle sprain",
+    currentPhase: "Restore motion",
+    participationStatus: "Modified training only",
+    allowedActivities: "Non-contact practice and assigned rehab work.",
+    restrictedActivities: "No contact drills. No full-speed cutting.",
+    nextReviewDate: "May 30",
+    clearanceStatus: "Clearance decision required.",
+    clinicianNote: "Next review after symptom check.",
   };
 }

@@ -16,6 +16,14 @@ Goal 6 establishes the first clinician dashboard:
 - Readiness review.
 - Clearance panel.
 
+Goal 7 adds the first limited shared view:
+
+- Coach status page at `/share/demo-coach-token`.
+- Participation status, allowed activity, restrictions, next review, and
+  clearance status.
+- No symptom trend, pain details, guardian contact, or full clinical record in
+  the shared route.
+
 The UI currently uses local demo data from `lib/demo-data.ts`. It is wired to
 match the backend API concepts, but it does not yet fetch from the FastAPI
 service.

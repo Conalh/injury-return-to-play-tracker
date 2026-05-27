@@ -193,6 +193,16 @@ class ClearanceDecisionCreate(ApiSchema):
 class ShareTokenCreate(ApiSchema):
     injury_case_id: str = Field(min_length=1)
     audience: ShareAudience
+    expires_in_days: int = Field(default=7, ge=1, le=90)
+    created_by: str = Field(min_length=1)
+    allowed_activities: str = Field(min_length=1)
+    restricted_activities: str = Field(min_length=1)
+    clinician_note: str = Field(min_length=1)
+    next_review_date: date | None = None
+
+
+class ShareTokenRevoke(ApiSchema):
+    revoked_by: str = Field(min_length=1)
 
 
 class TemplateMilestoneCreate(ApiSchema):

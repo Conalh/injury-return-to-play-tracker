@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+from secrets import token_urlsafe
 from uuid import uuid4
 
 from fastapi import HTTPException, status
@@ -15,9 +17,12 @@ from return_play.models import (
     MilestoneResultUpdate,
     PhaseStatus,
     ReturnPlanTemplateWithPhasesCreate,
+    ShareTokenCreate,
+    ShareTokenRevoke,
     SymptomLogCreate,
     WorkloadSessionCreate,
 )
+from return_play.reports import build_case_report_pdf
 from return_play.readiness import build_readiness
 
 
@@ -31,6 +36,8 @@ class InMemoryWorkflowRepository:
         self.symptom_logs: dict[str, list[dict]] = {}
         self.functional_tests: dict[str, list[dict]] = {}
         self.workload_sessions: dict[str, list[dict]] = {}
+        self.share_tokens: dict[str, dict] = {}
+        self.audit_log_entries: dict[str, list[dict]] = {}
 
     def create_athlete(self, payload: AthleteCreate) -> dict:
         athlete = payload.model_dump(mode="json")
@@ -261,6 +268,97 @@ class InMemoryWorkflowRepository:
             workload_sessions=self.workload_sessions.get(case_id, []),
         )
 
+    def create_share(self, case_id: str, payload: ShareTokenCreate) -> dict:
+        self._validate_evidence_case(case_id, payload.injury_case_id)
+        raw_token = token_urlsafe(24)
+        token_hash = self._hash_token(raw_token)
+        now = datetime.now(UTC)
+        share = {
+            **payload.model_dump(mode="json"),
+            "id": self._new_id("share"),
+            "token": raw_token,
+            "token_hash": token_hash,
+            "created_at": now.isoformat(),
+            "expires_at": (now + timedelta(days=payload.expires_in_days)).isoformat(),
+            "revoked_at": None,
+        }
+        self.share_tokens[token_hash] = share
+        self._record_audit_event(
+            case_id,
+            "share_created",
+            payload.created_by,
+            {"audience": payload.audience.value, "share_id": share["id"]},
+        )
+        return share
+
+    def get_share(self, token: str) -> dict:
+        share = self._get_share_by_token(token)
+        if share["revoked_at"] is not None:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share token has been revoked.",
+            )
+        if datetime.fromisoformat(share["expires_at"]) <= datetime.now(UTC):
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Share token has expired.",
+            )
+
+        injury_case = self._get_case(share["injury_case_id"])
+        athlete = self.athletes[injury_case["athlete_id"]]
+        phases = self.case_plans.get(injury_case["id"], [])
+        current_phase = next(
+            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            None,
+        )
+        return {
+            "audience": share["audience"],
+            "athlete_name": athlete["name"],
+            "sport": athlete["sport"],
+            "injury_title": injury_case["title"],
+            "current_phase": current_phase["name"] if current_phase else None,
+            "participation_status": "Modified participation",
+            "allowed_activities": share["allowed_activities"],
+            "restricted_activities": share["restricted_activities"],
+            "next_review_date": share["next_review_date"],
+            "clearance_status": "Clearance decision required.",
+            "clinician_note": share["clinician_note"],
+        }
+
+    def revoke_share(self, token: str, payload: ShareTokenRevoke) -> dict:
+        share = self._get_share_by_token(token)
+        if share["revoked_at"] is None:
+            share["revoked_at"] = self._now()
+            self._record_audit_event(
+                share["injury_case_id"],
+                "share_revoked",
+                payload.revoked_by,
+                {"audience": share["audience"], "share_id": share["id"]},
+            )
+        return share
+
+    def build_report(self, case_id: str) -> bytes:
+        injury_case = self._get_case(case_id)
+        athlete = self.athletes[injury_case["athlete_id"]]
+        readiness = self.get_readiness(case_id)
+        self._record_audit_event(
+            case_id,
+            "report_generated",
+            injury_case["clinician_owner_id"],
+            {"format": "pdf"},
+        )
+        return build_case_report_pdf(
+            {
+                **injury_case,
+                "athlete_name": athlete["name"],
+            },
+            readiness,
+        )
+
+    def get_audit_log(self, case_id: str) -> dict[str, list[dict]]:
+        self._get_case(case_id)
+        return {"items": self.audit_log_entries.get(case_id, [])}
+
     def _get_case(self, case_id: str) -> dict:
         try:
             return self.injury_cases[case_id]
@@ -286,6 +384,38 @@ class InMemoryWorkflowRepository:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Evidence payload case does not match route.",
             )
+
+    def _get_share_by_token(self, token: str) -> dict:
+        token_hash = self._hash_token(token)
+        try:
+            return self.share_tokens[token_hash]
+        except KeyError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Share token not found.",
+            ) from exc
+
+    def _record_audit_event(
+        self,
+        case_id: str,
+        event_type: str,
+        actor_id: str | None,
+        metadata: dict,
+    ) -> dict:
+        event = {
+            "id": self._new_id("audit"),
+            "injury_case_id": case_id,
+            "event_type": event_type,
+            "actor_id": actor_id,
+            "created_at": self._now(),
+            "metadata_json": metadata,
+        }
+        self.audit_log_entries.setdefault(case_id, []).append(event)
+        return event
+
+    @staticmethod
+    def _hash_token(token: str) -> str:
+        return sha256(token.encode("utf-8")).hexdigest()
 
     @staticmethod
     def _new_id(prefix: str) -> str:

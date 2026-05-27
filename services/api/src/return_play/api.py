@@ -1,4 +1,4 @@
-from fastapi import APIRouter, FastAPI, Query, status
+from fastapi import APIRouter, FastAPI, Query, Response, status
 
 from return_play.models import (
     ApplyTemplateRequest,
@@ -8,6 +8,8 @@ from return_play.models import (
     InjuryCaseCreate,
     MilestoneResultUpdate,
     ReturnPlanTemplateWithPhasesCreate,
+    ShareTokenCreate,
+    ShareTokenRevoke,
     SymptomLogCreate,
     WorkloadSessionCreate,
 )
@@ -108,6 +110,29 @@ def create_app() -> FastAPI:
     @api_router.get("/injury-cases/{case_id}/readiness")
     def get_readiness(case_id: str) -> dict:
         return repository.get_readiness(case_id)
+
+    @api_router.post("/injury-cases/{case_id}/share", status_code=status.HTTP_201_CREATED)
+    def create_share(case_id: str, payload: ShareTokenCreate) -> dict:
+        return repository.create_share(case_id, payload)
+
+    @api_router.get("/injury-cases/{case_id}/report")
+    def get_report(case_id: str) -> Response:
+        return Response(
+            content=repository.build_report(case_id),
+            media_type="application/pdf",
+        )
+
+    @api_router.get("/injury-cases/{case_id}/audit-log")
+    def get_audit_log(case_id: str) -> dict[str, list[dict]]:
+        return repository.get_audit_log(case_id)
+
+    @api_router.get("/share/{token}")
+    def get_share(token: str) -> dict:
+        return repository.get_share(token)
+
+    @api_router.post("/share/{token}/revoke")
+    def revoke_share(token: str, payload: ShareTokenRevoke) -> dict:
+        return repository.revoke_share(token, payload)
 
     @api_router.get("/templates")
     def list_templates(

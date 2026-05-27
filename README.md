@@ -13,14 +13,16 @@ through worsening symptoms.
 
 ## Current Status
 
-The project is in foundation/specification work.
+The project is moving through the local goal roadmap.
 
 - `PLAN.md` contains the original implementation plan.
 - `docs/product/product-spec.md` contains the safety-first product spec.
 - `docs/foundation/project-foundation.md` defines the initial repo and tooling
   direction.
-
-No application code has been scaffolded yet.
+- `services/api` contains the FastAPI workflow API for roster, cases, evidence,
+  readiness signals, sharing, PDF reports, and audit events.
+- `apps/web` contains the Next.js clinician dashboard and limited demo share
+  view.
 
 ## Planned Stack
 
@@ -34,9 +36,9 @@ No application code has been scaffolded yet.
 
 ```text
 apps/
-  web/                 # Planned Next.js clinician and shared-view app.
+  web/                 # Next.js clinician and shared-view app.
 services/
-  api/                 # Planned FastAPI service.
+  api/                 # FastAPI service.
 packages/
   shared/              # Planned shared contracts/types where useful.
 docs/
@@ -49,4 +51,3 @@ docs/
 Return-to-play decisions are high-stakes clinical decisions. This software can
 organize evidence and make missing information visible, but every phase advance
 or full-clearance action must be attributed to a named human decision-maker.
-

@@ -1,4 +1,9 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(overflow).toBe(false);
+}
 
 test("clinician dashboard shows roster and evidence summary", async ({ page }) => {
   await page.goto("/");
@@ -34,4 +39,23 @@ test("case detail shows phase, milestones, evidence, readiness, and clearance pa
   await expect(page.getByRole("link", { name: "Share access" }).first()).toBeVisible();
   await expect(page.getByText("Review symptoms before advancing.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Record clearance decision" })).toBeVisible();
+});
+
+test("dashboard stays inside the mobile viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: "Return-to-Play Control Center" })).toBeVisible();
+  await expect(page.getByTestId("roster-table").getByRole("link", { name: /Riley Chen/ })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});
+
+test("case detail stays inside the mobile viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/cases/case_demo");
+
+  await expect(page.getByRole("heading", { name: "Riley Chen" })).toBeVisible();
+  await expect(page.getByText("Return-to-play phase progression")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Readiness signals" })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
 });

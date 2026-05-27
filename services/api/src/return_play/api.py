@@ -186,6 +186,13 @@ def create_app() -> FastAPI:
     def get_share(token: str) -> dict:
         return repository.get_share(token)
 
+    @api_router.post("/demo/seed", status_code=status.HTTP_201_CREATED)
+    def seed_demo(context: ClinicalContext, response: Response) -> dict:
+        demo = repository.seed_demo(context)
+        if demo["already_seeded"]:
+            response.status_code = status.HTTP_200_OK
+        return demo
+
     @api_router.post("/share/{token}/revoke")
     def revoke_share(token: str, payload: ShareTokenRevoke, context: ClinicalContext) -> dict:
         return repository.revoke_share(token, payload, context)

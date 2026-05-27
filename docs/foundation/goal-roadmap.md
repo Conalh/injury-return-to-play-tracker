@@ -101,3 +101,9 @@ outside this local scaffold.
 ## Goal 9: Demo And Validation
 
 Seed demo data and prove the complete workflow with pytest and Playwright.
+
+Status: complete. The API exposes a protected local demo seed route that builds
+the Riley Chen workflow end to end in the in-memory repository. Pytest proves
+the seeded roster, case detail, readiness signals, limited share view, PDF
+report, and audit log. Playwright continues to prove the local clinician
+dashboard, case detail, and shared coach view.

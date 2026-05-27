@@ -8,6 +8,7 @@ from uuid import uuid4
 from fastapi import HTTPException, status
 
 from return_play.auth import RequestContext
+from return_play.demo import seed_demo_workflow
 from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
@@ -455,6 +456,9 @@ class InMemoryWorkflowRepository:
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
         self._get_case(case_id, context.organization_id)
         return {"items": self.audit_log_entries.get(case_id, [])}
+
+    def seed_demo(self, context: RequestContext) -> dict:
+        return seed_demo_workflow(self, context)
 
     def _get_case(self, case_id: str, organization_id: str | None = None) -> dict:
         try:

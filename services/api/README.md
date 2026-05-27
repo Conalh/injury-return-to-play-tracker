@@ -63,6 +63,18 @@ Goal 8 adds privacy and permission hardening:
 - Non-diagnostic share language that states shared views are not medical
   clearance.
 
+Goal 9 adds demo seeding and complete workflow validation:
+
+- `POST /api/demo/seed` creates the local Riley Chen demo workflow for the
+  authenticated organization. First seed returns `201`; later calls return
+  `200` with the existing seeded case.
+- The seed covers athlete, injury case, staged return plan, milestone status,
+  symptom logs, functional tests, workload sessions, clinician note, hold
+  clearance decision, limited share link, readiness signals, PDF report, and
+  audit log proof.
+- The endpoint is intended for local/demo validation only and uses the
+  in-memory repository.
+
 The runtime repository is currently in-memory. SQLAlchemy metadata and Alembic
 migrations are kept aligned with the workflow concepts, but request handlers do
 not yet persist to Postgres. The Goal 8 request context is a local development
@@ -80,6 +92,20 @@ python -m venv .venv
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest
+```
+
+## Demo Seed
+
+With the API running, seed the local demo workflow with the Goal 8 request
+context headers:
+
+```powershell
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/demo/seed `
+  -Headers @{
+    "x-actor-id" = "clinician_demo"
+    "x-actor-role" = "clinician"
+    "x-organization-id" = "org_demo"
+  }
 ```
 
 ## Migration Commands

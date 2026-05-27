@@ -101,7 +101,8 @@ def test_security_workflow_blocks_high_dependency_risk_and_scans_secrets() -> No
     secret_scan = (root / "scripts" / "scan-secrets.ps1").read_text()
 
     assert "npm audit --audit-level=high" in workflow
-    assert "pip-audit --strict --skip-editable" in workflow
+    assert "python -m pip freeze --exclude-editable > audit-requirements.txt" in workflow
+    assert "pip-audit --strict -r audit-requirements.txt" in workflow
     assert "scripts/scan-secrets.ps1" in workflow
     assert '"/scripts/scan-secrets.ps1"' in secret_scan
     assert '.FullName.Replace("\\", "/")' in secret_scan

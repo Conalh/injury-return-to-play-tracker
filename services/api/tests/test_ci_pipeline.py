@@ -16,7 +16,8 @@ def test_ci_workflow_defines_required_pipeline_jobs() -> None:
     assert "npm run build" in workflow
     assert "npm test" in workflow
     assert "npm audit --audit-level=high" in workflow
-    assert "pip-audit --strict --skip-editable" in workflow
+    assert "python -m pip freeze --exclude-editable > audit-requirements.txt" in workflow
+    assert "pip-audit --strict -r audit-requirements.txt" in workflow
 
 
 def test_required_status_checks_are_documented() -> None:

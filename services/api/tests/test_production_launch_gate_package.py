@@ -32,6 +32,7 @@ def test_production_launch_gate_package_covers_goal_37_deliverables() -> None:
         "safety-and-compliance-notes.md",
         "beta-readiness.md",
         "auth-token-revocation.md",
+        "hosted-identity-oidc.md",
     ]
     for reference in required_references:
         assert reference in text

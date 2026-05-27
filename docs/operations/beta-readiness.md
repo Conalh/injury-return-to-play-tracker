@@ -109,9 +109,9 @@ Feedback handling rules:
 
 Current known limitations:
 
-- Hosted identity-provider integration is deferred. Local HMAC logout
-  revocation exists, and persistent API deployments can share database-backed
-  revocation state.
+- Hosted identity-provider tenant deployment is deferred. The API has an OIDC
+  validation adapter and durable local revocation, but provider-side account
+  lifecycle, MFA/password policy, and session controls are not configured.
 - Staging and production deployment are deferred.
 - Production secret management, distributed rate limiting, WAF rules, and
   platform-level monitoring are not yet configured.

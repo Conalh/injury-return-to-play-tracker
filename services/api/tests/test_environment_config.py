@@ -12,6 +12,10 @@ ROOT = Path(__file__).parents[3]
 def test_backend_settings_parse_typed_runtime_values(monkeypatch) -> None:
     monkeypatch.setenv("RETURN_PLAY_ENV", "staging")
     monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "bearer_token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "oidc")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_ISSUER", "https://identity.example.com/")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_AUDIENCE", "return-play-api")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_JWKS_URL", "https://identity.example.com/.well-known/jwks.json")
     monkeypatch.setenv("RETURN_PLAY_CORS_ORIGINS", "https://app.example.com, https://ops.example.com")
     monkeypatch.setenv("RETURN_PLAY_MAX_REQUEST_BYTES", "2048")
     monkeypatch.setenv("RETURN_PLAY_AUTH_RATE_LIMIT_PER_MINUTE", "7")
@@ -21,6 +25,10 @@ def test_backend_settings_parse_typed_runtime_values(monkeypatch) -> None:
 
     assert settings.env == "staging"
     assert settings.auth_mode == "token"
+    assert settings.auth_provider == "oidc"
+    assert settings.oidc_issuer == "https://identity.example.com/"
+    assert settings.oidc_audience == "return-play-api"
+    assert settings.oidc_jwks_url == "https://identity.example.com/.well-known/jwks.json"
     assert settings.cors_origin_list == ["https://app.example.com", "https://ops.example.com"]
     assert settings.max_request_bytes == 2048
     assert settings.auth_rate_limit_per_minute == 7
@@ -60,6 +68,27 @@ def test_production_startup_rejects_short_auth_secret_and_local_login(monkeypatc
     assert "RETURN_PLAY_LOCAL_AUTH_ENABLED must not be enabled in production." in message
 
 
+def test_production_startup_requires_oidc_provider_configuration(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_ENV", "production")
+    monkeypatch.setenv("RETURN_PLAY_DATABASE_URL", "postgresql+psycopg://postgres:postgres@db:5432/return_play")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "oidc")
+    monkeypatch.setenv("RETURN_PLAY_CORS_ORIGINS", "https://app.example.com")
+    monkeypatch.delenv("RETURN_PLAY_AUTH_SECRET", raising=False)
+    monkeypatch.delenv("RETURN_PLAY_OIDC_ISSUER", raising=False)
+    monkeypatch.delenv("RETURN_PLAY_OIDC_AUDIENCE", raising=False)
+    monkeypatch.delenv("RETURN_PLAY_OIDC_JWKS_URL", raising=False)
+    monkeypatch.delenv("RETURN_PLAY_OIDC_JWKS_JSON", raising=False)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        create_runtime_app()
+
+    message = str(exc_info.value)
+    assert "RETURN_PLAY_OIDC_ISSUER is required for OIDC auth." in message
+    assert "RETURN_PLAY_OIDC_AUDIENCE is required for OIDC auth." in message
+    assert "RETURN_PLAY_OIDC_JWKS_URL or RETURN_PLAY_OIDC_JWKS_JSON is required for OIDC auth." in message
+
+
 def test_env_example_documents_required_backend_and_frontend_contract() -> None:
     example = (ROOT / ".env.example").read_text()
     frontend_env = (ROOT / "apps" / "web" / "lib" / "env.ts").read_text()
@@ -69,7 +98,11 @@ def test_env_example_documents_required_backend_and_frontend_contract() -> None:
         "RETURN_PLAY_SERVICE_NAME",
         "RETURN_PLAY_DATABASE_URL",
         "RETURN_PLAY_AUTH_MODE",
+        "RETURN_PLAY_AUTH_PROVIDER",
         "RETURN_PLAY_AUTH_SECRET",
+        "RETURN_PLAY_OIDC_ISSUER",
+        "RETURN_PLAY_OIDC_AUDIENCE",
+        "RETURN_PLAY_OIDC_JWKS_URL",
         "RETURN_PLAY_ERROR_TRACKING_DSN",
         "RETURN_PLAY_CORS_ORIGINS",
         "RETURN_PLAY_DATA_MODE",

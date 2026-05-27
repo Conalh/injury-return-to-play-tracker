@@ -8,9 +8,10 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from secrets import token_urlsafe
-from typing import Annotated, Callable, Protocol
+from typing import Annotated, Any, Callable, Protocol
 
 from fastapi import Depends, Header, HTTPException, status
+import jwt
 from sqlalchemy import delete, select
 
 from return_play.config import get_settings
@@ -247,6 +248,8 @@ def _context_from_authorization_header(authorization: str | None) -> RequestCont
             detail="Bearer token required.",
         )
     token = authorization.removeprefix("Bearer ").strip()
+    if get_settings().auth_provider == "oidc":
+        return _verify_oidc_token(token)
     return _verify_auth_token(token, _auth_secret())
 
 
@@ -289,6 +292,71 @@ def _verify_auth_token(token: str, secret: str) -> RequestContext:
         token_id=str(token_id),
         token_expires_at=expires_at,
     )
+
+
+def _verify_oidc_token(token: str) -> RequestContext:
+    settings = get_settings()
+    try:
+        payload = jwt.decode(
+            token,
+            _oidc_public_key(token),
+            algorithms=["RS256"],
+            audience=settings.oidc_audience,
+            issuer=settings.oidc_issuer,
+        )
+        role = UserRole(payload[settings.oidc_role_claim])
+        actor_id = payload["sub"]
+        organization_id = payload[settings.oidc_organization_claim]
+        token_id = payload["jti"]
+        expires_at = int(payload["exp"])
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        jwt.InvalidTokenError,
+        json.JSONDecodeError,
+    ) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="OIDC bearer token is invalid.",
+        ) from exc
+
+    now = int(time.time())
+    if _auth_token_revocation_store.is_revoked(str(token_id), now):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Bearer token has been revoked.",
+        )
+
+    return RequestContext(
+        actor_id=str(actor_id),
+        role=role,
+        organization_id=str(organization_id),
+        token_id=str(token_id),
+        token_expires_at=expires_at,
+    )
+
+
+def _oidc_public_key(token: str) -> Any:
+    settings = get_settings()
+    if settings.oidc_jwks_json:
+        return _oidc_public_key_from_jwks_json(token, settings.oidc_jwks_json)
+    if settings.oidc_jwks_url:
+        return jwt.PyJWKClient(settings.oidc_jwks_url).get_signing_key_from_jwt(token).key
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="OIDC JWKS is not configured.",
+    )
+
+
+def _oidc_public_key_from_jwks_json(token: str, jwks_json: str) -> Any:
+    header = jwt.get_unverified_header(token)
+    key_id = header.get("kid")
+    jwks = json.loads(jwks_json)
+    for key in jwks.get("keys", []):
+        if key.get("kid") == key_id:
+            return jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+    raise jwt.InvalidTokenError("No matching OIDC signing key.")
 
 
 def _auth_mode() -> str:

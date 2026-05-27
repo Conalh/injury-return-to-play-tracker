@@ -117,9 +117,9 @@ Implemented controls:
 
 Known gaps before real data:
 
-- Hosted identity-provider integration is deferred. Local HMAC logout
-  revocation exists, and persistent API deployments can share database-backed
-  revocation state, but this is not a hosted identity decision.
+- Hosted identity-provider tenant deployment is deferred. The API has an OIDC
+  validation adapter and durable local revocation, but provider-side account
+  lifecycle, MFA/password policy, and session controls are not configured.
 - Staging and production hosting are not deployed.
 - Production secret management, distributed rate limiting, WAF rules, and
   deployment-platform controls are not configured.

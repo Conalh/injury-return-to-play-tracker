@@ -17,8 +17,22 @@ Required in production:
 - `RETURN_PLAY_ENV=production`
 - `RETURN_PLAY_DATABASE_URL`
 - `RETURN_PLAY_AUTH_MODE=token`
-- `RETURN_PLAY_AUTH_SECRET` with at least 32 characters
 - `RETURN_PLAY_CORS_ORIGINS`
+
+For local HMAC token verification:
+
+- `RETURN_PLAY_AUTH_PROVIDER=local_hmac`
+- `RETURN_PLAY_AUTH_SECRET` with at least 32 characters
+
+For hosted identity OIDC verification:
+
+- `RETURN_PLAY_AUTH_PROVIDER=oidc`
+- `RETURN_PLAY_OIDC_ISSUER`
+- `RETURN_PLAY_OIDC_AUDIENCE`
+- `RETURN_PLAY_OIDC_JWKS_URL` or `RETURN_PLAY_OIDC_JWKS_JSON`
+- Optional claim overrides:
+  `RETURN_PLAY_OIDC_ROLE_CLAIM`,
+  `RETURN_PLAY_OIDC_ORGANIZATION_CLAIM`
 
 Forbidden in production:
 

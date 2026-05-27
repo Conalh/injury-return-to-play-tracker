@@ -1,10 +1,14 @@
+import json
+import time
+
+import jwt
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
 from helpers import auth_headers
 from return_play.api import create_app, create_persistent_app
 from return_play.auth import RequestContext, create_auth_token
-from sqlalchemy import select
-
 from return_play.db import AuthTokenRevocation, Base, create_engine_for_url, create_session_factory
 
 
@@ -188,3 +192,71 @@ def test_persistent_logout_revocation_survives_app_restart(
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Bearer token has been revoked."
+
+
+def test_oidc_provider_validates_issuer_audience_and_claim_mapping(monkeypatch) -> None:
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_jwk = json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(private_key.public_key()))
+    public_jwk["kid"] = "return-play-test-key"
+    token = jwt.encode(
+        {
+            "iss": "https://identity.example.com/",
+            "aud": "return-play-api",
+            "sub": "oidc_clinician",
+            "exp": int(time.time()) + 3600,
+            "jti": "oidc-token-1",
+            "return_play_role": "clinician",
+            "return_play_organization_id": "org_oidc",
+        },
+        private_key,
+        algorithm="RS256",
+        headers={"kid": "return-play-test-key"},
+    )
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "oidc")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_ISSUER", "https://identity.example.com/")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_AUDIENCE", "return-play-api")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_JWKS_JSON", json.dumps({"keys": [public_jwk]}))
+    client = TestClient(create_app())
+    client.headers.update({"Authorization": f"Bearer {token}"})
+
+    response = client.get("/api/me")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "actor_id": "oidc_clinician",
+        "role": "clinician",
+        "organization_id": "org_oidc",
+    }
+
+
+def test_oidc_provider_rejects_wrong_audience(monkeypatch) -> None:
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_jwk = json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(private_key.public_key()))
+    public_jwk["kid"] = "return-play-test-key"
+    token = jwt.encode(
+        {
+            "iss": "https://identity.example.com/",
+            "aud": "other-api",
+            "sub": "oidc_clinician",
+            "exp": int(time.time()) + 3600,
+            "jti": "oidc-token-2",
+            "return_play_role": "clinician",
+            "return_play_organization_id": "org_oidc",
+        },
+        private_key,
+        algorithm="RS256",
+        headers={"kid": "return-play-test-key"},
+    )
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "oidc")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_ISSUER", "https://identity.example.com/")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_AUDIENCE", "return-play-api")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_JWKS_JSON", json.dumps({"keys": [public_jwk]}))
+    client = TestClient(create_app())
+    client.headers.update({"Authorization": f"Bearer {token}"})
+
+    response = client.get("/api/me")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "OIDC bearer token is invalid."

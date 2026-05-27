@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 AuthMode = Literal["dev_headers", "token"]
+AuthProvider = Literal["local_hmac", "oidc"]
 Environment = Literal["local", "test", "staging", "production"]
 
 
@@ -17,7 +18,14 @@ class ReturnPlaySettings(BaseSettings):
     service_name: str = "return-play-api"
     database_url: str | None = None
     auth_mode: AuthMode = "dev_headers"
+    auth_provider: AuthProvider = "local_hmac"
     auth_secret: str | None = None
+    oidc_issuer: str | None = None
+    oidc_audience: str | None = None
+    oidc_jwks_url: str | None = None
+    oidc_jwks_json: str | None = None
+    oidc_role_claim: str = "return_play_role"
+    oidc_organization_claim: str = "return_play_organization_id"
     error_tracking_dsn: str | None = None
     cors_origins: str | None = None
     max_request_bytes: int = Field(default=1_048_576, ge=1)
@@ -40,6 +48,16 @@ class ReturnPlaySettings(BaseSettings):
             return "dev_headers"
         raise ValueError("RETURN_PLAY_AUTH_MODE must be dev_headers or token.")
 
+    @field_validator("auth_provider", mode="before")
+    @classmethod
+    def normalize_auth_provider(cls, value: str) -> AuthProvider:
+        provider = str(value).lower()
+        if provider in {"local", "hmac", "local_hmac"}:
+            return "local_hmac"
+        if provider in {"oidc", "openid", "openid_connect"}:
+            return "oidc"
+        raise ValueError("RETURN_PLAY_AUTH_PROVIDER must be local_hmac or oidc.")
+
     @property
     def cors_origin_list(self) -> list[str]:
         if not self.cors_origins:
@@ -55,10 +73,20 @@ class ReturnPlaySettings(BaseSettings):
             errors.append("RETURN_PLAY_DATABASE_URL is required in production.")
         if self.auth_mode != "token":
             errors.append("RETURN_PLAY_AUTH_MODE must be token in production.")
-        if not self.auth_secret:
-            errors.append("RETURN_PLAY_AUTH_SECRET is required in production.")
-        elif len(self.auth_secret) < 32:
-            errors.append("RETURN_PLAY_AUTH_SECRET must be at least 32 characters in production.")
+        if self.auth_provider == "local_hmac":
+            if not self.auth_secret:
+                errors.append("RETURN_PLAY_AUTH_SECRET is required in production.")
+            elif len(self.auth_secret) < 32:
+                errors.append("RETURN_PLAY_AUTH_SECRET must be at least 32 characters in production.")
+        if self.auth_provider == "oidc":
+            if not self.oidc_issuer:
+                errors.append("RETURN_PLAY_OIDC_ISSUER is required for OIDC auth.")
+            if not self.oidc_audience:
+                errors.append("RETURN_PLAY_OIDC_AUDIENCE is required for OIDC auth.")
+            if not (self.oidc_jwks_url or self.oidc_jwks_json):
+                errors.append(
+                    "RETURN_PLAY_OIDC_JWKS_URL or RETURN_PLAY_OIDC_JWKS_JSON is required for OIDC auth."
+                )
         if not self.cors_origin_list:
             errors.append("RETURN_PLAY_CORS_ORIGINS must list allowed origins in production.")
         if self.local_auth_enabled:

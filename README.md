@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 39 of the
+The project is a local production-path build, currently through Goal 40 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -108,6 +108,9 @@ Live in the repo:
   revocation, revoked-token rejection, durable database-backed revocation for
   persistent deployments, and an explicit runbook for the remaining hosted
   identity decision.
+- Hosted identity OIDC adapter with RS256 JWT verification, issuer/audience
+  validation, JWKS support, role/organization claim mapping, and production
+  startup checks for OIDC configuration.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -120,7 +123,8 @@ Live in the repo:
 
 Still deferred:
 
-- Hosted identity-provider integration.
+- Hosted identity-provider tenant deployment, account lifecycle, MFA/password,
+  and provider-side session policy.
 - Staging and production deployment.
 
 ## Run It Locally
@@ -235,6 +239,9 @@ contract is:
   the current token for the lifetime of that token in the running API process.
 - Persistent API deployments store hashed revoked token IDs in the database so
   logout revocation survives API restarts and can be shared by API workers.
+- OIDC provider mode validates RS256 bearer tokens against configured issuer,
+  audience, JWKS, role claim, organization claim, subject, expiration, and token
+  ID.
 - Clinical workflows are limited to clinician, athletic trainer, and admin
   roles until the production role matrix lands.
 - Organization IDs scope roster, template, case, evidence, readiness,
@@ -314,6 +321,8 @@ share page.
 - [docs/operations/auth-token-revocation.md](docs/operations/auth-token-revocation.md):
   bearer-token IDs, logout revocation, verification, and production identity
   limits.
+- [docs/operations/hosted-identity-oidc.md](docs/operations/hosted-identity-oidc.md):
+  OIDC provider adapter configuration, token contract, and launch-gate limits.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
 - [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):

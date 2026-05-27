@@ -138,6 +138,19 @@ Goal 39 adds durable auth token revocation:
 - Hosted identity-provider integration remains a separate production launch
   decision.
 
+Goal 40 adds the hosted identity OIDC adapter:
+
+- `RETURN_PLAY_AUTH_PROVIDER=oidc` switches token auth from local HMAC
+  verification to RS256 OIDC JWT verification.
+- OIDC mode validates issuer, audience, expiration, signing key, role claim,
+  organization claim, subject, and token ID.
+- JWKS can come from `RETURN_PLAY_OIDC_JWKS_URL` for hosted providers or
+  `RETURN_PLAY_OIDC_JWKS_JSON` for local verification tests.
+- Production startup requires OIDC issuer, audience, and a JWKS source when the
+  OIDC provider is selected.
+- `docs/operations/hosted-identity-oidc.md` records the provider adapter
+  contract and the remaining hosted-tenant launch work.
+
 Goal 13 formalizes authorization:
 
 - `return_play.permissions` defines named permissions and the role matrix.

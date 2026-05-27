@@ -39,5 +39,7 @@
 - `operations/auth-token-revocation.md`: bearer-token IDs, logout revocation
   behavior, durable persistent revocation, operational limits, and production
   identity follow-up.
+- `operations/hosted-identity-oidc.md`: OIDC provider adapter configuration,
+  token claim contract, revocation boundary, and launch-gate limits.
 - `operations/production-launch-gate.md`: final launch checklist, evidence
   requirements, residual risk register, and signoff table.

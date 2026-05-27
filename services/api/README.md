@@ -50,10 +50,24 @@ Goal 7 adds sharing, reports, and audit events:
 - `GET /api/injury-cases/{case_id}/audit-log`.
 - Audit events for share creation, share revocation, and report generation.
 
+Goal 8 adds privacy and permission hardening:
+
+- Required local request context headers for protected `/api` routes:
+  `x-actor-id`, `x-actor-role`, and `x-organization-id`.
+- Role checks for clinician, athletic trainer, and admin workflows.
+- Organization isolation for roster, template, case, evidence, readiness,
+  report, share-management, and audit-log access.
+- `POST /api/injury-cases/{case_id}/clearance` for named human clearance
+  decisions.
+- Audit events for clearance decisions.
+- Non-diagnostic share language that states shared views are not medical
+  clearance.
+
 The runtime repository is currently in-memory. SQLAlchemy metadata and Alembic
 migrations are kept aligned with the workflow concepts, but request handlers do
-not yet persist to Postgres. Authentication, permissions, reporting, and
-frontend workflows are intentionally deferred to later goals.
+not yet persist to Postgres. The Goal 8 request context is a local development
+contract for tests and future integration; production identity, sessions, and
+token verification remain deferred.
 
 ## Local Setup
 

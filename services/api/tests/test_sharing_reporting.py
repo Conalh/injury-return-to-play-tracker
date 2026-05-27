@@ -1,10 +1,10 @@
 from fastapi.testclient import TestClient
 
-from return_play.api import create_app
+from helpers import create_client
 
 
 def test_share_token_exposes_limited_view_and_audit_events() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case = _create_case(client)
 
     share_response = client.post(
@@ -41,7 +41,10 @@ def test_share_token_exposes_limited_view_and_audit_events() -> None:
         "allowed_activities": "Non-contact practice and rehab work.",
         "restricted_activities": "No contact drills. No full-speed cutting.",
         "next_review_date": None,
-        "clearance_status": "Clearance decision required.",
+        "clearance_status": (
+            "Awaiting named clinician decision. "
+            "This shared view is not medical clearance."
+        ),
         "clinician_note": "Next review after symptom check.",
     }
     assert "guardian_contact" not in limited
@@ -56,7 +59,7 @@ def test_share_token_exposes_limited_view_and_audit_events() -> None:
 
 
 def test_share_token_can_be_revoked() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case = _create_case(client)
     share = _create_share(client, injury_case["id"])
 
@@ -77,7 +80,7 @@ def test_share_token_can_be_revoked() -> None:
 
 
 def test_pdf_report_endpoint_returns_pdf_and_records_audit_event() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case = _create_case(client)
 
     response = client.get(f"/api/injury-cases/{injury_case['id']}/report")

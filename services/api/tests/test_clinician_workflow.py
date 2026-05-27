@@ -1,10 +1,8 @@
-from fastapi.testclient import TestClient
-
-from return_play.api import create_app
+from helpers import auth_headers, create_client
 
 
 def test_clinician_can_create_case_apply_template_and_update_current_gate() -> None:
-    client = TestClient(create_app())
+    client = create_client()
 
     athlete_response = client.post(
         "/api/athletes",
@@ -125,9 +123,10 @@ def test_clinician_can_create_case_apply_template_and_update_current_gate() -> N
 
 
 def test_roster_is_filtered_by_organization() -> None:
-    client = TestClient(create_app())
+    client = create_client()
 
     for organization_id in ["org_a", "org_b"]:
+        client.headers.update(auth_headers(organization_id=organization_id))
         response = client.post(
             "/api/athletes",
             json={
@@ -139,6 +138,7 @@ def test_roster_is_filtered_by_organization() -> None:
         )
         assert response.status_code == 201
 
+    client.headers.update(auth_headers(organization_id="org_a"))
     response = client.get("/api/athletes", params={"organization_id": "org_a"})
 
     assert response.status_code == 200

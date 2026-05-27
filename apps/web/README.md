@@ -23,6 +23,8 @@ Goal 7 adds the first limited shared view:
   clearance status.
 - No symptom trend, pain details, guardian contact, or full clinical record in
   the shared route.
+- Non-diagnostic clearance wording that states the page is not medical
+  clearance.
 
 The UI currently uses local demo data from `lib/demo-data.ts`. It is wired to
 match the backend API concepts, but it does not yet fetch from the FastAPI

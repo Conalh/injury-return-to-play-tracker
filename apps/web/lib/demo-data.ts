@@ -257,7 +257,7 @@ export function getShareView(token: string): ShareView {
     allowedActivities: "Non-contact practice and assigned rehab work.",
     restrictedActivities: "No contact drills. No full-speed cutting.",
     nextReviewDate: "May 30",
-    clearanceStatus: "Clearance decision required.",
+    clearanceStatus: "Awaiting named clinician decision. This shared view is not medical clearance.",
     clinicianNote: "Next review after symptom check.",
   };
 }

@@ -22,7 +22,7 @@ def build_case_report_pdf(case_detail: dict, readiness: dict) -> bytes:
     line(f"Athlete: {case_detail.get('athlete_name', 'Unknown')}")
     line(f"Injury: {case_detail.get('title', 'Unknown injury')}")
     line(f"Status: {case_detail.get('status', 'active')}")
-    line("This report summarizes tracked evidence and does not clear an athlete.")
+    line("This report summarizes tracked evidence. It is not medical clearance.")
     y -= 8
 
     line("Readiness Signals", 13, 22)

@@ -90,6 +90,14 @@ that intentionally omits clinical evidence detail and private contact data.
 Harden authentication, role-based access, organization isolation, audit logs,
 restricted share views, and non-diagnostic language.
 
+Status: complete. Protected API routes now require an explicit local request
+context, enforce clinician/athletic-trainer/admin roles, and scope reads and
+writes to the request organization. Clearance decisions are named human records
+with audit events, share-management routes are protected, shared views remain
+token-limited, and share copy now states that the page is not medical
+clearance. Production-grade identity and session/token verification remain
+outside this local scaffold.
+
 ## Goal 9: Demo And Validation
 
 Seed demo data and prove the complete workflow with pytest and Playwright.

@@ -2,11 +2,11 @@ import json
 
 from fastapi.testclient import TestClient
 
-from return_play.api import create_app
+from helpers import create_client
 
 
 def test_readiness_reports_missing_gates_and_never_auto_clears() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case, applied_plan = _create_case_with_plan(client)
 
     response = client.get(f"/api/injury-cases/{injury_case['id']}/readiness")
@@ -33,7 +33,7 @@ def test_readiness_reports_missing_gates_and_never_auto_clears() -> None:
 
 
 def test_readiness_reports_symptom_and_workload_concerns_with_source_facts() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case, applied_plan = _create_case_with_plan(client)
     first_milestone = applied_plan["phases"][0]["milestones"][0]
 

@@ -1,10 +1,10 @@
 from fastapi.testclient import TestClient
 
-from return_play.api import create_app
+from helpers import create_client
 
 
 def test_clinician_can_capture_and_read_case_evidence() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case = _create_case(client)
 
     symptom_response = client.post(
@@ -82,7 +82,7 @@ def test_clinician_can_capture_and_read_case_evidence() -> None:
 
 
 def test_evidence_capture_rejects_mismatched_case_id() -> None:
-    client = TestClient(create_app())
+    client = create_client()
     injury_case = _create_case(client)
 
     response = client.post(

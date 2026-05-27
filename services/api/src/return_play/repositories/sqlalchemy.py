@@ -34,10 +34,12 @@ from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
     AthleteUpdate,
+    ClearanceDecision,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
     InjuryCaseCreate,
+    InjuryCaseStatus,
     MilestoneResultStatus,
     MilestoneResultUpdate,
     OrganizationCreate,
@@ -60,6 +62,13 @@ from return_play.reports import build_case_report_pdf
 class SqlAlchemyWorkflowRepository:
     def __init__(self, session_factory: sessionmaker) -> None:
         self.session_factory = session_factory
+
+    @staticmethod
+    def _is_active_phase(phase: dict) -> bool:
+        return phase["status"] in {
+            PhaseStatus.CURRENT.value,
+            PhaseStatus.HELD.value,
+        }
 
     def create_athlete(self, payload: AthleteCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_ATHLETES)
@@ -534,7 +543,7 @@ class SqlAlchemyWorkflowRepository:
                 (
                     phase
                     for phase in self._case_phases(session, case_id)
-                    if phase["status"] == PhaseStatus.CURRENT.value
+                    if self._is_active_phase(phase)
                 ),
                 None,
             )
@@ -589,6 +598,7 @@ class SqlAlchemyWorkflowRepository:
             )
             session.add(decision)
             session.flush()
+            self._apply_clearance_decision(session, case_id, decision)
             self._record_audit_event(
                 session,
                 case_id,
@@ -602,6 +612,54 @@ class SqlAlchemyWorkflowRepository:
             )
             session.commit()
             return self._clearance_dict(decision)
+
+    def _apply_clearance_decision(
+        self,
+        session,
+        case_id: str,
+        decision: ClearanceDecisionRecord,
+    ) -> None:
+        phases = session.scalars(
+            select(CasePhaseStatus).where(CasePhaseStatus.injury_case_id == case_id)
+        ).all()
+        phases = sorted(
+            phases,
+            key=lambda item: session.get(ReturnPlanPhase, item.phase_id).order_index,
+        )
+        phase_index = next(
+            (
+                index
+                for index, phase in enumerate(phases)
+                if phase.id == decision.phase_id
+            ),
+            None,
+        )
+        if phase_index is None and phases:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Case phase not found.",
+            )
+
+        match decision.decision:
+            case ClearanceDecision.HOLD.value:
+                if phase_index is not None:
+                    phases[phase_index].status = PhaseStatus.HELD.value
+            case ClearanceDecision.ADVANCE.value:
+                if phase_index is None or phase_index + 1 >= len(phases):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="No next phase is available to advance.",
+                    )
+                phases[phase_index].status = PhaseStatus.PASSED.value
+                phases[phase_index + 1].status = PhaseStatus.CURRENT.value
+            case ClearanceDecision.CLEAR_FULL.value:
+                for phase in phases:
+                    phase.status = PhaseStatus.PASSED.value
+                injury_case = self._get_case(session, case_id)
+                injury_case.status = InjuryCaseStatus.CLEARED.value
+            case ClearanceDecision.CLOSE_CASE.value:
+                injury_case = self._get_case(session, case_id)
+                injury_case.status = InjuryCaseStatus.CLOSED.value
 
     def create_share(
         self,
@@ -666,7 +724,7 @@ class SqlAlchemyWorkflowRepository:
                 (
                     phase
                     for phase in self._case_phases(session, injury_case.id)
-                    if phase["status"] == PhaseStatus.CURRENT.value
+                    if self._is_active_phase(phase)
                 ),
                 None,
             )
@@ -908,7 +966,7 @@ class SqlAlchemyWorkflowRepository:
                 (
                     phase
                     for phase in self._case_phases(session, case.id)
-                    if phase["status"] == PhaseStatus.CURRENT.value
+                    if self._is_active_phase(phase)
                 ),
                 None,
             )
@@ -939,7 +997,7 @@ class SqlAlchemyWorkflowRepository:
                 (
                     phase
                     for phase in self._case_phases(session, injury_case.id)
-                    if phase["status"] == PhaseStatus.CURRENT.value
+                    if self._is_active_phase(phase)
                 ),
                 None,
             ),

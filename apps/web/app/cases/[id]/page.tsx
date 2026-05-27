@@ -73,7 +73,12 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
             currentPhase={currentPhase}
           />
           <ReadinessCard signals={detail.readinessSignals} />
-          <ClearancePanel restrictions={detail.restrictions} note={detail.clinicianNote} />
+          <ClearancePanel
+            caseId={detail.id}
+            phaseId={currentPhase.id}
+            restrictions={detail.restrictions}
+            note={detail.clinicianNote}
+          />
         </div>
       </section>
     </main>

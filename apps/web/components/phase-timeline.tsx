@@ -11,7 +11,11 @@ export function PhaseTimeline({ phases }: { phases: Phase[] }) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {phase.status === "current" ? "Current phase" : "Next phase"}
+                  {phase.status === "current"
+                    ? "Current phase"
+                    : phase.status === "held"
+                      ? "Held phase"
+                      : "Next phase"}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-ink">{phase.name}</h3>
               </div>

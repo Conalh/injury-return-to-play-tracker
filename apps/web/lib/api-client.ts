@@ -126,6 +126,9 @@ type ApiWorkloadSession = {
   symptom_response: string | null;
 };
 type ApiClearanceDecision = {
+  decision: "advance" | "hold" | "clear_full" | "close_case";
+  decided_by: string;
+  decided_by_role: string;
   restrictions: string | null;
   rationale: string;
 };
@@ -246,6 +249,15 @@ export type MilestoneEvidencePayload = {
   recorded_by: string;
   notes?: string | null;
   evidence_json: Record<string, string>;
+};
+export type ClearanceDecisionPayload = {
+  injury_case_id: string;
+  phase_id: string;
+  decision: "advance" | "hold" | "clear_full" | "close_case";
+  decided_by: string;
+  decided_by_role: string;
+  rationale: string;
+  restrictions?: string | null;
 };
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -428,12 +440,24 @@ export async function updateMilestoneEvidence(
   );
 }
 
+export async function createClearanceDecision(
+  caseId: string,
+  payload: ClearanceDecisionPayload,
+): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(`/api/injury-cases/${caseId}/clearance`, jsonRequest("POST", payload));
+}
+
 export function currentOrganizationId(): string {
   return process.env.RETURN_PLAY_ORGANIZATION_ID ?? "org_demo";
 }
 
 export function currentActorId(): string {
   return process.env.RETURN_PLAY_ACTOR_ID ?? "clinician_demo";
+}
+
+export function currentActorRole(): string {
+  return process.env.RETURN_PLAY_ACTOR_ROLE ?? "clinician";
 }
 
 async function getApiCasePageData(caseId: string): Promise<CasePageData> {
@@ -506,7 +530,7 @@ function toCaseDetail(
     injuryTitle: detail.title,
     summary: detail.summary ?? "No case summary recorded.",
     restrictions: clearance?.restrictions ?? "No current restrictions recorded.",
-    clinicianNote: note?.body ?? clearance?.rationale ?? "No clinician note recorded.",
+    clinicianNote: clearance?.rationale ?? note?.body ?? "No clinician note recorded.",
     phases: detail.phases.map(toPhase),
     symptomLogs: detail.symptom_logs.map(toSymptomLog),
     functionalTests: detail.functional_tests.map(toFunctionalTest),

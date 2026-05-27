@@ -66,6 +66,15 @@ Goal 18 adds case-detail evidence entry:
 - Readiness signals update after symptom and workload evidence is recorded.
 - Playwright proves browser-entered evidence appears on the case detail page.
 
+Goal 19 adds the human clearance decision path:
+
+- Case detail includes a clearance decision form for hold, phase advancement,
+  full clearance, and case closure.
+- The rationale field is required and restrictions are recorded with the latest
+  decision.
+- Browser submissions use the authenticated actor as the named decision maker.
+- Playwright proves hold and full-clearance decisions appear in case detail.
+
 ## Local Commands
 
 ```powershell

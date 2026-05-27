@@ -14,12 +14,12 @@ test("case detail shows phase, milestones, evidence, readiness, and clearance pa
   await page.goto("/cases/case_demo");
 
   await expect(page.getByRole("heading", { name: "Riley Chen" })).toBeVisible();
-  await expect(page.getByText("Current phase", { exact: true })).toBeVisible();
+  await expect(page.getByText("Held phase", { exact: true })).toBeVisible();
   await expect(page.getByText("Restore motion")).toBeVisible();
   await expect(page.getByText("Pain remains below configured threshold", { exact: true })).toBeVisible();
   await expect(page.getByText("Symptom trend")).toBeVisible();
   await expect(page.getByText("Single leg hop")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Non-contact practice" })).toBeVisible();
   await expect(page.getByText("Review symptoms before advancing.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Record hold decision" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Record clearance decision" })).toBeVisible();
 });

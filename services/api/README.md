@@ -177,6 +177,17 @@ Goal 18 adds audit coverage for evidence entry:
 - Workload sessions write `workload_session_logged` audit events.
 - Milestone evidence updates write `milestone_evidence_recorded` audit events.
 
+Goal 19 adds clearance workflow behavior:
+
+- `POST /api/injury-cases/{case_id}/clearance` now applies named human
+  decisions to case state.
+- `hold` marks the selected case phase held.
+- `advance` marks the current case phase passed and opens the next phase.
+- `clear_full` marks the injury case cleared.
+- `close_case` marks the injury case closed.
+- Milestone evidence alone does not advance phases, and clearance decisions
+  continue to write `clearance_decision_recorded` audit events.
+
 ## Local Setup
 
 ```powershell

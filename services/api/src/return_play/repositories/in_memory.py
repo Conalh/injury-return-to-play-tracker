@@ -12,10 +12,12 @@ from return_play.models import (
     ApplyTemplateRequest,
     AthleteCreate,
     AthleteUpdate,
+    ClearanceDecision,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
     FunctionalTestCreate,
     InjuryCaseCreate,
+    InjuryCaseStatus,
     MilestoneResultStatus,
     MilestoneResultUpdate,
     OrganizationCreate,
@@ -51,6 +53,13 @@ class InMemoryWorkflowRepository:
         self.organizations: dict[str, dict] = {}
         self.users: dict[str, dict] = {}
         self.organization_audit_log_entries: dict[str, list[dict]] = {}
+
+    @staticmethod
+    def _is_active_phase(phase: dict) -> bool:
+        return phase["status"] in {
+            PhaseStatus.CURRENT.value,
+            PhaseStatus.HELD.value,
+        }
 
     def create_athlete(self, payload: AthleteCreate, context: RequestContext) -> dict:
         assert_permission(context, Permission.MANAGE_ATHLETES)
@@ -134,7 +143,7 @@ class InMemoryWorkflowRepository:
         injury_case = self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id, [])
         current_phase = next(
-            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            (phase for phase in phases if self._is_active_phase(phase)),
             None,
         )
         return {
@@ -460,7 +469,7 @@ class InMemoryWorkflowRepository:
         self._get_case(case_id, context.organization_id)
         phases = self.case_plans.get(case_id, [])
         current_phase = next(
-            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            (phase for phase in phases if self._is_active_phase(phase)),
             None,
         )
         return build_readiness(
@@ -489,6 +498,7 @@ class InMemoryWorkflowRepository:
         decision = payload.model_dump(mode="json")
         decision["id"] = self._new_id("clearance")
         decision["decided_at"] = self._now()
+        self._apply_clearance_decision(case_id, decision)
         self.clearance_decisions.setdefault(case_id, []).append(decision)
         self._record_audit_event(
             case_id,
@@ -501,6 +511,41 @@ class InMemoryWorkflowRepository:
             },
         )
         return decision
+
+    def _apply_clearance_decision(self, case_id: str, decision: dict) -> None:
+        phases = self.case_plans.get(case_id, [])
+        phase_index = next(
+            (
+                index
+                for index, phase in enumerate(phases)
+                if phase["id"] == decision["phase_id"]
+            ),
+            None,
+        )
+        if phase_index is None and phases:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Case phase not found.",
+            )
+
+        match decision["decision"]:
+            case ClearanceDecision.HOLD.value:
+                if phase_index is not None:
+                    phases[phase_index]["status"] = PhaseStatus.HELD.value
+            case ClearanceDecision.ADVANCE.value:
+                if phase_index is None or phase_index + 1 >= len(phases):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="No next phase is available to advance.",
+                    )
+                phases[phase_index]["status"] = PhaseStatus.PASSED.value
+                phases[phase_index + 1]["status"] = PhaseStatus.CURRENT.value
+            case ClearanceDecision.CLEAR_FULL.value:
+                for phase in phases:
+                    phase["status"] = PhaseStatus.PASSED.value
+                self.injury_cases[case_id]["status"] = InjuryCaseStatus.CLEARED.value
+            case ClearanceDecision.CLOSE_CASE.value:
+                self.injury_cases[case_id]["status"] = InjuryCaseStatus.CLOSED.value
 
     def create_share(
         self,
@@ -549,7 +594,7 @@ class InMemoryWorkflowRepository:
         athlete = self.athletes[injury_case["athlete_id"]]
         phases = self.case_plans.get(injury_case["id"], [])
         current_phase = next(
-            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            (phase for phase in phases if self._is_active_phase(phase)),
             None,
         )
         return {
@@ -739,7 +784,7 @@ class InMemoryWorkflowRepository:
         athlete = self.athletes[injury_case["athlete_id"]]
         phases = self.case_plans.get(injury_case["id"], [])
         current_phase = next(
-            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            (phase for phase in phases if self._is_active_phase(phase)),
             None,
         )
         share = next(

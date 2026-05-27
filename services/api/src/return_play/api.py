@@ -34,6 +34,7 @@ from return_play.models import (
     WorkloadSessionCreate,
 )
 from return_play.permissions import Permission
+from return_play.privacy import privacy_data_controls
 from return_play.repositories import InMemoryWorkflowRepository, SqlAlchemyWorkflowRepository
 
 
@@ -127,6 +128,10 @@ def create_app(repository=None) -> FastAPI:
             "role": context.role.value,
             "organization_id": context.organization_id,
         }
+
+    @api_router.get("/privacy/data-controls")
+    def get_privacy_data_controls(_context: ReadClinicalCasesContext) -> dict:
+        return privacy_data_controls()
 
     @api_router.post("/admin/organization", status_code=status.HTTP_201_CREATED)
     def setup_organization(

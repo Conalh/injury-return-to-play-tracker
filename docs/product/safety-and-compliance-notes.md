@@ -113,6 +113,9 @@ Before real athlete data:
 - Role-based access is required.
 - Organization isolation is required.
 - Audit logging is required for clearance and sharing.
+- Field-level response filtering is required for restricted share surfaces.
+- Export and deletion requests must follow a documented review path.
+- Retention hooks must exist before records are deleted or retained by policy.
 - Share tokens must expire and be revocable.
 - Share tokens must be stored hashed, not in plaintext.
 - Demo data must be synthetic.
@@ -139,4 +142,3 @@ Prefer:
 - "Symptoms require review"
 - "Workload progression incomplete"
 - "Human decision recorded"
-

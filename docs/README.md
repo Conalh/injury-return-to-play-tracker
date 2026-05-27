@@ -13,3 +13,5 @@
   compliance notes that shape implementation.
 - `product/permission-matrix.md`: current role-to-permission matrix and
   enforcement points.
+- `product/privacy-controls.md`: field filtering, share-view data contract,
+  retention hooks, export/delete request plan, and PHI checklist.

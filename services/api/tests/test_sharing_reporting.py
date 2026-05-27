@@ -31,7 +31,7 @@ def test_share_token_exposes_limited_view_and_audit_events() -> None:
 
     assert limited_response.status_code == 200
     limited = limited_response.json()
-    assert limited == {
+    expected_limited_fields = {
         "audience": "coach",
         "athlete_name": "Demo Athlete",
         "sport": "Soccer",
@@ -47,6 +47,9 @@ def test_share_token_exposes_limited_view_and_audit_events() -> None:
         ),
         "clinician_note": "Next review after symptom check.",
     }
+    assert {key: limited[key] for key in expected_limited_fields} == expected_limited_fields
+    assert limited["data_contract"]["audience"] == "coach"
+    assert "symptom_logs" in limited["data_contract"]["excluded_fields"]
     assert "guardian_contact" not in limited
     assert "date_of_birth" not in limited
     assert "symptom_logs" not in limited

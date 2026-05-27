@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 24 of the
+The project is a local production-path build, currently through Goal 25 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -70,6 +70,9 @@ Live in the repo:
 - Hardened audit logging with a shared event taxonomy, read events for limited
   share views and PDF exports, filtered audit-log API access, immutable
   in-memory audit record reads, and case-detail audit filtering.
+- Privacy controls with centralized share-view field filtering, explicit
+  restricted-surface data contracts, retention policy hooks, an export/delete
+  request plan, and a PHI handling checklist.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -159,6 +162,7 @@ services/api
   FastAPI app factory + route surface
   auth.py            local request-context role gates
   audit.py           audit event taxonomy
+  privacy.py         field filters + data-control policy hooks
   models.py          Pydantic request contracts
   db.py              SQLAlchemy metadata
   repositories/      in-memory + SQLAlchemy workflow repositories
@@ -196,6 +200,8 @@ contract is:
   report, share-management, and audit-log access.
 - Limited share view reads and sensitive report exports are recorded as audit
   events.
+- Restricted share responses use an explicit data contract and field-level
+  filtering before leaving the API.
 - Clearance decisions require a named actor and rationale.
 - Readiness responses explicitly include `can_auto_clear: false`.
 - Shared pages use non-diagnostic language and exclude symptom detail, guardian
@@ -222,12 +228,12 @@ npm audit --audit-level=high
 
 Current coverage includes API contracts, schema contracts, migrations, clinician
 workflow behavior, evidence capture, readiness signals, privacy and permission
-checks, share/report/audit behavior, audit filtering and immutability, demo seed
-validation, persistent repository restart behavior, repository-boundary
-contracts, and browser coverage for the dashboard, API-backed case creation,
-template builder, evidence entry, clearance decisions, share management, athlete
-and guardian portals, report download, audit filtering, case detail, and limited
-share page.
+checks, privacy-control contracts, share/report/audit behavior, audit filtering
+and immutability, demo seed validation, persistent repository restart behavior,
+repository-boundary contracts, and browser coverage for the dashboard,
+API-backed case creation, template builder, evidence entry, clearance decisions,
+share management, athlete and guardian portals, report download, audit
+filtering, case detail, and limited share page.
 
 ## Documentation
 
@@ -241,6 +247,9 @@ share page.
   safety, privacy, and compliance notes.
 - [docs/product/permission-matrix.md](docs/product/permission-matrix.md):
   current role-to-permission matrix and enforcement points.
+- [docs/product/privacy-controls.md](docs/product/privacy-controls.md):
+  field filtering, share-view contracts, retention hooks, export/delete request
+  plan, and PHI checklist.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

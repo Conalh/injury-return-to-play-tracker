@@ -37,6 +37,7 @@ from return_play.models import (
     WorkloadSessionCreate,
 )
 from return_play.permissions import Permission, assert_permission
+from return_play.privacy import filter_share_view
 from return_play.repositories.demo import DemoSeedService
 from return_play.reports import build_case_report_pdf
 from return_play.readiness import build_readiness
@@ -598,22 +599,25 @@ class InMemoryWorkflowRepository:
             None,
             {"audience": share["audience"], "share_id": share["id"]},
         )
-        return {
-            "audience": share["audience"],
-            "athlete_name": athlete["name"],
-            "sport": athlete["sport"],
-            "injury_title": injury_case["title"],
-            "current_phase": current_phase["name"] if current_phase else None,
-            "participation_status": "Modified participation",
-            "allowed_activities": share["allowed_activities"],
-            "restricted_activities": share["restricted_activities"],
-            "next_review_date": share["next_review_date"],
-            "clearance_status": (
-                "Awaiting named clinician decision. "
-                "This shared view is not medical clearance."
-            ),
-            "clinician_note": share["clinician_note"],
-        }
+        return filter_share_view(
+            {
+                "audience": share["audience"],
+                "athlete_name": athlete["name"],
+                "sport": athlete["sport"],
+                "injury_title": injury_case["title"],
+                "current_phase": current_phase["name"] if current_phase else None,
+                "participation_status": "Modified participation",
+                "allowed_activities": share["allowed_activities"],
+                "restricted_activities": share["restricted_activities"],
+                "next_review_date": share["next_review_date"],
+                "clearance_status": (
+                    "Awaiting named clinician decision. "
+                    "This shared view is not medical clearance."
+                ),
+                "clinician_note": share["clinician_note"],
+            },
+            audience=share["audience"],
+        )
 
     def create_athlete_symptom_check_in(
         self,

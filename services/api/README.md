@@ -236,6 +236,18 @@ Goal 24 hardens audit logging:
 - In-memory audit-log reads return copied records so callers cannot mutate the
   stored audit trail.
 
+Goal 25 adds privacy controls and data minimization:
+
+- `return_play.privacy` defines the limited share-view allowlist and blocked
+  restricted fields.
+- `GET /api/share/{token}` filters through the shared privacy contract and
+  includes a `data_contract` that names included and excluded fields.
+- `GET /api/privacy/data-controls` returns retention policy hooks, the
+  export/delete request plan, and the PHI handling checklist for protected
+  clinical users.
+- Tests prove restricted share surfaces do not receive blocked clinical fields
+  and restricted roles remain blocked from clinical detail endpoints.
+
 ## Local Setup
 
 ```powershell

@@ -71,6 +71,10 @@ Build the Next.js clinician dashboard around roster, case detail, phase
 timeline, milestone checklist, symptom trend, test table, workload history,
 readiness card, and clearance panel.
 
+Status: complete. The local Next.js app provides the roster and case-detail
+clinician dashboard with demo data, Playwright coverage, and responsive visual
+checks. Live FastAPI integration remains deferred.
+
 ## Goal 7: Sharing And Reports
 
 Add athlete, coach, and guardian views with limited information, expiring share

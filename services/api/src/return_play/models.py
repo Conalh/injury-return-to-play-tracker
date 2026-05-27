@@ -88,6 +88,11 @@ class UserCreate(ApiSchema):
     role: UserRole
 
 
+class AuthLoginRequest(ApiSchema):
+    email: EmailStr
+    password: str = Field(min_length=1)
+
+
 class AthleteCreate(ApiSchema):
     organization_id: str = Field(min_length=1)
     name: str = Field(min_length=1)

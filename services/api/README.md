@@ -97,9 +97,28 @@ Goal 11 cleans up the repository boundary:
 - `tests/test_repository_boundaries.py` locks the package split without
   changing public API behavior.
 
-The Goal 8 request context is still a local development contract for tests and
-future integration; production identity, sessions, and token verification remain
-deferred.
+Goal 12 adds the authentication foundation:
+
+- `RETURN_PLAY_AUTH_MODE=dev_headers` keeps trusted local request headers for
+  development and tests.
+- `RETURN_PLAY_AUTH_MODE=token` disables trusted identity headers and requires
+  an HMAC-signed bearer token.
+- The provider decision is an OIDC-compatible bearer-token seam. The current
+  HMAC token provider is local and replaceable; hosted OIDC validation can
+  replace the verifier without changing route dependencies.
+- `GET /api/me` returns the authenticated actor, role, and organization from
+  the verified request context.
+- `POST /api/auth/login` issues a bearer token only when the explicit local
+  login provider is enabled with environment variables.
+- `POST /api/auth/logout` provides the session boundary for clients; current
+  tokens are stateless, so revocation remains future production-provider work.
+- Token-mode tests prove anonymous requests are rejected, authenticated
+  clinicians can access their organization, and forged organization headers do
+  not override token identity.
+
+The `dev_headers` mode is still a local development contract for tests and
+manual API work. Production deployments should use token mode or a future OIDC
+provider adapter, never trusted request headers.
 
 ## Local Setup
 
@@ -145,4 +164,30 @@ The API runtime uses this environment variable for the persistent repository:
 
 ```text
 RETURN_PLAY_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/return_play
+```
+
+## Authentication Modes
+
+Local header mode is the default:
+
+```text
+RETURN_PLAY_AUTH_MODE=dev_headers
+```
+
+Token mode requires a signing secret:
+
+```text
+RETURN_PLAY_AUTH_MODE=token
+RETURN_PLAY_AUTH_SECRET=<long-random-secret>
+```
+
+The local login endpoint is disabled unless explicitly enabled:
+
+```text
+RETURN_PLAY_LOCAL_AUTH_ENABLED=1
+RETURN_PLAY_LOCAL_AUTH_EMAIL=clinician@example.com
+RETURN_PLAY_LOCAL_AUTH_PASSWORD=<local-password>
+RETURN_PLAY_LOCAL_AUTH_ACTOR_ID=clinician_demo
+RETURN_PLAY_LOCAL_AUTH_ROLE=clinician
+RETURN_PLAY_LOCAL_AUTH_ORGANIZATION_ID=org_demo
 ```

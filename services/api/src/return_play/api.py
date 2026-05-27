@@ -3,10 +3,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, FastAPI, Query, Response, status
 
-from return_play.auth import RequestContext, require_roles
+from return_play.auth import (
+    RequestContext,
+    authenticate_local_login,
+    create_auth_token,
+    get_request_context,
+    require_roles,
+)
 from return_play.db import create_session_factory
 from return_play.models import (
     ApplyTemplateRequest,
+    AuthLoginRequest,
     AthleteCreate,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
@@ -21,6 +28,9 @@ from return_play.models import (
     WorkloadSessionCreate,
 )
 from return_play.repositories import InMemoryWorkflowRepository, SqlAlchemyWorkflowRepository
+
+
+AuthenticatedContext = Annotated[RequestContext, Depends(get_request_context)]
 
 
 ClinicalContext = Annotated[
@@ -51,6 +61,26 @@ def create_app(repository=None) -> FastAPI:
         }
 
     api_router = APIRouter(prefix="/api")
+
+    @api_router.post("/auth/login")
+    def login(payload: AuthLoginRequest) -> dict[str, str]:
+        context = authenticate_local_login(payload.email, payload.password)
+        return {
+            "access_token": create_auth_token(context),
+            "token_type": "bearer",
+        }
+
+    @api_router.post("/auth/logout")
+    def logout(_context: AuthenticatedContext) -> dict[str, str]:
+        return {"status": "logged_out"}
+
+    @api_router.get("/me")
+    def current_user(context: AuthenticatedContext) -> dict[str, str]:
+        return {
+            "actor_id": context.actor_id,
+            "role": context.role.value,
+            "organization_id": context.organization_id,
+        }
 
     @api_router.get("/athletes")
     def list_athletes(

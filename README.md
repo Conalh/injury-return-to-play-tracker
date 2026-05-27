@@ -38,6 +38,8 @@ Live in the repo:
 - FastAPI workflow API for athletes, injury cases, templates, evidence,
   readiness, named clearance decisions, limited share links, PDF reports, audit
   logs, and demo seeding.
+- Authentication foundation with explicit local-header mode, HMAC bearer-token
+  mode, `/api/me`, local login/logout session endpoints, and token-mode tests.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -50,7 +52,7 @@ Live in the repo:
 
 Still deferred:
 
-- Production authentication and session handling.
+- Hosted identity-provider integration and token revocation.
 - Full role and permission matrix.
 - API-backed frontend data fetching.
 - Production deployment, backups, monitoring, and compliance review package.
@@ -75,6 +77,14 @@ set:
 $env:RETURN_PLAY_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/return_play"
 .\.venv\Scripts\alembic.exe upgrade head
 .\.venv\Scripts\python.exe -m uvicorn return_play.api:app --reload
+```
+
+The default auth mode is `dev_headers`, which accepts the local request-context
+headers used by the tests and demo seed. To run the bearer-token path:
+
+```powershell
+$env:RETURN_PLAY_AUTH_MODE="token"
+$env:RETURN_PLAY_AUTH_SECRET="<long-random-secret>"
 ```
 
 ### Web
@@ -146,7 +156,10 @@ Return-to-play decisions are high-stakes human decisions. The current safety
 contract is:
 
 - Protected API routes require local request-context headers:
-  `x-actor-id`, `x-actor-role`, and `x-organization-id`.
+  `x-actor-id`, `x-actor-role`, and `x-organization-id` only in explicit
+  development-header mode.
+- Token mode ignores trusted identity headers and builds request context from a
+  verified bearer token.
 - Clinical workflows are limited to clinician, athletic trainer, and admin
   roles until the production role matrix lands.
 - Organization IDs scope roster, template, case, evidence, readiness,

@@ -87,6 +87,16 @@ Goal 10 adds the first persistent repository path:
 - In-memory remains the default when `RETURN_PLAY_DATABASE_URL` is not set, so
   local unit-style tests and demos can run without a database.
 
+Goal 11 cleans up the repository boundary:
+
+- Concrete repositories now live under `return_play.repositories`.
+- Boundary modules define the athlete, case, template/plan, evidence,
+  readiness, share/report/audit, and demo seed surfaces.
+- Legacy imports from `return_play.repository` and
+  `return_play.sql_repository` remain compatible.
+- `tests/test_repository_boundaries.py` locks the package split without
+  changing public API behavior.
+
 The Goal 8 request context is still a local development contract for tests and
 future integration; production identity, sessions, and token verification remain
 deferred.

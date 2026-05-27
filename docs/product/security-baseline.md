@@ -53,6 +53,20 @@ The dependency scan is intended to block high-severity dependency issues while
 leaving the known moderate Next/PostCSS advisory to the normal local audit
 report until a non-breaking upstream fix is available.
 
+## Dependency Update Automation
+
+Dependency update automation is now part of the baseline maintenance program.
+
+`.github/dependabot.yml` enables weekly dependency update pull requests for the
+managed repository surfaces:
+
+- npm updates for `apps/web`.
+- pip updates for `services/api`.
+- GitHub Actions updates for `.github/workflows`.
+
+`docs/operations/dependency-update-automation.md` defines update triage,
+security update response, validation, and launch-gate evidence expectations.
+
 ## Configuration
 
 ```text
@@ -65,5 +79,6 @@ RETURN_PLAY_SHARE_RATE_LIMIT_PER_MINUTE=120
 ## Remaining Work
 
 Goal 26 does not cover hosted WAF rules, distributed rate limiting, production
-secret management, dependency update automation, or deployment platform security
-headers. Those belong with CI, environment configuration, and deployment goals.
+secret management, or deployment platform security headers. Those belong with
+CI, environment configuration, and deployment goals. Goal 42 adds dependency
+update automation, but a named owner still has to review and merge updates.

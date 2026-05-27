@@ -161,6 +161,14 @@ Goal 41 adds the hosted identity tenant rollout package:
 - The repository still does not deploy or configure a real identity provider
   tenant.
 
+Goal 42 adds dependency update automation:
+
+- `.github/dependabot.yml` opens weekly update pull requests for `apps/web`,
+  `services/api`, and GitHub Actions.
+- `docs/operations/dependency-update-automation.md` defines triage, security
+  update response, validation, and launch-gate evidence.
+- Dependency updates still require human review and green CI before merge.
+
 Goal 13 formalizes authorization:
 
 - `return_play.permissions` defines named permissions and the role matrix.

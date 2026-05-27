@@ -23,6 +23,9 @@ production branch. These names match the workflow job names used by GitHub.
   dependency audits.
 - `.github/workflows/security.yml` runs the standalone security baseline checks,
   including Secret scan.
+- `.github/dependabot.yml` opens dependency update pull requests for web, API,
+  and GitHub Actions surfaces. Required checks should run on those pull
+  requests before merge.
 
 ## Notes
 

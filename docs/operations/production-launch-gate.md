@@ -9,6 +9,7 @@ remain deferred until Goals 32 and 33 are reopened and verified.
 Supporting controls:
 
 - `docs/operations/ci-required-checks.md`
+- `docs/operations/dependency-update-automation.md`
 - `docs/product/security-baseline.md`
 - `docs/operations/backups-and-recovery.md`
 - `docs/operations/observability.md`
@@ -79,6 +80,7 @@ Required before signoff:
 - Request size limit is configured.
 - Auth/share route rate limits are configured for the deployment topology.
 - Dependency and secret scans pass.
+- Dependency update automation is enabled and has a named triage owner.
 - Production secret management is configured outside the repository.
 - Any platform security controls not covered by the app baseline are documented.
 
@@ -86,13 +88,13 @@ Known required follow-up before real production:
 
 - Distributed/shared rate limiting if running multiple API workers.
 - Hosted WAF/platform edge rules if required by the customer risk review.
-- Dependency update automation.
 - Hosted identity tenant setup, account lifecycle, MFA/password policy, and
   provider-side session controls.
 
 Reference: `docs/product/security-baseline.md`,
 `docs/operations/auth-token-revocation.md`, and
-`docs/operations/hosted-identity-oidc.md`, and
+`docs/operations/hosted-identity-oidc.md`,
+`docs/operations/dependency-update-automation.md`, and
 `docs/operations/identity-provider-tenant-rollout.md`.
 
 ## Backup Restore Gate
@@ -188,6 +190,7 @@ Use this table for final signoff. Add rows instead of hiding open risk.
 | Hosted identity-provider tenant deployment and provider-side account/session policy are deferred. | Blocker for broad production | Engineering/security owner | Resolve or document approved compensating control; Goal 40 covers the OIDC adapter and Goal 41 covers the tenant rollout evidence package, but not tenant deployment | Before production launch |
 | Legal contracts and subprocessor list are not stored in this repository. | Blocker for real data | Legal/compliance owner | Attach approved external packet before launch | Before production launch |
 | Distributed rate limiting and platform edge controls are not implemented here. | Medium or high depending on hosting | Engineering/security owner | Decide during deployment architecture review | Before production launch |
+| Dependency update automation requires active triage ownership. | Medium | Engineering/security owner | Goal 42 enables Dependabot and a runbook; assign owner before broad launch | Before production launch |
 | Automated contrast/accessibility audit is not in CI. | Medium | Product/engineering owner | Complete or accept for limited launch | Before public launch |
 
 ## Signoff Checklist

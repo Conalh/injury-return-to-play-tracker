@@ -270,6 +270,14 @@ Goal 27 adds the continuous integration contract:
 - The security workflow remains responsible for the standalone secret scan
   status check.
 
+Goal 28 adds local production packaging:
+
+- `services/api/Dockerfile` builds the API runtime image.
+- `compose.yml` runs Postgres, applies Alembic migrations, starts the API, and
+  exposes `GET /health` as the container health check.
+- `services/api/scripts/seed_demo.py` powers the compose `seed-demo` service for
+  explicit demo seeding.
+
 ## Local Setup
 
 ```powershell
@@ -303,6 +311,9 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/demo/seed `
 .\.venv\Scripts\alembic.exe heads
 .\.venv\Scripts\alembic.exe upgrade head
 ```
+
+Alembic uses `RETURN_PLAY_DATABASE_URL` when it is set. Otherwise it falls back
+to the URL in `alembic.ini`.
 
 The default `alembic.ini` URL points to local Postgres:
 

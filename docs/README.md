@@ -22,3 +22,5 @@
 
 - `operations/ci-required-checks.md`: CI jobs and required branch-protection
   status checks.
+- `operations/local-production-compose.md`: local production-shaped Docker
+  Compose runbook.

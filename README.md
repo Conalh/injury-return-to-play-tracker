@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 27 of the
+The project is a local production-path build, currently through Goal 28 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -77,8 +77,10 @@ Live in the repo:
   request size limits, auth/share route rate limits, dependency scanning, and
   secret scanning.
 - Continuous integration workflow for backend tests, migration head checks,
-  frontend build, Playwright browser coverage, dependency audit, and documented
-  required status checks.
+  frontend build, Playwright browser coverage, Docker compose build validation,
+  dependency audit, and documented required status checks.
+- Local production compose packaging with Postgres, API and web Dockerfiles,
+  container health checks, migration-on-start, and a one-shot demo seed service.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -265,6 +267,8 @@ share page.
   secret scanning.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
+- [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):
+  local Docker Compose production-path runbook.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

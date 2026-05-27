@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: return_play
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - return_play_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d return_play"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: return-play-api:local
+    build:
+      context: ./services/api
+    environment:
+      RETURN_PLAY_AUTH_MODE: dev_headers
+      RETURN_PLAY_DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/return_play
+      RETURN_PLAY_CORS_ORIGINS: http://localhost:3217,http://127.0.0.1:3217
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head &&
+      python -m uvicorn return_play.api:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  web:
+    image: return-play-web:local
+    build:
+      context: ./apps/web
+    environment:
+      RETURN_PLAY_DATA_MODE: api-demo
+      RETURN_PLAY_API_BASE_URL: http://api:8000
+      RETURN_PLAY_ACTOR_ID: clinician_demo
+      RETURN_PLAY_ACTOR_ROLE: clinician
+      RETURN_PLAY_ORGANIZATION_ID: org_demo
+    ports:
+      - "3217:3217"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3217').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  seed-demo:
+    image: return-play-api:local
+    profiles:
+      - seed
+    environment:
+      RETURN_PLAY_SEED_API_URL: http://api:8000
+      RETURN_PLAY_ACTOR_ID: clinician_demo
+      RETURN_PLAY_ACTOR_ROLE: clinician
+      RETURN_PLAY_ORGANIZATION_ID: org_demo
+    depends_on:
+      api:
+        condition: service_healthy
+    command: ["python", "scripts/seed_demo.py"]
+
+volumes:
+  return_play_postgres:

@@ -95,6 +95,16 @@ jobs:
         working-directory: apps/web
         run: npm test
 
+  docker-compose-build:
+    name: Docker compose build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose file
+        run: docker compose -f compose.yml config
+      - name: Build API and web images
+        run: docker compose -f compose.yml build api web
+
   dependency-audit:
     name: Dependency audit
     runs-on: ubuntu-latest

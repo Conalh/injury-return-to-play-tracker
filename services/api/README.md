@@ -110,8 +110,7 @@ Goal 12 adds the authentication foundation:
   the verified request context.
 - `POST /api/auth/login` issues a bearer token only when the explicit local
   login provider is enabled with environment variables.
-- `POST /api/auth/logout` provides the session boundary for clients; current
-  tokens are stateless, so revocation remains future production-provider work.
+- `POST /api/auth/logout` provides the session boundary for clients.
 - Token-mode tests prove anonymous requests are rejected, authenticated
   clinicians can access their organization, and forged organization headers do
   not override token identity.
@@ -119,6 +118,17 @@ Goal 12 adds the authentication foundation:
 The `dev_headers` mode is still a local development contract for tests and
 manual API work. Production deployments should use token mode or a future OIDC
 provider adapter, never trusted request headers.
+
+Goal 38 adds the token revocation foundation:
+
+- Newly issued HMAC bearer tokens include a unique `jti` revocation ID.
+- Logout revokes the current authenticated bearer token until its expiration.
+- Protected API routes reject revoked bearer tokens.
+- Revocation is currently process-local. Hosted identity-provider integration
+  or a durable shared revocation store remains required before broad
+  multi-instance production.
+- `docs/operations/auth-token-revocation.md` records the runbook and launch
+  gate limits.
 
 Goal 13 formalizes authorization:
 

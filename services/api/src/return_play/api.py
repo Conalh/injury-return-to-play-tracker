@@ -8,6 +8,7 @@ from return_play.auth import (
     create_auth_token,
     get_request_context,
     require_permission,
+    revoke_auth_context,
 )
 from return_play.config import get_settings
 from return_play.db import create_session_factory
@@ -133,7 +134,8 @@ def create_app(repository=None) -> FastAPI:
         }
 
     @api_router.post("/auth/logout")
-    def logout(_context: AuthenticatedContext) -> dict[str, str]:
+    def logout(context: AuthenticatedContext) -> dict[str, str]:
+        revoke_auth_context(context)
         return {"status": "logged_out"}
 
     @api_router.get("/me")

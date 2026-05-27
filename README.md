@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 37 of the
+The project is a local production-path build, currently through Goal 38 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -40,7 +40,8 @@ Live in the repo:
   readiness, named clearance decisions, limited share links, PDF reports, audit
   logs, and demo seeding.
 - Authentication foundation with explicit local-header mode, HMAC bearer-token
-  mode, `/api/me`, local login/logout session endpoints, and token-mode tests.
+  mode, `/api/me`, local login/logout session endpoints, logout-driven bearer
+  token revocation, and token-mode tests.
 - Central role-to-permission matrix with route dependencies and repository
   service guards for protected workflow actions.
 - Admin organization and user management for organization setup, user
@@ -103,6 +104,9 @@ Live in the repo:
   monitoring, legal/compliance, safety-blocker, residual-risk, and signoff
   checklists. The package explicitly keeps broad launch blocked until deferred
   staging and production deployment work is completed.
+- Auth token revocation foundation with unique bearer-token IDs, logout
+  revocation, revoked-token rejection, and an explicit runbook for the remaining
+  hosted identity or durable multi-instance revocation decision.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -115,7 +119,8 @@ Live in the repo:
 
 Still deferred:
 
-- Hosted identity-provider integration and token revocation.
+- Hosted identity-provider integration and durable multi-instance token
+  revocation.
 - Staging and production deployment.
 
 ## Run It Locally
@@ -226,6 +231,8 @@ contract is:
   development-header mode.
 - Token mode ignores trusted identity headers and builds request context from a
   verified bearer token.
+- Newly issued bearer tokens include unique revocation IDs, and logout revokes
+  the current token for the lifetime of that token in the running API process.
 - Clinical workflows are limited to clinician, athletic trainer, and admin
   roles until the production role matrix lands.
 - Organization IDs scope roster, template, case, evidence, readiness,
@@ -302,6 +309,9 @@ share page.
 - [docs/operations/production-launch-gate.md](docs/operations/production-launch-gate.md):
   final launch checklist, evidence requirements, residual risk register, and
   signoff table.
+- [docs/operations/auth-token-revocation.md](docs/operations/auth-token-revocation.md):
+  bearer-token IDs, logout revocation, verification, and production identity
+  limits.
 - [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
   CI workflow jobs and required branch-protection status checks.
 - [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):

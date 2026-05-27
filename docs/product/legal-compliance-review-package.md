@@ -117,7 +117,9 @@ Implemented controls:
 
 Known gaps before real data:
 
-- Hosted identity-provider integration and token revocation are deferred.
+- Hosted identity-provider integration and durable multi-instance token
+  revocation are deferred. Local HMAC logout revocation exists for the
+  production-path app, but it is not a hosted identity decision.
 - Staging and production hosting are not deployed.
 - Production secret management, distributed rate limiting, WAF rules, and
   deployment-platform controls are not configured.
@@ -236,8 +238,9 @@ Real athlete data remains blocked until:
   required contracts.
 - Terms, privacy policy, BAA or non-BAA decision memo, and subprocessor list are
   ready for the chosen beta customer type.
-- Hosted identity, token revocation, production deployment, secret management,
-  monitoring, backup storage, and incident response are complete.
+- Hosted identity, durable multi-instance token revocation, production
+  deployment, secret management, monitoring, backup storage, and incident
+  response are complete.
 - Retention, export, deletion, and breach response owners are named.
 - A beta onboarding checklist explains what data is allowed, which workflows are
   excluded, who can access each role, and how to report concerns.

@@ -99,3 +99,52 @@ def test_local_login_issues_token_and_logout_accepts_authenticated_session(
 
     assert logout_response.status_code == 200
     assert logout_response.json() == {"status": "logged_out"}
+
+
+def test_local_logout_revokes_current_bearer_token(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_SECRET", "test-secret")
+    token = create_auth_token(
+        RequestContext(
+            actor_id="clinician_demo",
+            role="clinician",
+            organization_id="org_demo",
+        ),
+        secret="test-secret",
+    )
+    client = TestClient(create_app())
+    client.headers.update({"Authorization": f"Bearer {token}"})
+
+    assert client.get("/api/me").status_code == 200
+    logout_response = client.post("/api/auth/logout")
+    revoked_response = client.get("/api/me")
+
+    assert logout_response.status_code == 200
+    assert logout_response.json() == {"status": "logged_out"}
+    assert revoked_response.status_code == 401
+    assert revoked_response.json()["detail"] == "Bearer token has been revoked."
+
+
+def test_auth_tokens_include_unique_revocation_ids(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_SECRET", "test-secret")
+    context = RequestContext(
+        actor_id="clinician_demo",
+        role="clinician",
+        organization_id="org_demo",
+    )
+
+    first_token = create_auth_token(context, secret="test-secret")
+    second_token = create_auth_token(context, secret="test-secret")
+    client = TestClient(create_app())
+
+    assert first_token != second_token
+
+    client.headers.update({"Authorization": f"Bearer {first_token}"})
+    assert client.post("/api/auth/logout").status_code == 200
+
+    client.headers.update({"Authorization": f"Bearer {first_token}"})
+    assert client.get("/api/me").status_code == 401
+
+    client.headers.update({"Authorization": f"Bearer {second_token}"})
+    assert client.get("/api/me").status_code == 200

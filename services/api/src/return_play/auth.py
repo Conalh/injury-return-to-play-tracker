@@ -6,6 +6,7 @@ import hmac
 import json
 import time
 from dataclasses import dataclass
+from secrets import token_urlsafe
 from typing import Annotated, Callable
 
 from fastapi import Depends, Header, HTTPException, status
@@ -19,6 +20,11 @@ class RequestContext:
     actor_id: str
     role: UserRole
     organization_id: str
+    token_id: str | None = None
+    token_expires_at: int | None = None
+
+
+_revoked_token_ids: dict[str, int] = {}
 
 
 def create_auth_token(
@@ -33,6 +39,7 @@ def create_auth_token(
         "role": context.role.value if isinstance(context.role, UserRole) else context.role,
         "organization_id": context.organization_id,
         "exp": int(time.time()) + expires_in_seconds,
+        "jti": token_urlsafe(24),
     }
     header = {"alg": "HS256", "typ": "return-play-token"}
     encoded_header = _base64url_encode(json.dumps(header, separators=(",", ":")).encode())
@@ -79,6 +86,14 @@ def authenticate_local_login(email: str, password: str) -> RequestContext:
         role=role,
         organization_id=settings.local_auth_organization_id,
     )
+
+
+def revoke_auth_context(context: RequestContext) -> None:
+    if context.token_id is None or context.token_expires_at is None:
+        return
+
+    _prune_revoked_token_ids(int(time.time()))
+    _revoked_token_ids[context.token_id] = context.token_expires_at
 
 
 def get_request_context(
@@ -163,19 +178,28 @@ def _verify_auth_token(token: str, secret: str) -> RequestContext:
         actor_id = payload["sub"]
         organization_id = payload["organization_id"]
         expires_at = int(payload["exp"])
+        token_id = payload["jti"]
     except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         raise _invalid_token() from exc
 
-    if expires_at <= int(time.time()):
+    now = int(time.time())
+    if expires_at <= now:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token has expired.",
+        )
+    if _is_token_revoked(str(token_id), now):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Bearer token has been revoked.",
         )
 
     return RequestContext(
         actor_id=actor_id,
         role=role,
         organization_id=organization_id,
+        token_id=str(token_id),
+        token_expires_at=expires_at,
     )
 
 
@@ -212,3 +236,18 @@ def _invalid_token() -> HTTPException:
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Bearer token is invalid.",
     )
+
+
+def _is_token_revoked(token_id: str, now: int) -> bool:
+    _prune_revoked_token_ids(now)
+    return token_id in _revoked_token_ids
+
+
+def _prune_revoked_token_ids(now: int) -> None:
+    expired_token_ids = [
+        token_id
+        for token_id, expires_at in _revoked_token_ids.items()
+        if expires_at <= now
+    ]
+    for token_id in expired_token_ids:
+        del _revoked_token_ids[token_id]

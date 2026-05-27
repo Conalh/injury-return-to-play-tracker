@@ -3,11 +3,18 @@ import { expect, test } from "@playwright/test";
 test("clinician dashboard shows roster and evidence summary", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "Return-to-play tracker" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Riley Chen/ })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Primary clinical navigation" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Stagewise dashboard" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Search athletes, cases, or evidence" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Return-to-Play Control Center" })).toBeVisible();
+  await expect(page.getByText("Requires clinician review")).toBeVisible();
+  await expect(page.getByText("Evidence overdue / due today")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Action queue" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recent named decisions" })).toBeVisible();
+  await expect(page.getByTestId("roster-table").getByRole("link", { name: /Riley Chen/ })).toBeVisible();
   await expect(page.getByRole("cell", { name: "Left ankle sprain" }).first()).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Missing gates" })).toBeVisible();
-  await expect(page.getByText("Review symptoms before advancing.")).toBeVisible();
+  await expect(page.getByTestId("roster-table").getByText("Review symptoms before advancing.")).toBeVisible();
 });
 
 test("case detail shows phase, milestones, evidence, readiness, and clearance panel", async ({ page }) => {

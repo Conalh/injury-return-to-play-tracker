@@ -42,6 +42,7 @@ worktrees/
 
 # Local planning
 ROADMAP2.md
+CCUI_IMPLEMENTATION_PLAN.md
 
 # Environment and secrets
 .env

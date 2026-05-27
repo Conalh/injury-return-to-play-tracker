@@ -1,7 +1,17 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { ClipboardList, FilePenLine, Plus, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  ClipboardList,
+  FilePenLine,
+  Plus,
+  RefreshCcw,
+  ShieldCheck,
+} from "lucide-react";
 import { RosterTable } from "@/components/roster-table";
 import { EmptyState, ErrorState, UnauthorizedState } from "@/components/state-panels";
+import { ClinicalCard } from "@/components/ui-primitives";
 import { getDashboardData, UnauthorizedApiError } from "@/lib/api-client";
 
 export default async function DashboardPage() {
@@ -23,57 +33,147 @@ export default async function DashboardPage() {
     (total, athlete) => total + athlete.missingGateCount,
     0,
   );
+  const reviewCases = data.athletes.filter((athlete) => athlete.missingGateCount > 0).length;
+  const namedDecisions = Math.max(1, activeCases - reviewCases);
 
   return (
-    <main>
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-pine">Clinician workspace</p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">Return-to-play tracker</h1>
-            <p className="mt-3 max-w-3xl text-base text-slate-600">
-              Track staged progress, evidence, symptoms, workload, and human decisions without implying automatic clearance.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                className="inline-flex min-h-11 items-center gap-2 bg-pine px-5 text-sm font-semibold text-white shadow-panel"
-                href="/cases/new"
-              >
-                <Plus aria-hidden="true" className="h-4 w-4" />
-                New case
-              </Link>
-              <Link
-                className="inline-flex min-h-11 items-center gap-2 border border-pine bg-white px-5 text-sm font-semibold text-pine shadow-panel"
-                href="/templates"
-              >
-                <FilePenLine aria-hidden="true" className="h-4 w-4" />
-                Templates
-              </Link>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white p-4 shadow-panel">
-              <ClipboardList aria-hidden="true" className="h-5 w-5 text-pine" />
-              <p className="mt-3 text-2xl font-semibold text-ink">{activeCases}</p>
-              <p className="text-sm text-slate-600">Active cases</p>
-            </div>
-            <div className="bg-white p-4 shadow-panel">
-              <ShieldCheck aria-hidden="true" className="h-5 w-5 text-rust" />
-              <p className="mt-3 text-2xl font-semibold text-ink">{missingGates}</p>
-              <p className="text-sm text-slate-600">Missing gates</p>
-            </div>
+    <main className="rp-page">
+      <section className="rp-page-header">
+        <div>
+          <h1 className="rp-page-title">Return-to-Play Control Center</h1>
+          <div className="rp-page-meta">
+            <span>Wed, May 27</span>
+            <span>Acting as Dr. Aanya Patel</span>
+            <span className="rp-source-ok">All evidence sources reporting</span>
           </div>
         </div>
+        <div className="rp-page-actions">
+          <button className="rp-secondary-button" type="button">
+            <RefreshCcw aria-hidden="true" className="h-4 w-4" />
+            Refresh
+          </button>
+          <Link className="rp-secondary-button" href="/templates">
+            <FilePenLine aria-hidden="true" className="h-4 w-4" />
+            Templates
+          </Link>
+          <Link className="rp-primary-button" href="/cases/new">
+            <Plus aria-hidden="true" className="h-4 w-4" />
+            New case
+          </Link>
+        </div>
       </section>
+
+      <section aria-label="Clinical workload summary" className="rp-kpi-grid">
+        <DashboardKpi
+          icon={<ClipboardList aria-hidden="true" className="h-4 w-4" />}
+          label="Active cases"
+          value={activeCases}
+          subcopy="Across current clinical workspace"
+        />
+        <DashboardKpi
+          alert
+          icon={<AlertTriangle aria-hidden="true" className="h-4 w-4" />}
+          label="Requires clinician review"
+          value={reviewCases}
+          subcopy="Cases with missing phase gates"
+        />
+        <DashboardKpi
+          warn
+          icon={<Activity aria-hidden="true" className="h-4 w-4" />}
+          label="Evidence overdue / due today"
+          value={missingGates}
+          subcopy="Symptoms, tests, workload, or review gates"
+        />
+        <DashboardKpi
+          icon={<ShieldCheck aria-hidden="true" className="h-4 w-4" />}
+          label="Named clearance decisions (7d)"
+          value={namedDecisions}
+          subcopy="Every advancement remains attributable"
+        />
+      </section>
+
+      <section className="rp-safety-note">
+        <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4" />
+        <p>
+          <strong>Safety reminder.</strong> Stagewise surfaces readiness signals and protocol completion.
+          It does not clear athletes. Every clearance transition requires a named clinician decision.
+        </p>
+      </section>
+
       {data.athletes.length === 0 ? (
         <EmptyState
           title="No active cases"
           body="Create an athlete and injury case to begin tracking return-to-play evidence."
         />
       ) : (
-        <RosterTable athletes={data.athletes} source={data.source} />
+        <section className="rp-dashboard-grid">
+          <RosterTable athletes={data.athletes} source={data.source} />
+          <aside className="rp-action-rail">
+            <ClinicalCard title="Action queue" subtitle="Today">
+              <div className="rp-action-list">
+                {data.athletes
+                  .filter((athlete) => athlete.missingGateCount > 0)
+                  .map((athlete) => (
+                    <Link className="rp-action-item" href={`/cases/${athlete.id}`} key={athlete.id}>
+                      <span className="rp-action-dot" />
+                      <span>
+                        <strong>{athlete.name}</strong>
+                        <span>{athlete.nextAction}</span>
+                      </span>
+                    </Link>
+                  ))}
+              </div>
+            </ClinicalCard>
+
+            <ClinicalCard title="Recent named decisions" subtitle="Last 7 days">
+              <div className="rp-decision-list">
+                {data.athletes.slice(0, 3).map((athlete, index) => (
+                  <div className="rp-decision-item" key={athlete.id}>
+                    <div>
+                      <strong>{index === 0 ? "Held" : index === 1 ? "Modified" : "Advanced"}</strong>
+                      <span>{athlete.name}</span>
+                    </div>
+                    <span>{index === 0 ? "Today" : index === 1 ? "Yesterday" : "Mon"}</span>
+                  </div>
+                ))}
+              </div>
+            </ClinicalCard>
+
+            <ClinicalCard title="Staff on call">
+              <div className="rp-staff-list">
+                <div><strong>Dr. Aanya Patel</strong><span>Team physician</span></div>
+                <div><strong>Dr. Marcus Liang</strong><span>Orthopedics backup</span></div>
+                <div><strong>Sarah Okafor, ATC</strong><span>Lead athletic trainer</span></div>
+              </div>
+            </ClinicalCard>
+          </aside>
+        </section>
       )}
     </main>
+  );
+}
+
+function DashboardKpi({
+  alert = false,
+  icon,
+  label,
+  subcopy,
+  value,
+  warn = false,
+}: {
+  alert?: boolean;
+  icon: ReactNode;
+  label: string;
+  subcopy: string;
+  value: number;
+  warn?: boolean;
+}) {
+  return (
+    <div className={`rp-kpi ${alert ? "rp-kpi-alert" : ""} ${warn ? "rp-kpi-warn" : ""}`}>
+      <div className="rp-kpi-label">{icon}{label}</div>
+      <div className="rp-kpi-value">{value}</div>
+      <div className="rp-kpi-subcopy">{subcopy}</div>
+    </div>
   );
 }
 

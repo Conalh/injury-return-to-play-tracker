@@ -18,6 +18,7 @@ from return_play.models import (
     SymptomLogCreate,
     WorkloadSessionCreate,
 )
+from return_play.readiness import build_readiness
 
 
 class InMemoryWorkflowRepository:
@@ -245,6 +246,20 @@ class InMemoryWorkflowRepository:
     def list_workload_sessions(self, case_id: str) -> dict[str, list[dict]]:
         self._get_case(case_id)
         return {"items": self.workload_sessions.get(case_id, [])}
+
+    def get_readiness(self, case_id: str) -> dict:
+        self._get_case(case_id)
+        phases = self.case_plans.get(case_id, [])
+        current_phase = next(
+            (phase for phase in phases if phase["status"] == PhaseStatus.CURRENT.value),
+            None,
+        )
+        return build_readiness(
+            injury_case_id=case_id,
+            current_phase=current_phase,
+            symptom_logs=self.symptom_logs.get(case_id, []),
+            workload_sessions=self.workload_sessions.get(case_id, []),
+        )
 
     def _get_case(self, case_id: str) -> dict:
         try:

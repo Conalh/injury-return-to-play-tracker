@@ -31,10 +31,20 @@ Goal 4 adds evidence capture:
 - Include evidence collections on injury case detail responses.
 - Keep milestone evidence metadata on milestone status updates.
 
+Goal 5 adds the readiness engine:
+
+- `GET /api/injury-cases/{case_id}/readiness`.
+- Missing required milestone signal.
+- Symptom worsening signal.
+- Workload tolerance signal.
+- Clearance completeness signal.
+- Source facts on every signal.
+- Explicit `can_auto_clear: false` response field.
+
 The runtime repository is currently in-memory. SQLAlchemy metadata and Alembic
 migrations are kept aligned with the workflow concepts, but request handlers do
-not yet persist to Postgres. Authentication, permissions, readiness logic, and
-reporting are intentionally deferred to later goals.
+not yet persist to Postgres. Authentication, permissions, reporting, and
+frontend workflows are intentionally deferred to later goals.
 
 ## Local Setup
 

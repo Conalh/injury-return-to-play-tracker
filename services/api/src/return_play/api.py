@@ -105,6 +105,10 @@ def create_app() -> FastAPI:
     def list_workload_sessions(case_id: str) -> dict[str, list[dict]]:
         return repository.list_workload_sessions(case_id)
 
+    @api_router.get("/injury-cases/{case_id}/readiness")
+    def get_readiness(case_id: str) -> dict:
+        return repository.get_readiness(case_id)
+
     @api_router.get("/templates")
     def list_templates(
         organization_id: str | None = Query(default=None),

@@ -61,6 +61,10 @@ Postgres repository goal.
 Implement explain-only readiness signals for missing milestones, symptom
 concerns, workload tolerance, and clearance completeness.
 
+Status: complete. The API exposes an explain-only readiness endpoint that
+returns missing milestone, symptom, workload, and clearance completeness signals
+with source facts. It explicitly reports that auto-clearance is unavailable.
+
 ## Goal 6: Frontend Clinician Dashboard
 
 Build the Next.js clinician dashboard around roster, case detail, phase

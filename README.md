@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 26 of the
+The project is a local production-path build, currently through Goal 27 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -76,6 +76,9 @@ Live in the repo:
 - Security baseline controls for secure response headers, CORS allowlisting,
   request size limits, auth/share route rate limits, dependency scanning, and
   secret scanning.
+- Continuous integration workflow for backend tests, migration head checks,
+  frontend build, Playwright browser coverage, dependency audit, and documented
+  required status checks.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -260,6 +263,8 @@ share page.
 - [docs/product/security-baseline.md](docs/product/security-baseline.md):
   secure headers, CORS, rate limits, input limits, dependency scanning, and
   secret scanning.
+- [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
+  CI workflow jobs and required branch-protection status checks.
 - [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
   initial repo and tooling direction.
 - [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original

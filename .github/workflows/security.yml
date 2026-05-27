@@ -28,7 +28,10 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install API audit tooling
-        run: python -m pip install pip-audit
+        working-directory: services/api
+        run: |
+          python -m pip install -e '.[dev]'
+          python -m pip install pip-audit
       - name: Block known vulnerable API dependencies
         working-directory: services/api
         run: pip-audit --strict

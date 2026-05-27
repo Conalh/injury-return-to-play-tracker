@@ -261,6 +261,15 @@ Goal 26 establishes the first security baseline:
 - `scripts/scan-secrets.ps1` blocks common committed private key and token
   patterns.
 
+Goal 27 adds the continuous integration contract:
+
+- `.github/workflows/ci.yml` runs backend tests, Alembic migration head checks,
+  the Next.js build, Playwright workflow tests, and dependency audits.
+- `docs/operations/ci-required-checks.md` documents the branch-protection
+  checks expected before merge.
+- The security workflow remains responsible for the standalone secret scan
+  status check.
+
 ## Local Setup
 
 ```powershell

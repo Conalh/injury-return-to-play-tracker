@@ -17,3 +17,8 @@
   retention hooks, export/delete request plan, and PHI checklist.
 - `product/security-baseline.md`: secure headers, CORS, rate limits, input
   size limits, dependency scan, and secret scan baseline.
+
+## Operations
+
+- `operations/ci-required-checks.md`: CI jobs and required branch-protection
+  status checks.

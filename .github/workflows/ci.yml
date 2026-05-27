@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - goal-*
+
+jobs:
+  backend-tests:
+    name: Backend tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install API dependencies
+        working-directory: services/api
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\.venv\Scripts\python.exe -m pip install -e '.[dev]'
+      - name: Run API tests
+        working-directory: services/api
+        shell: pwsh
+        run: .\.venv\Scripts\python.exe -m pytest
+
+  migration-head:
+    name: Migration head check
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install API dependencies
+        working-directory: services/api
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\.venv\Scripts\python.exe -m pip install -e '.[dev]'
+      - name: Check Alembic migration heads
+        working-directory: services/api
+        shell: pwsh
+        run: .\.venv\Scripts\alembic.exe heads
+
+  web-build:
+    name: Web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci
+      - name: Build Next.js app
+        working-directory: apps/web
+        run: npm run build
+
+  web-playwright:
+    name: Web Playwright
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install API dependencies
+        working-directory: services/api
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\.venv\Scripts\python.exe -m pip install -e '.[dev]'
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci
+      - name: Install browser
+        working-directory: apps/web
+        run: npx playwright install chromium
+      - name: Run browser workflow tests
+        working-directory: apps/web
+        run: npm test
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci
+      - name: Block high severity web advisories
+        working-directory: apps/web
+        run: npm audit --audit-level=high
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python audit tooling
+        working-directory: services/api
+        run: |
+          python -m pip install -e '.[dev]'
+          python -m pip install pip-audit
+      - name: Block known vulnerable API dependencies
+        working-directory: services/api
+        run: pip-audit --strict

@@ -845,13 +845,20 @@ class SqlAlchemyWorkflowRepository:
                 context.actor_id,
                 {"format": "pdf"},
             )
+            session.flush()
+            audit_events = session.scalars(
+                select(AuditLogEntry).where(AuditLogEntry.injury_case_id == case_id)
+            ).all()
+            case_detail = self._case_detail(session, injury_case)
+            audit_metadata = [self._audit_dict(event) for event in audit_events]
             session.commit()
             return build_case_report_pdf(
                 {
-                    **self._case_dict(injury_case),
+                    **case_detail,
                     "athlete_name": athlete.name,
                 },
                 readiness,
+                audit_metadata,
             )
 
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:

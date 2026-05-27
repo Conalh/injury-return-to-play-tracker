@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, ShieldAlert } from "lucide-react";
+import { ArrowLeft, CalendarDays, FileDown, ShieldAlert } from "lucide-react";
 import { ClearancePanel } from "@/components/clearance-panel";
 import { FunctionalTestTable, SymptomTrend, WorkloadProgression } from "@/components/evidence-panels";
 import { EvidenceEntryPanel } from "@/components/evidence-entry-panel";
@@ -51,6 +51,13 @@ export default async function CaseDetailPage({
             <p className="text-sm font-semibold uppercase tracking-wide text-pine">{detail.athlete.sport} · {detail.athlete.position}</p>
             <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">{detail.athlete.name}</h1>
             <p className="mt-3 max-w-3xl text-base text-slate-600">{detail.summary}</p>
+            <Link
+              className="mt-4 inline-flex min-h-10 items-center gap-2 bg-pine px-4 py-2 text-sm font-semibold text-white"
+              href={`/cases/${detail.id}/report`}
+            >
+              <FileDown aria-hidden="true" className="h-4 w-4" />
+              Download PDF report
+            </Link>
           </div>
           <div className="bg-white p-4 shadow-panel">
             <div className="flex items-start gap-3">

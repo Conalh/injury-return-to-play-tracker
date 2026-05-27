@@ -107,6 +107,15 @@ Goal 22 adds the guardian portal path:
 - Playwright proves the guardian portal excludes raw clinical evidence and
   records an acknowledgment.
 
+Goal 23 adds report downloads:
+
+- Case detail exposes a `Download PDF report` link.
+- The Next.js route proxies report bytes from the FastAPI report endpoint using
+  the server-side API client, so browser downloads do not need clinical auth
+  headers.
+- Playwright proves the download affordance is visible on API-backed case
+  detail.
+
 ## Local Commands
 
 ```powershell

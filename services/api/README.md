@@ -214,6 +214,16 @@ Goal 22 adds guardian acknowledgments through limited share tokens:
 - Accepted acknowledgments write `guardian_acknowledgment_recorded` audit
   events.
 
+Goal 23 upgrades PDF reports:
+
+- `GET /api/injury-cases/{case_id}/report` now includes status, phase,
+  evidence, restrictions, clearance decisions, readiness signals, and audit
+  metadata sections.
+- Reports include a non-diagnostic disclaimer and avoid forbidden clearance
+  language.
+- PDF tests extract report text and verify stable renderable page dimensions
+  with `pypdf`.
+
 ## Local Setup
 
 ```powershell

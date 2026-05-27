@@ -704,10 +704,11 @@ class InMemoryWorkflowRepository:
         )
         return build_case_report_pdf(
             {
-                **injury_case,
+                **self.get_injury_case_detail(case_id, context),
                 "athlete_name": athlete["name"],
             },
             readiness,
+            self.audit_log_entries.get(case_id, []),
         )
 
     def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:

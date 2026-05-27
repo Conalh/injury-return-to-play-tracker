@@ -328,6 +328,21 @@ export async function getCasePageData(caseId: string): Promise<CasePageData> {
   return getApiCasePageData(apiCaseId);
 }
 
+export async function getCaseReportPdf(caseId: string): Promise<ArrayBuffer> {
+  ensureWritableApiMode();
+  const response = await fetch(`${apiBaseUrl()}/api/injury-cases/${caseId}/report`, {
+    cache: "no-store",
+    headers: authHeaders(),
+  });
+  if (response.status === 401 || response.status === 403) {
+    throw new UnauthorizedApiError();
+  }
+  if (!response.ok) {
+    throw new Error(`API request failed with ${response.status}: report`);
+  }
+  return response.arrayBuffer();
+}
+
 export async function getSharePageData(token: string): Promise<SharePageData> {
   if (!usesApi()) {
     return { source: "demo", share: getDemoShareView(token) };

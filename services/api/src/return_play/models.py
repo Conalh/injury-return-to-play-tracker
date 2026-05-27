@@ -193,3 +193,39 @@ class ClearanceDecisionCreate(ApiSchema):
 class ShareTokenCreate(ApiSchema):
     injury_case_id: str = Field(min_length=1)
     audience: ShareAudience
+
+
+class TemplateMilestoneCreate(ApiSchema):
+    title: str = Field(min_length=1)
+    kind: MilestoneKind
+    required: bool = True
+    instructions: str | None = None
+
+
+class TemplatePhaseCreate(ApiSchema):
+    name: str = Field(min_length=1)
+    order_index: int = Field(ge=0)
+    objective: str | None = None
+    minimum_days: int = Field(default=0, ge=0)
+    exit_summary: str | None = None
+    milestones: list[TemplateMilestoneCreate] = Field(default_factory=list)
+
+
+class ReturnPlanTemplateWithPhasesCreate(ReturnPlanTemplateCreate):
+    phases: list[TemplatePhaseCreate] = Field(default_factory=list)
+
+
+class ApplyTemplateRequest(ApiSchema):
+    template_id: str = Field(min_length=1)
+
+
+class MilestoneResultUpdate(ApiSchema):
+    status: MilestoneResultStatus
+    recorded_by: str = Field(min_length=1)
+    notes: str | None = None
+    evidence_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ClinicianNoteCreate(ApiSchema):
+    author_id: str = Field(min_length=1)
+    body: str = Field(min_length=1)

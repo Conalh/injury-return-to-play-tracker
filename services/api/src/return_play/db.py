@@ -203,6 +203,17 @@ class ClearanceDecisionRecord(IdMixin, Base):
     restrictions: Mapped[str | None] = mapped_column(Text)
 
 
+class ClinicianNoteRecord(IdMixin, Base):
+    __tablename__ = "clinician_notes"
+
+    injury_case_id: Mapped[str] = mapped_column(
+        ForeignKey("injury_cases.id"), nullable=False, index=True
+    )
+    author_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class ShareToken(IdMixin, Base):
     __tablename__ = "share_tokens"
 

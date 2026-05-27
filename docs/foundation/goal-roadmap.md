@@ -32,15 +32,19 @@ Create the FastAPI app, Pydantic schemas, database migrations, and repository
 layer for organizations, users, athletes, injury cases, templates, phases,
 milestones, logs, tests, workload sessions, clearances, and share tokens.
 
-Status: in progress. The backend skeleton, request contracts, SQLAlchemy
+Status: complete. The backend skeleton, request contracts, SQLAlchemy
 metadata, and Alembic baseline exist. Repository methods and CRUD behavior are
-still deferred to the clinician MVP workflow.
+deferred to the clinician MVP workflow.
 
 ## Goal 3: Clinician MVP Workflow
 
 Build the minimum useful clinician loop: roster, athlete creation, injury case
 creation, template application, current phase display, milestone status, and
 clinician notes.
+
+Status: complete. The API now supports this workflow through an in-memory
+repository seam, with SQLAlchemy metadata and migrations updated for clinician
+notes. Postgres-backed repositories remain deferred.
 
 ## Goal 4: Evidence Capture
 

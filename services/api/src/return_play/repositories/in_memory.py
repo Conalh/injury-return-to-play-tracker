@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from secrets import token_urlsafe
@@ -7,6 +8,7 @@ from uuid import uuid4
 
 from fastapi import HTTPException, status
 
+from return_play.audit import AuditEventType
 from return_play.auth import RequestContext
 from return_play.models import (
     ApplyTemplateRequest,
@@ -590,6 +592,12 @@ class InMemoryWorkflowRepository:
             (phase for phase in phases if self._is_active_phase(phase)),
             None,
         )
+        self._record_audit_event(
+            injury_case["id"],
+            AuditEventType.SHARE_VIEW_READ.value,
+            None,
+            {"audience": share["audience"], "share_id": share["id"]},
+        )
         return {
             "audience": share["audience"],
             "athlete_name": athlete["name"],
@@ -698,9 +706,15 @@ class InMemoryWorkflowRepository:
         readiness = self.get_readiness(case_id, context)
         self._record_audit_event(
             case_id,
-            "report_generated",
+            AuditEventType.REPORT_GENERATED.value,
             context.actor_id,
             {"format": "pdf"},
+        )
+        self._record_audit_event(
+            case_id,
+            AuditEventType.SENSITIVE_EXPORT_READ.value,
+            context.actor_id,
+            {"export_type": "case_report", "format": "pdf"},
         )
         return build_case_report_pdf(
             {
@@ -708,14 +722,28 @@ class InMemoryWorkflowRepository:
                 "athlete_name": athlete["name"],
             },
             readiness,
-            self.audit_log_entries.get(case_id, []),
+            self._audit_log_copies(self.audit_log_entries.get(case_id, [])),
         )
 
-    def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+    def get_audit_log(
+        self,
+        case_id: str,
+        context: RequestContext,
+        event_type: str | None = None,
+        actor_id: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_AUDIT_LOG)
         self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
-        return {"items": self.audit_log_entries.get(case_id, [])}
+        events = self.audit_log_entries.get(case_id, [])
+        if event_type is not None:
+            events = [event for event in events if event["event_type"] == event_type]
+        if actor_id is not None:
+            events = [event for event in events if event["actor_id"] == actor_id]
+        if limit is not None:
+            events = events[:limit]
+        return {"items": self._audit_log_copies(events)}
 
     def seed_demo(self, context: RequestContext) -> dict:
         assert_permission(context, Permission.SEED_DEMO)
@@ -985,6 +1013,10 @@ class InMemoryWorkflowRepository:
         }
         self.audit_log_entries.setdefault(case_id, []).append(event)
         return event
+
+    @staticmethod
+    def _audit_log_copies(events: list[dict]) -> list[dict]:
+        return [deepcopy(event) for event in events]
 
     def _record_organization_audit_event(
         self,

@@ -319,8 +319,11 @@ def create_app(repository=None) -> FastAPI:
     def get_audit_log(
         case_id: str,
         context: ReadAuditLogContext,
+        event_type: str | None = None,
+        actor_id: str | None = None,
+        limit: int | None = Query(default=None, ge=1, le=100),
     ) -> dict[str, list[dict]]:
-        return repository.get_audit_log(case_id, context)
+        return repository.get_audit_log(case_id, context, event_type, actor_id, limit)
 
     @api_router.get("/share/{token}")
     def get_share(token: str) -> dict:

@@ -52,5 +52,8 @@ class SharingReportingAuditRepositoryBoundary(Protocol):
         self,
         case_id: str,
         context: RequestContext,
+        event_type: str | None = None,
+        actor_id: str | None = None,
+        limit: int | None = None,
     ) -> dict[str, list[dict]]:
         ...

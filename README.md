@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 23 of the
+The project is a local production-path build, currently through Goal 24 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -67,6 +67,9 @@ Live in the repo:
   clinical evidence exposure.
 - Production PDF reports with status, phase, evidence, restrictions, clearance
   decision, audit metadata, non-diagnostic disclaimer, and case-detail download.
+- Hardened audit logging with a shared event taxonomy, read events for limited
+  share views and PDF exports, filtered audit-log API access, immutable
+  in-memory audit record reads, and case-detail audit filtering.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into
@@ -155,6 +158,7 @@ apps/web
 services/api
   FastAPI app factory + route surface
   auth.py            local request-context role gates
+  audit.py           audit event taxonomy
   models.py          Pydantic request contracts
   db.py              SQLAlchemy metadata
   repositories/      in-memory + SQLAlchemy workflow repositories
@@ -190,6 +194,8 @@ contract is:
   roles until the production role matrix lands.
 - Organization IDs scope roster, template, case, evidence, readiness,
   report, share-management, and audit-log access.
+- Limited share view reads and sensitive report exports are recorded as audit
+  events.
 - Clearance decisions require a named actor and rationale.
 - Readiness responses explicitly include `can_auto_clear: false`.
 - Shared pages use non-diagnostic language and exclude symptom detail, guardian
@@ -216,11 +222,12 @@ npm audit --audit-level=high
 
 Current coverage includes API contracts, schema contracts, migrations, clinician
 workflow behavior, evidence capture, readiness signals, privacy and permission
-checks, share/report/audit behavior, demo seed validation, persistent repository
-restart behavior, repository-boundary contracts, and browser coverage for the
-dashboard, API-backed case creation, template builder, evidence entry, clearance
-decisions, share management, athlete and guardian portals, report download, case
-detail, and limited share page.
+checks, share/report/audit behavior, audit filtering and immutability, demo seed
+validation, persistent repository restart behavior, repository-boundary
+contracts, and browser coverage for the dashboard, API-backed case creation,
+template builder, evidence entry, clearance decisions, share management, athlete
+and guardian portals, report download, audit filtering, case detail, and limited
+share page.
 
 ## Documentation
 

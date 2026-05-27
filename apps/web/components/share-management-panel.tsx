@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Link2, Share2, X } from "lucide-react";
+import { Copy, Filter, Link2, Share2, X } from "lucide-react";
 import {
   createShareLinkAction,
   revokeShareLinkAction,
@@ -24,8 +24,13 @@ export function ShareManagementPanel({
   auditEvents,
 }: ShareManagementPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [auditEventType, setAuditEventType] = useState("all");
   const shareUrl = shareToken ? `/share/${shareToken}` : "";
-  const visibleAuditEvents = auditEvents.slice(-8).reverse();
+  const filteredAuditEvents =
+    auditEventType === "all"
+      ? auditEvents
+      : auditEvents.filter((event) => event.eventType === auditEventType);
+  const visibleAuditEvents = filteredAuditEvents.slice(-8).reverse();
 
   return (
     <section className="bg-white px-4 py-5 shadow-panel sm:px-5">
@@ -87,7 +92,33 @@ export function ShareManagementPanel({
       ) : null}
 
       <div className="mt-5">
-        <h3 className="text-sm font-semibold text-ink">Audit log</h3>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h3 className="text-sm font-semibold text-ink">Audit log</h3>
+          <div>
+            <label
+              className="text-xs font-semibold text-slate-600"
+              htmlFor="audit-event-type-filter"
+            >
+              Audit event type
+            </label>
+            <div className="mt-1 flex items-center gap-2 border border-mist bg-white px-2 py-1.5">
+              <Filter aria-hidden="true" className="h-3.5 w-3.5 text-pine" />
+              <select
+                id="audit-event-type-filter"
+                className="bg-transparent text-sm font-semibold text-ink outline-none"
+                onChange={(event) => setAuditEventType(event.target.value)}
+                value={auditEventType}
+              >
+                <option value="all">All events</option>
+                {AUDIT_EVENT_TYPES.map((eventType) => (
+                  <option key={eventType} value={eventType}>
+                    {formatEventType(eventType)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
         {visibleAuditEvents.length > 0 ? (
           <ul className="mt-3 divide-y divide-mist border-y border-mist">
             {visibleAuditEvents.map((event) => (
@@ -103,7 +134,7 @@ export function ShareManagementPanel({
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-slate-600">No audit events recorded yet.</p>
+          <p className="mt-2 text-sm text-slate-600">No matching audit events recorded.</p>
         )}
       </div>
 
@@ -177,6 +208,26 @@ export function ShareManagementPanel({
   );
 }
 
+const AUDIT_EVENT_TYPES = [
+  "athlete_symptom_check_in",
+  "clearance_decision_recorded",
+  "clinician_note_recorded",
+  "functional_test_logged",
+  "guardian_acknowledgment_recorded",
+  "milestone_evidence_recorded",
+  "report_generated",
+  "sensitive_export_read",
+  "share_created",
+  "share_revoked",
+  "share_view_read",
+  "symptom_logged",
+  "workload_session_logged",
+];
+
 function titleCase(value: string): string {
   return value.replace(/\b\w/g, (match) => match.toUpperCase());
+}
+
+function formatEventType(value: string): string {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (match) => match.toUpperCase());
 }

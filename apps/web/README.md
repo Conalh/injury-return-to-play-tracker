@@ -116,6 +116,14 @@ Goal 23 adds report downloads:
 - Playwright proves the download affordance is visible on API-backed case
   detail.
 
+Goal 24 adds case-detail audit filtering:
+
+- The share management panel now includes an audit event type filter.
+- Audit events keep stable machine-readable values while the filter uses
+  readable option labels.
+- Playwright proves a report download records `sensitive_export_read` and the
+  case-detail audit log can filter to that event.
+
 ## Local Commands
 
 ```powershell

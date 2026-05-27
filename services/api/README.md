@@ -224,6 +224,18 @@ Goal 23 upgrades PDF reports:
 - PDF tests extract report text and verify stable renderable page dimensions
   with `pypdf`.
 
+Goal 24 hardens audit logging:
+
+- `return_play.audit` defines the shared audit event taxonomy.
+- `GET /api/share/{token}` records `share_view_read` for successful limited
+  share reads.
+- `GET /api/injury-cases/{case_id}/report` records `sensitive_export_read` in
+  addition to `report_generated`.
+- `GET /api/injury-cases/{case_id}/audit-log` accepts `event_type`, `actor_id`,
+  and bounded `limit` filters.
+- In-memory audit-log reads return copied records so callers cannot mutate the
+  stored audit trail.
+
 ## Local Setup
 
 ```powershell

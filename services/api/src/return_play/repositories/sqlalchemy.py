@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
+from return_play.audit import AuditEventType
 from return_play.auth import RequestContext
 from return_play.db import (
     Athlete,
@@ -714,6 +715,14 @@ class SqlAlchemyWorkflowRepository:
                 ),
                 None,
             )
+            self._record_audit_event(
+                session,
+                injury_case.id,
+                AuditEventType.SHARE_VIEW_READ.value,
+                None,
+                {"audience": share.audience, "share_id": share.id},
+            )
+            session.commit()
             return {
                 "audience": share.audience,
                 "athlete_name": athlete.name,
@@ -841,9 +850,16 @@ class SqlAlchemyWorkflowRepository:
             self._record_audit_event(
                 session,
                 case_id,
-                "report_generated",
+                AuditEventType.REPORT_GENERATED.value,
                 context.actor_id,
                 {"format": "pdf"},
+            )
+            self._record_audit_event(
+                session,
+                case_id,
+                AuditEventType.SENSITIVE_EXPORT_READ.value,
+                context.actor_id,
+                {"export_type": "case_report", "format": "pdf"},
             )
             session.flush()
             audit_events = session.scalars(
@@ -861,14 +877,26 @@ class SqlAlchemyWorkflowRepository:
                 audit_metadata,
             )
 
-    def get_audit_log(self, case_id: str, context: RequestContext) -> dict[str, list[dict]]:
+    def get_audit_log(
+        self,
+        case_id: str,
+        context: RequestContext,
+        event_type: str | None = None,
+        actor_id: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, list[dict]]:
         assert_permission(context, Permission.READ_AUDIT_LOG)
         self._ensure_active_context(context)
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
-            events = session.scalars(
-                select(AuditLogEntry).where(AuditLogEntry.injury_case_id == case_id)
-            ).all()
+            query = select(AuditLogEntry).where(AuditLogEntry.injury_case_id == case_id)
+            if event_type is not None:
+                query = query.where(AuditLogEntry.event_type == event_type)
+            if actor_id is not None:
+                query = query.where(AuditLogEntry.actor_id == actor_id)
+            if limit is not None:
+                query = query.limit(limit)
+            events = session.scalars(query).all()
             return {"items": [self._audit_dict(event) for event in events]}
 
     def seed_demo(self, context: RequestContext) -> dict:

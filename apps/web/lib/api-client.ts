@@ -170,7 +170,7 @@ type ApiShareToken = {
 type ApiAuditEvent = {
   id: string;
   event_type: string;
-  actor_id: string;
+  actor_id: string | null;
   created_at: string;
   metadata_json: Record<string, unknown>;
 };
@@ -723,7 +723,7 @@ function toAuditEvent(event: ApiAuditEvent): AuditEvent {
   return {
     id: event.id,
     eventType: event.event_type,
-    actorId: event.actor_id,
+    actorId: event.actor_id ?? "public share view",
     occurredAt: formatDate(event.created_at.slice(0, 10)),
     metadata: event.metadata_json,
   };

@@ -31,6 +31,15 @@ def test_persistent_repository_survives_app_restart(tmp_path: Path) -> None:
     )
     case_response = second_client.get(f"/api/injury-cases/{case_id}")
     share_response = second_client.get(f"/api/share/{share_token}")
+    report_response = second_client.get(f"/api/injury-cases/{case_id}/report")
+    share_audit_response = second_client.get(
+        f"/api/injury-cases/{case_id}/audit-log",
+        params={"event_type": "share_view_read"},
+    )
+    export_audit_response = second_client.get(
+        f"/api/injury-cases/{case_id}/audit-log",
+        params={"event_type": "sensitive_export_read", "actor_id": "clinician_demo"},
+    )
 
     assert roster_response.status_code == 200
     assert [athlete["name"] for athlete in roster_response.json()["items"]] == [
@@ -42,6 +51,13 @@ def test_persistent_repository_survives_app_restart(tmp_path: Path) -> None:
     assert len(case_response.json()["workload_sessions"]) == 2
     assert share_response.status_code == 200
     assert share_response.json()["athlete_name"] == "Riley Chen"
+    assert report_response.status_code == 200
+    assert [event["event_type"] for event in share_audit_response.json()["items"]] == [
+        "share_view_read"
+    ]
+    assert [event["event_type"] for event in export_audit_response.json()["items"]] == [
+        "sensitive_export_read"
+    ]
 
 
 def test_runtime_app_uses_persistent_repository_when_database_url_is_configured(

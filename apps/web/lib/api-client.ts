@@ -22,6 +22,7 @@ export type DashboardData = {
 export type CasePageData = {
   source: DataSource;
   detail: CaseDetail;
+  auditEvents: AuditEvent[];
 };
 
 export type SharePageData = {
@@ -162,6 +163,17 @@ type ApiShare = {
   clearance_status: string;
   clinician_note: string;
 };
+type ApiShareToken = {
+  token: string;
+  audience: "coach" | "guardian" | "athlete";
+};
+type ApiAuditEvent = {
+  id: string;
+  event_type: string;
+  actor_id: string;
+  created_at: string;
+  metadata_json: Record<string, unknown>;
+};
 
 export type CaseCreationData = {
   source: DataSource;
@@ -259,6 +271,23 @@ export type ClearanceDecisionPayload = {
   rationale: string;
   restrictions?: string | null;
 };
+export type ShareTokenPayload = {
+  injury_case_id: string;
+  audience: "coach" | "guardian" | "athlete";
+  expires_in_days: number;
+  created_by: string;
+  allowed_activities: string;
+  restricted_activities: string;
+  clinician_note: string;
+  next_review_date?: string | null;
+};
+export type AuditEvent = {
+  id: string;
+  eventType: string;
+  actorId: string;
+  occurredAt: string;
+  metadata: Record<string, unknown>;
+};
 
 export async function getDashboardData(): Promise<DashboardData> {
   if (!usesApi()) {
@@ -279,7 +308,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
 export async function getCasePageData(caseId: string): Promise<CasePageData> {
   if (!usesApi()) {
-    return { source: "demo", detail: getDemoCaseDetail(caseId) };
+    return { source: "demo", detail: getDemoCaseDetail(caseId), auditEvents: [] };
   }
 
   const seed = await seedDemoIfConfigured();
@@ -448,6 +477,21 @@ export async function createClearanceDecision(
   await apiRequest(`/api/injury-cases/${caseId}/clearance`, jsonRequest("POST", payload));
 }
 
+export async function createShareToken(
+  caseId: string,
+  payload: ShareTokenPayload,
+): Promise<ApiShareToken> {
+  ensureWritableApiMode();
+  return apiRequest<ApiShareToken>(`/api/injury-cases/${caseId}/share`, jsonRequest("POST", payload));
+}
+
+export async function revokeShareToken(token: string): Promise<void> {
+  ensureWritableApiMode();
+  await apiRequest(`/api/share/${token}/revoke`, jsonRequest("POST", {
+    revoked_by: currentActorId(),
+  }));
+}
+
 export function currentOrganizationId(): string {
   return process.env.RETURN_PLAY_ORGANIZATION_ID ?? "org_demo";
 }
@@ -461,15 +505,17 @@ export function currentActorRole(): string {
 }
 
 async function getApiCasePageData(caseId: string): Promise<CasePageData> {
-  const [detail, readiness, athletesResponse] = await Promise.all([
+  const [detail, readiness, athletesResponse, auditResponse] = await Promise.all([
     apiRequest<ApiCaseDetail>(`/api/injury-cases/${caseId}`),
     apiRequest<ApiReadiness>(`/api/injury-cases/${caseId}/readiness`),
     apiRequest<ApiList<ApiAthlete>>("/api/athletes"),
+    apiRequest<ApiList<ApiAuditEvent>>(`/api/injury-cases/${caseId}/audit-log`),
   ]);
   const athlete = athletesResponse.items.find((item) => item.id === detail.athlete_id);
   return {
     source: "api",
     detail: toCaseDetail(detail, readiness, athlete),
+    auditEvents: auditResponse.items.map(toAuditEvent),
   };
 }
 
@@ -624,6 +670,16 @@ function toReadinessSignal(signal: ApiReadiness["signals"][number]): ReadinessSi
     severity: signal.severity,
     message: signal.message,
     source: Object.values(signal.source_facts).join(", "),
+  };
+}
+
+function toAuditEvent(event: ApiAuditEvent): AuditEvent {
+  return {
+    id: event.id,
+    eventType: event.event_type,
+    actorId: event.actor_id,
+    occurredAt: formatDate(event.created_at.slice(0, 10)),
+    metadata: event.metadata_json,
   };
 }
 

@@ -188,6 +188,14 @@ Goal 19 adds clearance workflow behavior:
 - Milestone evidence alone does not advance phases, and clearance decisions
   continue to write `clearance_decision_recorded` audit events.
 
+Goal 20 uses the existing sharing API from the clinician UI:
+
+- `POST /api/injury-cases/{case_id}/share` issues limited share tokens.
+- `POST /api/share/{token}/revoke` revokes issued tokens.
+- `GET /api/injury-cases/{case_id}/audit-log` supplies the case-detail share
+  audit trail.
+- Revoked tokens continue to return unavailable shared-view responses.
+
 ## Local Setup
 
 ```powershell

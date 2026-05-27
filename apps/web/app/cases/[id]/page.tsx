@@ -6,11 +6,19 @@ import { EvidenceEntryPanel } from "@/components/evidence-entry-panel";
 import { MilestoneChecklist } from "@/components/milestone-checklist";
 import { PhaseTimeline } from "@/components/phase-timeline";
 import { ReadinessCard } from "@/components/readiness-card";
+import { ShareManagementPanel } from "@/components/share-management-panel";
 import { ErrorState, UnauthorizedState } from "@/components/state-panels";
 import { getCasePageData, UnauthorizedApiError } from "@/lib/api-client";
 
-export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CaseDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { id } = await params;
+  const query = await searchParams;
   const data = await loadCasePageData(id);
   if (data.status === "unauthorized") {
     return <UnauthorizedState />;
@@ -24,8 +32,12 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
     );
   }
 
-  const { detail, source } = data;
-  const currentPhase = detail.phases.find((phase) => phase.status === "current") ?? detail.phases[0];
+  const { auditEvents, detail, source } = data;
+  const currentPhase =
+    detail.phases.find((phase) => phase.status === "current" || phase.status === "held") ??
+    detail.phases[0];
+  const shareToken = singleQueryValue(query.share_token);
+  const shareAudience = singleQueryValue(query.share_audience);
 
   return (
     <main data-source={source} data-testid="case-detail">
@@ -79,6 +91,13 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
             restrictions={detail.restrictions}
             note={detail.clinicianNote}
           />
+          <ShareManagementPanel
+            auditEvents={auditEvents}
+            caseId={detail.id}
+            shareAudience={shareAudience}
+            shareRevoked={singleQueryValue(query.share_revoked) === "1"}
+            shareToken={shareToken}
+          />
         </div>
       </section>
     </main>
@@ -95,4 +114,8 @@ async function loadCasePageData(caseId: string) {
     }
     return { status: "error" as const };
   }
+}
+
+function singleQueryValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }

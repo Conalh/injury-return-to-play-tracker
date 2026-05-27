@@ -75,6 +75,17 @@ Goal 19 adds the human clearance decision path:
 - Browser submissions use the authenticated actor as the named decision maker.
 - Playwright proves hold and full-clearance decisions appear in case detail.
 
+Goal 20 adds share management on case detail:
+
+- Clinicians can open a create-share dialog for coach, athlete, or guardian
+  audiences.
+- Share forms capture allowed activities, restricted activities, expiration,
+  next review, and limited-view note.
+- Created links show a copy affordance and can be revoked from the same panel.
+- Case audit events are shown beside the share controls.
+- Playwright proves a coach share excludes clinical detail and revoked links
+  render the unavailable state.
+
 ## Local Commands
 
 ```powershell

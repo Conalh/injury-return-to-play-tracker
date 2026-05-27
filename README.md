@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 19 of the
+The project is a local production-path build, currently through Goal 20 of the
 ignored production roadmap. It is not hosted yet.
 
 Live in the repo:
@@ -55,6 +55,9 @@ Live in the repo:
   sessions, and milestone evidence updates with audit events.
 - Human clearance decision UI for hold, advance, full clearance, and close-case
   decisions with required rationale, restrictions, named attribution, and audit
+  events.
+- Share management UI on case detail for creating limited coach, athlete, or
+  guardian links, copying the share URL, revoking links, and reviewing audit
   events.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
@@ -208,7 +211,7 @@ workflow behavior, evidence capture, readiness signals, privacy and permission
 checks, share/report/audit behavior, demo seed validation, persistent repository
 restart behavior, repository-boundary contracts, and browser coverage for the
 dashboard, API-backed case creation, template builder, evidence entry, clearance
-decisions, case detail, and limited share page.
+decisions, share management, case detail, and limited share page.
 
 ## Documentation
 

@@ -161,6 +161,15 @@ Goal 16 adds athlete profile editing for the clinician creation UI:
   `POST /api/injury-cases`, `GET /api/templates`, and
   `POST /api/injury-cases/{case_id}/apply-template`.
 
+Goal 17 adds template builder support:
+
+- `GET /api/templates/{template_id}` returns template detail with phases and
+  milestones.
+- `PATCH /api/templates/{template_id}` creates a new active version and
+  archives the edited version.
+- `POST /api/templates/{template_id}/archive` marks a template inactive.
+- Archived templates cannot be applied to injury cases.
+
 ## Local Setup
 
 ```powershell

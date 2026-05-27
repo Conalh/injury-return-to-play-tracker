@@ -62,10 +62,32 @@ type ApiCase = {
 };
 export type ApiTemplate = {
   id: string;
+  organization_id: string;
   name: string;
   injury_category: string;
   description: string | null;
+  created_by: string;
+  version: number;
   active: boolean;
+};
+export type ApiTemplateMilestone = {
+  id: string;
+  title: string;
+  kind: string;
+  required: boolean;
+  instructions: string | null;
+};
+export type ApiTemplatePhase = {
+  id: string;
+  name: string;
+  order_index: number;
+  objective: string | null;
+  minimum_days: number;
+  exit_summary: string | null;
+  milestones: ApiTemplateMilestone[];
+};
+export type ApiTemplateDetail = ApiTemplate & {
+  phases: ApiTemplatePhase[];
 };
 type ApiMilestone = {
   id: string;
@@ -169,6 +191,26 @@ export type InjuryCasePayload = {
   clinician_owner_id: string;
   summary?: string | null;
 };
+export type TemplatePayload = {
+  organization_id: string;
+  name: string;
+  injury_category: string;
+  description?: string | null;
+  created_by: string;
+  phases: Array<{
+    name: string;
+    order_index: number;
+    objective?: string | null;
+    minimum_days: number;
+    exit_summary?: string | null;
+    milestones: Array<{
+      title: string;
+      kind: string;
+      required: boolean;
+      instructions?: string | null;
+    }>;
+  }>;
+};
 
 export async function getDashboardData(): Promise<DashboardData> {
   if (!usesApi()) {
@@ -241,6 +283,28 @@ export async function getCaseCreationData(): Promise<CaseCreationData> {
   };
 }
 
+export async function getTemplateListData(): Promise<{
+  source: DataSource;
+  templates: ApiTemplate[];
+}> {
+  if (!usesApi()) {
+    return { source: "demo", templates: [] };
+  }
+
+  await seedDemoIfConfigured();
+  const templates = await apiRequest<ApiList<ApiTemplate>>("/api/templates");
+  return { source: "api", templates: templates.items };
+}
+
+export async function getTemplatePageData(templateId: string): Promise<{
+  source: DataSource;
+  template: ApiTemplateDetail;
+}> {
+  ensureWritableApiMode();
+  const template = await apiRequest<ApiTemplateDetail>(`/api/templates/${templateId}`);
+  return { source: "api", template };
+}
+
 export async function createAthlete(payload: AthletePayload): Promise<ApiAthlete> {
   ensureWritableApiMode();
   return apiRequest<ApiAthlete>("/api/athletes", jsonRequest("POST", payload));
@@ -264,6 +328,26 @@ export async function applyTemplate(caseId: string, templateId: string): Promise
   await apiRequest(`/api/injury-cases/${caseId}/apply-template`, jsonRequest("POST", {
     template_id: templateId,
   }));
+}
+
+export async function createTemplate(payload: TemplatePayload): Promise<ApiTemplateDetail> {
+  ensureWritableApiMode();
+  return apiRequest<ApiTemplateDetail>("/api/templates", jsonRequest("POST", payload));
+}
+
+export async function updateTemplateVersion(
+  templateId: string,
+  payload: TemplatePayload,
+): Promise<ApiTemplateDetail> {
+  ensureWritableApiMode();
+  return apiRequest<ApiTemplateDetail>(`/api/templates/${templateId}`, jsonRequest("PATCH", payload));
+}
+
+export async function archiveTemplate(templateId: string): Promise<ApiTemplate> {
+  ensureWritableApiMode();
+  return apiRequest<ApiTemplate>(`/api/templates/${templateId}/archive`, {
+    method: "POST",
+  });
 }
 
 export function currentOrganizationId(): string {

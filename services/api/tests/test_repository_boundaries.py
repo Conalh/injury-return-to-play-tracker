@@ -19,7 +19,14 @@ BOUNDARY_METHODS = {
         "create_note",
         "create_clearance_decision",
     },
-    TemplatePlanRepositoryBoundary: {"create_template", "list_templates", "apply_template"},
+    TemplatePlanRepositoryBoundary: {
+        "create_template",
+        "list_templates",
+        "get_template_detail",
+        "update_template",
+        "archive_template",
+        "apply_template",
+    },
     EvidenceRepositoryBoundary: {
         "create_symptom_log",
         "list_symptom_logs",

@@ -21,6 +21,28 @@ class TemplatePlanRepositoryBoundary(Protocol):
     ) -> dict[str, list[dict]]:
         ...
 
+    def get_template_detail(
+        self,
+        template_id: str,
+        context: RequestContext,
+    ) -> dict:
+        ...
+
+    def update_template(
+        self,
+        template_id: str,
+        payload: ReturnPlanTemplateWithPhasesCreate,
+        context: RequestContext,
+    ) -> dict:
+        ...
+
+    def archive_template(
+        self,
+        template_id: str,
+        context: RequestContext,
+    ) -> dict:
+        ...
+
     def apply_template(
         self,
         payload: ApplyTemplateRequest,

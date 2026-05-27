@@ -353,6 +353,22 @@ def create_app(repository=None) -> FastAPI:
     ) -> dict:
         return repository.create_template(payload, context)
 
+    @api_router.get("/templates/{template_id}")
+    def get_template(template_id: str, context: ReadTemplatesContext) -> dict:
+        return repository.get_template_detail(template_id, context)
+
+    @api_router.patch("/templates/{template_id}")
+    def update_template(
+        template_id: str,
+        payload: ReturnPlanTemplateWithPhasesCreate,
+        context: ManageTemplatesContext,
+    ) -> dict:
+        return repository.update_template(template_id, payload, context)
+
+    @api_router.post("/templates/{template_id}/archive")
+    def archive_template(template_id: str, context: ManageTemplatesContext) -> dict:
+        return repository.archive_template(template_id, context)
+
     app.include_router(api_router)
     return app
 

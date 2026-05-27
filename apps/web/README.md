@@ -49,6 +49,15 @@ Goal 16 adds the clinician case creation path:
   validation and failure states.
 - Playwright covers both the happy path and required-field validation.
 
+Goal 17 adds the template builder path:
+
+- `/templates` lists active and archived templates.
+- `/templates/new` creates staged templates with phase and milestone fields.
+- `/templates/[id]/edit` saves edits as a new active version.
+- Archive actions remove templates from case-creation selection without deleting
+  historical versions.
+- Playwright proves a created template can be applied to a new case.
+
 ## Local Commands
 
 ```powershell

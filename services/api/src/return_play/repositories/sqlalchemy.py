@@ -167,40 +167,56 @@ class SqlAlchemyWorkflowRepository:
         with self.session_factory() as session:
             self._ensure_context_principal(session, context)
             self._ensure_user(session, payload.created_by, context)
-            template = ReturnPlanTemplate(
-                id=self._new_id("template"),
-                **payload.model_dump(mode="python", exclude={"phases"}),
-            )
-            session.add(template)
-            session.flush()
-
-            phase_rows = []
-            for phase_payload in sorted(payload.phases, key=lambda phase: phase.order_index):
-                phase = ReturnPlanPhase(
-                    id=self._new_id("phase"),
-                    template_id=template.id,
-                    **phase_payload.model_dump(mode="python", exclude={"milestones"}),
-                )
-                session.add(phase)
-                session.flush()
-                milestone_rows = []
-                for milestone_payload in phase_payload.milestones:
-                    milestone = Milestone(
-                        id=self._new_id("milestone"),
-                        phase_id=phase.id,
-                        **milestone_payload.model_dump(mode="python"),
-                    )
-                    session.add(milestone)
-                    milestone_rows.append(self._milestone_template_dict(milestone))
-                phase_rows.append(
-                    {
-                        **self._template_phase_dict(phase),
-                        "milestones": milestone_rows,
-                    }
-                )
-
+            template, phase_rows = self._create_template_rows(session, payload)
             session.commit()
             return {**self._template_dict(template), "phases": phase_rows}
+
+    def _create_template_rows(
+        self,
+        session,
+        payload: ReturnPlanTemplateWithPhasesCreate,
+        version: int | None = None,
+        active: bool | None = None,
+    ) -> tuple[ReturnPlanTemplate, list[dict]]:
+        values = payload.model_dump(mode="python", exclude={"phases"})
+        if version is not None:
+            values["version"] = version
+        if active is not None:
+            values["active"] = active
+        template = ReturnPlanTemplate(
+            id=self._new_id("template"),
+            **values,
+        )
+        session.add(template)
+        session.flush()
+
+        phase_rows = []
+        for phase_payload in sorted(payload.phases, key=lambda phase: phase.order_index):
+            phase = ReturnPlanPhase(
+                id=self._new_id("phase"),
+                template_id=template.id,
+                **phase_payload.model_dump(mode="python", exclude={"milestones"}),
+            )
+            session.add(phase)
+            session.flush()
+            milestone_rows = []
+            for milestone_payload in phase_payload.milestones:
+                milestone = Milestone(
+                    id=self._new_id("milestone"),
+                    phase_id=phase.id,
+                    **milestone_payload.model_dump(mode="python"),
+                )
+                session.add(milestone)
+                session.flush()
+                milestone_rows.append(self._milestone_template_dict(milestone))
+            phase_rows.append(
+                {
+                    **self._template_phase_dict(phase),
+                    "milestones": milestone_rows,
+                }
+            )
+
+        return template, phase_rows
 
     def list_templates(
         self,
@@ -218,6 +234,45 @@ class SqlAlchemyWorkflowRepository:
             ).all()
             return {"items": [self._template_dict(template) for template in templates]}
 
+    def get_template_detail(self, template_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.READ_TEMPLATES)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            template = self._get_template(session, template_id, context.organization_id)
+            return self._template_detail(session, template)
+
+    def update_template(
+        self,
+        template_id: str,
+        payload: ReturnPlanTemplateWithPhasesCreate,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_TEMPLATES)
+        self._ensure_active_context(context)
+        self._ensure_payload_organization(payload.organization_id, context)
+        with self.session_factory() as session:
+            self._ensure_context_principal(session, context)
+            self._ensure_user(session, payload.created_by, context)
+            previous = self._get_template(session, template_id, context.organization_id)
+            previous.active = False
+            template, phase_rows = self._create_template_rows(
+                session,
+                payload,
+                version=previous.version + 1,
+                active=True,
+            )
+            session.commit()
+            return {**self._template_dict(template), "phases": phase_rows}
+
+    def archive_template(self, template_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_TEMPLATES)
+        self._ensure_active_context(context)
+        with self.session_factory() as session:
+            template = self._get_template(session, template_id, context.organization_id)
+            template.active = False
+            session.commit()
+            return self._template_dict(template)
+
     def apply_template(
         self,
         case_id: str,
@@ -229,6 +284,11 @@ class SqlAlchemyWorkflowRepository:
         with self.session_factory() as session:
             self._get_case(session, case_id, context.organization_id)
             template = self._get_template(session, payload.template_id, context.organization_id)
+            if not template.active:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Template is archived.",
+                )
             phases = session.scalars(
                 select(ReturnPlanPhase)
                 .where(ReturnPlanPhase.template_id == template.id)
@@ -935,6 +995,28 @@ class SqlAlchemyWorkflowRepository:
             "notes": result.notes if result is not None else None,
             "evidence_json": result.evidence_json if result is not None else {},
         }
+
+    def _template_detail(self, session, template: ReturnPlanTemplate) -> dict:
+        phases = session.scalars(
+            select(ReturnPlanPhase)
+            .where(ReturnPlanPhase.template_id == template.id)
+            .order_by(ReturnPlanPhase.order_index)
+        ).all()
+        phase_rows = []
+        for phase in phases:
+            milestones = session.scalars(
+                select(Milestone).where(Milestone.phase_id == phase.id)
+            ).all()
+            phase_rows.append(
+                {
+                    **self._template_phase_dict(phase),
+                    "milestones": [
+                        self._milestone_template_dict(milestone)
+                        for milestone in milestones
+                    ],
+                }
+            )
+        return {**self._template_dict(template), "phases": phase_rows}
 
     def _validate_evidence_case(
         self,

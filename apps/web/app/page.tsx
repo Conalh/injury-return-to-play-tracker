@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, Plus, ShieldCheck } from "lucide-react";
+import { ClipboardList, FilePenLine, Plus, ShieldCheck } from "lucide-react";
 import { RosterTable } from "@/components/roster-table";
 import { EmptyState, ErrorState, UnauthorizedState } from "@/components/state-panels";
 import { getDashboardData, UnauthorizedApiError } from "@/lib/api-client";
@@ -34,13 +34,22 @@ export default async function DashboardPage() {
             <p className="mt-3 max-w-3xl text-base text-slate-600">
               Track staged progress, evidence, symptoms, workload, and human decisions without implying automatic clearance.
             </p>
-            <Link
-              className="mt-5 inline-flex min-h-11 items-center gap-2 bg-pine px-5 text-sm font-semibold text-white shadow-panel"
-              href="/cases/new"
-            >
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              New case
-            </Link>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                className="inline-flex min-h-11 items-center gap-2 bg-pine px-5 text-sm font-semibold text-white shadow-panel"
+                href="/cases/new"
+              >
+                <Plus aria-hidden="true" className="h-4 w-4" />
+                New case
+              </Link>
+              <Link
+                className="inline-flex min-h-11 items-center gap-2 border border-pine bg-white px-5 text-sm font-semibold text-pine shadow-panel"
+                href="/templates"
+              >
+                <FilePenLine aria-hidden="true" className="h-4 w-4" />
+                Templates
+              </Link>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white p-4 shadow-panel">

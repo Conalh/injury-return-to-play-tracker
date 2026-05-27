@@ -156,8 +156,22 @@ class InMemoryWorkflowRepository:
         assert_permission(context, Permission.MANAGE_TEMPLATES)
         self._ensure_active_user(context)
         self._ensure_payload_organization(payload.organization_id, context)
+        template = self._build_template(payload)
+        self.templates[template["id"]] = template
+        return template
+
+    def _build_template(
+        self,
+        payload: ReturnPlanTemplateWithPhasesCreate,
+        version: int | None = None,
+        active: bool | None = None,
+    ) -> dict:
         template = payload.model_dump(mode="json", exclude={"phases"})
         template["id"] = self._new_id("template")
+        if version is not None:
+            template["version"] = version
+        if active is not None:
+            template["active"] = active
         template["phases"] = []
 
         for phase_payload in sorted(payload.phases, key=lambda phase: phase.order_index):
@@ -172,7 +186,6 @@ class InMemoryWorkflowRepository:
                 phase["milestones"].append(milestone)
             template["phases"].append(phase)
 
-        self.templates[template["id"]] = template
         return template
 
     def list_templates(
@@ -191,6 +204,33 @@ class InMemoryWorkflowRepository:
         ]
         return {"items": templates}
 
+    def get_template_detail(self, template_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.READ_TEMPLATES)
+        self._ensure_active_user(context)
+        return self._get_template(template_id, context.organization_id)
+
+    def update_template(
+        self,
+        template_id: str,
+        payload: ReturnPlanTemplateWithPhasesCreate,
+        context: RequestContext,
+    ) -> dict:
+        assert_permission(context, Permission.MANAGE_TEMPLATES)
+        self._ensure_active_user(context)
+        self._ensure_payload_organization(payload.organization_id, context)
+        previous = self._get_template(template_id, context.organization_id)
+        previous["active"] = False
+        template = self._build_template(payload, version=previous["version"] + 1, active=True)
+        self.templates[template["id"]] = template
+        return template
+
+    def archive_template(self, template_id: str, context: RequestContext) -> dict:
+        assert_permission(context, Permission.MANAGE_TEMPLATES)
+        self._ensure_active_user(context)
+        template = self._get_template(template_id, context.organization_id)
+        template["active"] = False
+        return template
+
     def apply_template(
         self,
         case_id: str,
@@ -201,6 +241,11 @@ class InMemoryWorkflowRepository:
         self._ensure_active_user(context)
         self._get_case(case_id, context.organization_id)
         template = self._get_template(payload.template_id, context.organization_id)
+        if not template["active"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Template is archived.",
+            )
         phases: list[dict] = []
 
         for index, template_phase in enumerate(template["phases"]):

@@ -154,10 +154,12 @@ function useLocationHash() {
     }
 
     syncHash();
+    const interval = window.setInterval(syncHash, 100);
     document.addEventListener("click", syncHashAfterNavigation);
     window.addEventListener("hashchange", syncHash);
     window.addEventListener("popstate", syncHash);
     return () => {
+      window.clearInterval(interval);
       document.removeEventListener("click", syncHashAfterNavigation);
       window.removeEventListener("hashchange", syncHash);
       window.removeEventListener("popstate", syncHash);

@@ -159,6 +159,16 @@ Goal 46 adds command search:
 - Playwright covers dialog open, filtering, navigation, keyboard open, and
   dismissal.
 
+Goal 47 adds the clinical notification center:
+
+- The topbar bell opens a clinical notifications popover.
+- Notifications surface symptom review, workload progression, and milestone
+  evidence alerts for the demo case.
+- Alert links route directly to the relevant case workflow and close the
+  popover on selection.
+- `Escape` dismisses the notification popover.
+- Playwright covers open, alert content, routing, and dismissal.
+
 ## Local Commands
 
 ```powershell

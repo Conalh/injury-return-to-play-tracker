@@ -103,3 +103,23 @@ test("command search opens, filters, and routes to clinical work", async ({ page
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Clinical command search" })).toHaveCount(0);
 });
+
+test("notification center opens clinical alerts and routes to case work", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Notifications" }).click();
+  const notifications = page.getByRole("dialog", { name: "Clinical notifications" });
+  await expect(notifications).toBeVisible();
+  await expect(page.getByText("3 open clinical alerts")).toBeVisible();
+  await expect(notifications.getByRole("link", { name: /Review symptoms before advancing/ })).toBeVisible();
+  await expect(notifications.getByRole("link", { name: /Workload progression incomplete/ })).toBeVisible();
+
+  await notifications.getByRole("link", { name: /Review symptoms before advancing/ }).click();
+  await expect(page).toHaveURL(/\/cases\/case_demo#overview$/);
+  await expect(page.getByRole("heading", { name: "Riley Chen" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Notifications" }).click();
+  await expect(page.getByRole("dialog", { name: "Clinical notifications" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Clinical notifications" })).toHaveCount(0);
+});

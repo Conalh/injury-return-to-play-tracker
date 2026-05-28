@@ -543,6 +543,110 @@ textarea:focus {
   gap: 8px;
 }
 
+.rp-notifications {
+  position: relative;
+  display: inline-flex;
+}
+
+.rp-notifications-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  width: min(380px, calc(100vw - 24px));
+  overflow: hidden;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: white;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.18);
+}
+
+.rp-notifications-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--rp-border-faint);
+  padding: 14px;
+}
+
+.rp-notifications-header h2 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.rp-notifications-header p {
+  margin: 3px 0 0;
+  color: var(--rp-text-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rp-notification-list {
+  display: grid;
+}
+
+.rp-notification-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  border-bottom: 1px solid var(--rp-border-faint);
+  padding: 13px 14px;
+}
+
+.rp-notification-item:last-child {
+  border-bottom: 0;
+}
+
+.rp-notification-item:hover,
+.rp-notification-item:focus-visible {
+  background: var(--rp-bg-hover);
+}
+
+.rp-notification-icon {
+  display: grid;
+  height: 30px;
+  width: 30px;
+  place-items: center;
+  border-radius: var(--rp-radius);
+}
+
+.rp-notification-icon-bad {
+  background: var(--rp-bad-bg);
+  color: var(--rp-bad-fg);
+}
+
+.rp-notification-icon-warn {
+  background: var(--rp-warn-bg);
+  color: var(--rp-warn-fg);
+}
+
+.rp-notification-icon-info {
+  background: var(--rp-info-bg);
+  color: var(--rp-info-fg);
+}
+
+.rp-notification-label,
+.rp-notification-description {
+  display: block;
+  min-width: 0;
+}
+
+.rp-notification-label {
+  color: var(--rp-text-1);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rp-notification-description {
+  margin-top: 3px;
+  color: var(--rp-text-3);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .rp-command-overlay {
   position: fixed;
   inset: 0;

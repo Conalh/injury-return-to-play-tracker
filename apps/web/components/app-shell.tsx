@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   Activity,
-  Bell,
   ClipboardList,
   FileText,
   LayoutDashboard,
@@ -10,7 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { ClinicalCommandSearch } from "@/components/clinical-command-search";
-import { Tooltip } from "@/components/ui-primitives";
+import { ClinicalNotifications } from "@/components/clinical-notifications";
 
 const navSections = [
   {
@@ -79,12 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="rp-crumbs">Clinical / Dashboard</div>
           <ClinicalCommandSearch />
           <div className="rp-topbar-actions">
-            <Tooltip label="Review clinical notifications">
-              <button aria-label="Notifications" className="rp-icon-button" type="button">
-                <Bell aria-hidden="true" className="h-4 w-4" />
-                <span className="rp-notification-dot" />
-              </button>
-            </Tooltip>
+            <ClinicalNotifications />
             <div className="rp-role-chip">Physician</div>
           </div>
         </header>

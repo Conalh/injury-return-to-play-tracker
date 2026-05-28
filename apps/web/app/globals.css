@@ -543,6 +543,168 @@ textarea:focus {
   gap: 8px;
 }
 
+.rp-topbar-actions .rp-tooltip-bottom .rp-tooltip {
+  left: auto;
+  right: 0;
+  transform: translate(0, -2px);
+}
+
+.rp-topbar-actions .rp-tooltip-bottom:hover .rp-tooltip,
+.rp-topbar-actions .rp-tooltip-bottom:focus-within .rp-tooltip {
+  transform: translate(0, 0);
+}
+
+.rp-profile-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.rp-profile-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  width: min(400px, calc(100vw - 24px));
+  overflow: hidden;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: white;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.18);
+}
+
+.rp-profile-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--rp-border-faint);
+  padding: 14px;
+}
+
+.rp-profile-avatar {
+  display: grid;
+  height: 36px;
+  width: 36px;
+  place-items: center;
+  border-radius: 999px;
+  background: #2a6fb8;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rp-profile-name,
+.rp-profile-role {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rp-profile-name {
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.rp-profile-role {
+  margin-top: 2px;
+  color: var(--rp-text-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rp-profile-context {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 0;
+  background: var(--rp-border-faint);
+}
+
+.rp-profile-context div {
+  min-width: 0;
+  background: var(--rp-bg-subtle);
+  padding: 12px 14px;
+}
+
+.rp-profile-context dt {
+  margin: 0;
+  color: var(--rp-text-3);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rp-profile-context dd {
+  margin: 4px 0 0;
+  color: var(--rp-text-1);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.rp-profile-links {
+  display: grid;
+  padding: 8px;
+}
+
+.rp-profile-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--rp-radius);
+  padding: 10px;
+}
+
+.rp-profile-link:hover,
+.rp-profile-link:focus-visible {
+  background: var(--rp-bg-hover);
+}
+
+.rp-profile-link-icon {
+  display: grid;
+  height: 32px;
+  width: 32px;
+  place-items: center;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-subtle);
+  color: var(--rp-accent);
+}
+
+.rp-profile-link-label,
+.rp-profile-link-description {
+  display: block;
+  min-width: 0;
+}
+
+.rp-profile-link-label {
+  color: var(--rp-text-1);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rp-profile-link-description {
+  margin-top: 2px;
+  color: var(--rp-text-3);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.rp-profile-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--rp-border-faint);
+  background: var(--rp-bg-subtle);
+  color: var(--rp-ok-fg);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 11px 14px;
+}
+
 .rp-notifications {
   position: relative;
   display: inline-flex;
@@ -792,13 +954,15 @@ textarea:focus {
 }
 
 .rp-role-chip {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
   border: 1px solid var(--rp-border);
   border-radius: 999px;
   background: white;
   color: var(--rp-text-2);
   font-size: 12px;
   font-weight: 700;
-  line-height: 32px;
   padding: 0 12px;
 }
 

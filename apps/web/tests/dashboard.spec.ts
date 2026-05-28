@@ -123,3 +123,26 @@ test("notification center opens clinical alerts and routes to case work", async 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Clinical notifications" })).toHaveCount(0);
 });
+
+test("clinician profile menu opens workspace context and routes to tools", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Physician workspace menu" }).click();
+  const profileMenu = page.getByRole("dialog", { name: "Clinician workspace menu" });
+  await expect(profileMenu).toBeVisible();
+  await expect(profileMenu.getByText("Dr. Aanya Patel")).toBeVisible();
+  await expect(profileMenu.getByText("Team Physician")).toBeVisible();
+  await expect(profileMenu.getByText("Stagewise Athletic Medicine")).toBeVisible();
+  await expect(profileMenu.getByText("Demo environment")).toBeVisible();
+  await expect(profileMenu.getByRole("link", { name: /Open template management/ })).toBeVisible();
+  await expect(profileMenu.getByRole("link", { name: /Open Riley Chen report/ })).toBeVisible();
+
+  await profileMenu.getByRole("link", { name: /Open template management/ }).click();
+  await expect(page).toHaveURL(/\/templates$/);
+  await expect(page.getByRole("heading", { name: "Template builder" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Physician workspace menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Clinician workspace menu" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Clinician workspace menu" })).toHaveCount(0);
+});

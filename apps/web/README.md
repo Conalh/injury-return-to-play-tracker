@@ -169,6 +169,16 @@ Goal 47 adds the clinical notification center:
 - `Escape` dismisses the notification popover.
 - Playwright covers open, alert content, routing, and dismissal.
 
+Goal 48 adds the clinician profile and workspace menu:
+
+- The topbar physician chip opens a clinician workspace menu.
+- The menu shows signed-in clinician identity, role, organization, and demo
+  environment context.
+- Quick links route to workspace settings, template management, the demo case,
+  and the demo report.
+- `Escape` dismisses the profile menu.
+- Playwright covers menu open, context content, routing, and dismissal.
+
 ## Local Commands
 
 ```powershell

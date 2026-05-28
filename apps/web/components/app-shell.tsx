@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { ClinicalCommandSearch } from "@/components/clinical-command-search";
 import { ClinicalNotifications } from "@/components/clinical-notifications";
+import { ClinicianProfileMenu } from "@/components/clinician-profile-menu";
 
 const navSections = [
   {
@@ -79,7 +80,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <ClinicalCommandSearch />
           <div className="rp-topbar-actions">
             <ClinicalNotifications />
-            <div className="rp-role-chip">Physician</div>
+            <ClinicianProfileMenu />
           </div>
         </header>
         <div className="rp-content" id="clinical-workspace" tabIndex={-1}>

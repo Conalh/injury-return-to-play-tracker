@@ -30,7 +30,7 @@ Limited coach / athlete / guardian share view
 
 ## Current Status
 
-The project is a local production-path build, currently through Goal 42 of the
+The project is a local production-path build, currently through Goal 43 of the
 ignored production roadmap, with hosting goals intentionally deferred. It is not
 hosted yet.
 
@@ -116,6 +116,8 @@ Live in the repo:
   tests, and launch-gate evidence.
 - Dependency update automation with Dependabot coverage for web npm packages,
   API Python packages, and GitHub Actions, plus a triage and validation runbook.
+- GitHub Actions runtime readiness with Node.js 24 action-runtime opt-in and a
+  CI maintenance runbook for platform deprecation annotations.
 - SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
   in-memory repository retained for local/demo tests.
 - Repository boundary package under `return_play.repositories`, split into

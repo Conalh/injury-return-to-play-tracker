@@ -28,6 +28,8 @@
   status checks.
 - `operations/dependency-update-automation.md`: Dependabot coverage, dependency
   update triage, security update response, validation, and launch-gate evidence.
+- `operations/github-actions-runtime-readiness.md`: GitHub Actions Node.js
+  runtime opt-in, validation, upgrade response, and launch-gate impact.
 - `operations/local-production-compose.md`: local production-shaped Docker
   Compose runbook.
 - `operations/environment-configuration.md`: backend and frontend runtime

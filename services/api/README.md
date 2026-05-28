@@ -169,6 +169,15 @@ Goal 42 adds dependency update automation:
   update response, validation, and launch-gate evidence.
 - Dependency updates still require human review and green CI before merge.
 
+Goal 43 adds GitHub Actions runtime readiness:
+
+- CI and Security Baseline workflows set
+  `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`.
+- `docs/operations/github-actions-runtime-readiness.md` defines validation and
+  upgrade response for GitHub Actions runtime deprecation annotations.
+- The application runtime versions remain Node.js 22 for web jobs and Python
+  3.11 for API jobs.
+
 Goal 13 formalizes authorization:
 
 - `return_play.permissions` defines named permissions and the role matrix.

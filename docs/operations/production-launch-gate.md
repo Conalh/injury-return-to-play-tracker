@@ -10,6 +10,7 @@ Supporting controls:
 
 - `docs/operations/ci-required-checks.md`
 - `docs/operations/dependency-update-automation.md`
+- `docs/operations/github-actions-runtime-readiness.md`
 - `docs/product/security-baseline.md`
 - `docs/operations/backups-and-recovery.md`
 - `docs/operations/observability.md`
@@ -81,6 +82,9 @@ Required before signoff:
 - Auth/share route rate limits are configured for the deployment topology.
 - Dependency and secret scans pass.
 - Dependency update automation is enabled and has a named triage owner.
+- GitHub Actions runtime deprecation annotations have been triaged, and CI is
+  running with the repository runtime-control setting documented in
+  `docs/operations/github-actions-runtime-readiness.md`.
 - Production secret management is configured outside the repository.
 - Any platform security controls not covered by the app baseline are documented.
 

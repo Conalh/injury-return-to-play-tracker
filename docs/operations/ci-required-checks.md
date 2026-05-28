@@ -26,6 +26,9 @@ production branch. These names match the workflow job names used by GitHub.
 - `.github/dependabot.yml` opens dependency update pull requests for web, API,
   and GitHub Actions surfaces. Required checks should run on those pull
   requests before merge.
+- `docs/operations/github-actions-runtime-readiness.md` documents the GitHub
+  Actions Node.js runtime opt-in and response process for platform deprecation
+  annotations.
 
 ## Notes
 
@@ -36,3 +39,5 @@ production branch. These names match the workflow job names used by GitHub.
   and security baseline.
 - The current branch protection policy should treat these checks as required
   status checks once GitHub Actions is enabled for the repository.
+- JavaScript-based GitHub Actions currently opt into the Node.js 24 action
+  runtime through `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`.

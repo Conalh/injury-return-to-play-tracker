@@ -60,6 +60,8 @@ For Dependabot security updates:
   run to the release or incident notes.
 - Escalate if the update cannot be applied without breaking the clinical
   workflow, auth, reporting, sharing, or audit surfaces.
+- Treat GitHub Actions runtime deprecation blockers as CI maintenance work and
+  cross-reference `docs/operations/github-actions-runtime-readiness.md`.
 
 ## Validation
 

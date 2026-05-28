@@ -1,16 +1,63 @@
 # Injury Return-To-Play Tracker
 
+[![CI](https://github.com/Conalh/injury-return-to-play-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Conalh/injury-return-to-play-tracker/actions/workflows/ci.yml)
+[![Security Baseline](https://github.com/Conalh/injury-return-to-play-tracker/actions/workflows/security.yml/badge.svg)](https://github.com/Conalh/injury-return-to-play-tracker/actions/workflows/security.yml)
+[![python](https://img.shields.io/badge/python-3.11-blue)](services/api/pyproject.toml)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](apps/web/package.json)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111%2B-009688?logo=fastapi&logoColor=white)](services/api/pyproject.toml)
+[![Postgres](https://img.shields.io/badge/Postgres-16-336791?logo=postgresql&logoColor=white)](compose.yml)
+[![Playwright](https://img.shields.io/badge/Playwright-covered-2EAD33?logo=playwright&logoColor=white)](apps/web/playwright.config.ts)
+
 **A safety-first control center for staged return-to-play decisions.**
 
-This project gives clinicians and athletic trainers one evidence binder for an
-injury case: staged return-plan phases, symptom response, functional tests,
-workload tolerance, readiness signals, limited share views, PDF reports, audit
-history, and the named human decision behind clearance.
+Stagewise gives clinicians and athletic trainers one evidence binder for an
+injury case: staged return-plan phases, symptom response, functional testing,
+workload tolerance, readiness signals, limited family/coach views, PDF reports,
+audit history, and the named human decision behind clearance.
 
 It is not a diagnostic or automatic-clearance system. It does not diagnose
 injuries, recommend treatment, override a clinician, hide red flags, or push an
 athlete through worsening symptoms. Its job is to show what is known, what is
 missing, what changed, and who made the decision.
+
+> Built as a production-path local app: Next.js clinician workspace, FastAPI
+> workflow API, Postgres-ready persistence, OIDC-ready auth, audit trails,
+> limited share portals, and launch-gate operations docs. Hosting is still
+> intentionally deferred.
+
+```mermaid
+flowchart LR
+  Roster["Athlete roster"] --> Case["Injury case"]
+  Case --> Plan["Staged return plan"]
+  Plan --> Evidence["Symptoms<br/>tests<br/>workload"]
+  Evidence --> Readiness["Readiness signals<br/>(explain-only)"]
+  Readiness --> Decision["Named clinician<br/>decision"]
+  Decision --> Outputs["Audit log<br/>PDF report<br/>limited share"]
+
+  classDef intake fill:#0f172a,stroke:#1e293b,color:#e2e8f0
+  classDef clinical fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+  classDef safety fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef output fill:#ecfeff,stroke:#0891b2,color:#164e63
+  class Roster,Case,Plan intake
+  class Evidence,Readiness clinical
+  class Decision safety
+  class Outputs output
+```
+
+**See also:** [docs/README.md](docs/README.md) for the full documentation map,
+[docs/operations/production-launch-gate.md](docs/operations/production-launch-gate.md)
+for the launch gate, and [docs/product/safety-and-compliance-notes.md](docs/product/safety-and-compliance-notes.md)
+for the safety posture.
+
+## Screenshots
+
+Captured with Playwright against the seeded local demo workflow.
+
+| Control center | Case detail |
+| --- | --- |
+| ![Control center dashboard](docs/screenshots/dashboard.png) | ![Case detail with readiness and phase gates](docs/screenshots/case-detail.png) |
+| **Template builder** | **Limited coach share** |
+| ![Template builder](docs/screenshots/templates.png) | ![Limited coach share view](docs/screenshots/share-view.png) |
 
 ## Project Snapshot
 
@@ -19,22 +66,9 @@ missing, what changed, and who made the decision.
 | Product posture | Local production-path build, not hosted yet |
 | Roadmap status | Implemented through Goal 43 of the ignored production roadmap |
 | API | FastAPI workflow surface with in-memory and SQLAlchemy repositories |
-| Web | Next.js clinician workspace plus limited coach, athlete, and guardian views |
+| Web | Next.js Stagewise workspace plus limited coach, athlete, and guardian views |
 | Safety stance | Explain-only readiness, named human clearance, non-diagnostic copy |
 | Production blockers | Hosted identity tenant deployment, live smoke evidence, staging and production hosting |
-
-## Workflow At A Glance
-
-```text
-Athlete roster
-  -> Injury case
-    -> Staged return-plan template
-      -> Phase milestones
-        -> Symptoms, tests, workload, notes
-          -> Readiness review
-            -> Named clearance decision
-              -> Audit log, PDF report, limited share view
-```
 
 The system is built around a conservative clinical record:
 

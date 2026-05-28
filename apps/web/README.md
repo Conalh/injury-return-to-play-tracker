@@ -209,6 +209,16 @@ Goal 51 adds honest shell metrics:
 - Playwright covers the absence of decorative shell count badges while
   dashboard workload metrics remain visible.
 
+Goal 52 tightens count-free sidebar layout bounds:
+
+- The primary sidebar no longer reserves a stale badge column after count
+  badges were removed.
+- Mobile sidebar navigation scrolls inside its own rail without widening the
+  page.
+- Long navigation labels truncate inside stable tap targets.
+- Playwright covers compact navigation bounds, contained horizontal scrolling,
+  and access to later sidebar links on mobile.
+
 ## Local Commands
 
 ```powershell

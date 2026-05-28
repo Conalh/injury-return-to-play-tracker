@@ -212,3 +212,31 @@ test("sidebar avoids decorative counts while dashboard metrics remain visible", 
   await expect(page.getByText("Across current clinical workspace")).toBeVisible();
   await expect(page.getByText("Cases with missing phase gates")).toBeVisible();
 });
+
+test("compact sidebar navigation scrolls within mobile bounds", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const nav = page.getByRole("navigation", { name: "Primary clinical navigation" });
+  await expect(nav).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+
+  const metrics = await nav.evaluate((node) => {
+    const rect = node.getBoundingClientRect();
+    return {
+      clientWidth: node.clientWidth,
+      left: rect.left,
+      right: rect.right,
+      scrollWidth: node.scrollWidth,
+      viewportWidth: window.innerWidth,
+    };
+  });
+
+  expect(metrics.left).toBeGreaterThanOrEqual(0);
+  expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth);
+  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
+
+  await nav.getByRole("link", { name: /Settings/ }).scrollIntoViewIfNeeded();
+  await expect(nav.getByRole("link", { name: /Settings/ })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});

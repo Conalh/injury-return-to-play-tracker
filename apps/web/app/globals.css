@@ -320,8 +320,9 @@ textarea {
 
 .rp-nav-item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   min-height: 36px;
+  min-width: 0;
   align-items: center;
   gap: 9px;
   border-radius: var(--rp-radius);
@@ -329,6 +330,12 @@ textarea {
   color: var(--rp-side-text);
   font-size: 13px;
   font-weight: 600;
+}
+
+.rp-nav-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rp-nav-item:hover {
@@ -343,16 +350,6 @@ textarea {
 
 .rp-nav-item:focus-visible {
   box-shadow: inset var(--rp-shadow-focus);
-}
-
-.rp-nav-count {
-  min-width: 22px;
-  border-radius: 999px;
-  background: var(--rp-side-bg-elev);
-  color: var(--rp-side-text-strong);
-  font-size: 11px;
-  line-height: 20px;
-  text-align: center;
 }
 
 .rp-sidebar-user {
@@ -1874,19 +1871,28 @@ textarea:focus {
 
   .rp-nav {
     display: flex;
+    gap: 8px;
     max-width: 100vw;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     padding: 8px 10px 12px;
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
   }
 
   .rp-nav-section {
     display: flex;
+    flex: 0 0 auto;
     gap: 8px;
   }
 
+  .rp-nav-item {
+    flex: 0 0 auto;
+    max-width: min(190px, 70vw);
+  }
+
   .rp-nav-section-label,
-  .rp-sidebar-user,
-  .rp-nav-count {
+  .rp-sidebar-user {
     display: none;
   }
 

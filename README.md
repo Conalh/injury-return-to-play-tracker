@@ -66,7 +66,7 @@ Captured with Playwright against the seeded local demo workflow.
 | Area | Current state |
 | --- | --- |
 | Product posture | Local production-path build, not hosted yet |
-| Roadmap status | Implemented through Goal 49 of the ignored production roadmap |
+| Roadmap status | Implemented through Goal 50 of the ignored production roadmap |
 | API | FastAPI workflow surface with in-memory and SQLAlchemy repositories |
 | Web | Next.js Stagewise workspace plus limited coach, athlete, and guardian views |
 | Safety stance | Explain-only readiness, named human clearance, non-diagnostic copy |

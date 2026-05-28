@@ -1,39 +1,8 @@
 import Link from "next/link";
-import {
-  Activity,
-  ClipboardList,
-  FileText,
-  LayoutDashboard,
-  Settings,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
 import { ClinicalCommandSearch } from "@/components/clinical-command-search";
 import { ClinicalNotifications } from "@/components/clinical-notifications";
 import { ClinicianProfileMenu } from "@/components/clinician-profile-menu";
-
-const navSections = [
-  {
-    label: "Clinical",
-    items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/#active-cases", label: "Active cases", icon: ClipboardList, count: "8" },
-      { href: "/#athlete-roster", label: "Athletes", icon: Users, count: "142" },
-      { href: "/#evidence-queue", label: "Evidence queue", icon: Activity, count: "4" },
-    ],
-  },
-  {
-    label: "Decisions & access",
-    items: [
-      { href: "/#decision-queue", label: "Decision queue", icon: ShieldCheck, count: "2" },
-      { href: "/templates", label: "Templates", icon: FileText },
-    ],
-  },
-  {
-    label: "Workspace",
-    items: [{ href: "/#workspace-settings", label: "Settings", icon: Settings }],
-  },
-];
+import { ShellBreadcrumbs, ShellNavigation } from "@/components/shell-navigation";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -50,20 +19,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </span>
         </Link>
 
-        <nav aria-label="Primary clinical navigation" className="rp-nav">
-          {navSections.map((section) => (
-            <div className="rp-nav-section" key={section.label}>
-              <div className="rp-nav-section-label">{section.label}</div>
-              {section.items.map((item) => (
-                <Link className="rp-nav-item" href={item.href} key={item.label}>
-                  <item.icon aria-hidden="true" className="h-4 w-4" />
-                  <span>{item.label}</span>
-                  {item.count ? <span className="rp-nav-count">{item.count}</span> : null}
-                </Link>
-              ))}
-            </div>
-          ))}
-        </nav>
+        <ShellNavigation />
 
         <div className="rp-sidebar-user">
           <span className="rp-user-avatar">AP</span>
@@ -76,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="rp-main">
         <header className="rp-topbar">
-          <div className="rp-crumbs">Clinical / Dashboard</div>
+          <ShellBreadcrumbs />
           <ClinicalCommandSearch />
           <div className="rp-topbar-actions">
             <ClinicalNotifications />

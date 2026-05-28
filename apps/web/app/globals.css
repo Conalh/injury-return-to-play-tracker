@@ -336,6 +336,11 @@ textarea {
   color: var(--rp-side-text-strong);
 }
 
+.rp-nav-item[aria-current] {
+  background: var(--rp-side-active);
+  color: var(--rp-side-text-strong);
+}
+
 .rp-nav-item:focus-visible {
   box-shadow: inset var(--rp-shadow-focus);
 }

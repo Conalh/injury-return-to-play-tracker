@@ -175,3 +175,30 @@ test("sidebar routes to dashboard workflow sections", async ({ page }) => {
   await expect(page).toHaveURL(/\/#workspace-settings$/);
   await expect(page.getByRole("region", { name: "Workspace settings" })).toBeVisible();
 });
+
+test("shell breadcrumbs and active navigation follow workspace context", async ({ page }) => {
+  await page.goto("/");
+
+  const nav = page.getByRole("navigation", { name: "Primary clinical navigation" });
+  const breadcrumb = page.getByLabel("Workspace breadcrumb");
+
+  await expect(breadcrumb).toHaveText("Clinical / Dashboard");
+  await expect(nav.getByRole("link", { name: /^Dashboard$/ })).toHaveAttribute("aria-current", "page");
+
+  await nav.getByRole("link", { name: /Evidence queue/ }).click();
+  await expect(page).toHaveURL(/\/#evidence-queue$/);
+  await expect(breadcrumb).toHaveText("Clinical / Evidence queue");
+  await expect(nav.getByRole("link", { name: /Evidence queue/ })).toHaveAttribute("aria-current", "location");
+
+  await page.goto("/templates");
+  await expect(breadcrumb).toHaveText("Decisions & access / Templates");
+  await expect(nav.getByRole("link", { name: /^Templates$/ })).toHaveAttribute("aria-current", "page");
+
+  await page.goto("/cases/case_demo");
+  await expect(breadcrumb).toHaveText("Clinical / Case detail");
+  await expect(nav.getByRole("link", { name: /Active cases/ })).toHaveAttribute("aria-current", "page");
+
+  await page.goto("/cases/new");
+  await expect(breadcrumb).toHaveText("Clinical / New case");
+  await expect(nav.getByRole("link", { name: /Active cases/ })).toHaveAttribute("aria-current", "page");
+});

@@ -190,6 +190,16 @@ Goal 49 adds sidebar workflow section routing:
 - Playwright covers sidebar hashes, visible anchored regions, and profile
   settings routing.
 
+Goal 50 adds contextual shell breadcrumbs and active navigation:
+
+- The topbar breadcrumb reflects dashboard sections, case detail, new case, and
+  template routes.
+- The primary sidebar marks the current route or dashboard section with
+  `aria-current`.
+- Dashboard hash changes update the active sidebar item without a full reload.
+- Playwright covers breadcrumb text and active nav state across dashboard,
+  section anchors, case routes, and templates.
+
 ## Local Commands
 
 ```powershell

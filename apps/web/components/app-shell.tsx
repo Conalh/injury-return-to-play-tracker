@@ -5,11 +5,11 @@ import {
   ClipboardList,
   FileText,
   LayoutDashboard,
-  Search,
   Settings,
   ShieldCheck,
   Users,
 } from "lucide-react";
+import { ClinicalCommandSearch } from "@/components/clinical-command-search";
 import { Tooltip } from "@/components/ui-primitives";
 
 const navSections = [
@@ -77,15 +77,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="rp-main">
         <header className="rp-topbar">
           <div className="rp-crumbs">Clinical / Dashboard</div>
-          <Tooltip
-            className="rp-search-tooltip"
-            label="Search athletes, cases, or evidence across the clinical workspace"
-          >
-            <button className="rp-search" type="button">
-              <Search aria-hidden="true" className="h-4 w-4" />
-              <span>Search athletes, cases, or evidence</span>
-            </button>
-          </Tooltip>
+          <ClinicalCommandSearch />
           <div className="rp-topbar-actions">
             <Tooltip label="Review clinical notifications">
               <button aria-label="Notifications" className="rp-icon-button" type="button">

@@ -150,6 +150,15 @@ Goal 45 adds submit-state interaction feedback:
   contract or route behavior.
 - Playwright covers the pending-label contract on the clinical case page.
 
+Goal 46 adds command search:
+
+- The topbar search opens a keyboard-friendly command dialog.
+- `Ctrl+K` opens the same command dialog and `Escape` closes it.
+- Commands filter across demo athlete, case, evidence, decisions, templates,
+  and report destinations.
+- Playwright covers dialog open, filtering, navigation, keyboard open, and
+  dismissal.
+
 ## Local Commands
 
 ```powershell

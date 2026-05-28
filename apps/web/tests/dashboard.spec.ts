@@ -82,3 +82,24 @@ test("clinical controls expose polished hover and focus affordances", async ({ p
   expect(pageWidthAfterHover).toBe(pageWidthBeforeHover);
   await expectNoHorizontalOverflow(page);
 });
+
+test("command search opens, filters, and routes to clinical work", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Search athletes, cases, or evidence" }).click();
+  await expect(page.getByRole("dialog", { name: "Clinical command search" })).toBeVisible();
+
+  const searchbox = page.getByRole("searchbox", { name: "Search command palette" });
+  await expect(searchbox).toBeFocused();
+  await searchbox.fill("riley");
+  await expect(page.getByRole("link", { name: /Riley Chen case detail/ })).toBeVisible();
+  await page.getByRole("link", { name: /Riley Chen case detail/ }).click();
+
+  await expect(page).toHaveURL(/\/cases\/case_demo$/);
+  await expect(page.getByRole("heading", { name: "Riley Chen" })).toBeVisible();
+
+  await page.keyboard.press("Control+K");
+  await expect(page.getByRole("dialog", { name: "Clinical command search" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Clinical command search" })).toHaveCount(0);
+});

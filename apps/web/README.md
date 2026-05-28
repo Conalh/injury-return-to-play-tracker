@@ -179,6 +179,17 @@ Goal 48 adds the clinician profile and workspace menu:
 - `Escape` dismisses the profile menu.
 - Playwright covers menu open, context content, routing, and dismissal.
 
+Goal 49 adds sidebar workflow section routing:
+
+- Primary sidebar links route to dashboard anchors for active cases, athlete
+  roster, evidence/action queue, decision queue, and workspace settings.
+- Dashboard sections expose accessible region labels and sticky-topbar-aware
+  scroll targets.
+- The clinician profile settings shortcut lands on the same workspace settings
+  section.
+- Playwright covers sidebar hashes, visible anchored regions, and profile
+  settings routing.
+
 ## Local Commands
 
 ```powershell

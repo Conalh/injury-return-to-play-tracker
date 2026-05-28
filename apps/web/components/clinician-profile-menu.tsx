@@ -7,7 +7,7 @@ import { ClipboardList, FileText, Settings, ShieldCheck, UserRound, X } from "lu
 const workspaceLinks = [
   {
     description: "Adjust clinical workspace preferences and account details.",
-    href: "/",
+    href: "/#workspace-settings",
     icon: Settings,
     label: "Open workspace settings",
   },

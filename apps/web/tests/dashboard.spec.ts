@@ -146,3 +146,32 @@ test("clinician profile menu opens workspace context and routes to tools", async
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Clinician workspace menu" })).toHaveCount(0);
 });
+
+test("sidebar routes to dashboard workflow sections", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("navigation", { name: "Primary clinical navigation" }).getByRole("link", { name: /Active cases/ }).click();
+  await expect(page).toHaveURL(/\/#active-cases$/);
+  await expect(page.getByRole("region", { name: "Clinical workload summary" })).toBeVisible();
+
+  await page.getByRole("navigation", { name: "Primary clinical navigation" }).getByRole("link", { name: /Athletes/ }).click();
+  await expect(page).toHaveURL(/\/#athlete-roster$/);
+  await expect(page.getByRole("region", { name: "Active athlete roster" })).toBeVisible();
+
+  await page.getByRole("navigation", { name: "Primary clinical navigation" }).getByRole("link", { name: /Evidence queue/ }).click();
+  await expect(page).toHaveURL(/\/#evidence-queue$/);
+  await expect(page.getByRole("region", { name: "Evidence action queue" })).toBeVisible();
+
+  await page.getByRole("navigation", { name: "Primary clinical navigation" }).getByRole("link", { name: /Decision queue/ }).click();
+  await expect(page).toHaveURL(/\/#decision-queue$/);
+  await expect(page.getByRole("region", { name: "Recent named decisions" })).toBeVisible();
+
+  await page.getByRole("navigation", { name: "Primary clinical navigation" }).getByRole("link", { name: /Settings/ }).click();
+  await expect(page).toHaveURL(/\/#workspace-settings$/);
+  await expect(page.getByRole("region", { name: "Workspace settings" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Physician workspace menu" }).click();
+  await page.getByRole("dialog", { name: "Clinician workspace menu" }).getByRole("link", { name: /Open workspace settings/ }).click();
+  await expect(page).toHaveURL(/\/#workspace-settings$/);
+  await expect(page.getByRole("region", { name: "Workspace settings" })).toBeVisible();
+});

@@ -1,22 +1,26 @@
 import type { ReactNode } from "react";
 
 type ClinicalCardProps = {
+  ariaLabel?: string;
   title?: string;
   subtitle?: string;
   action?: ReactNode;
   children: ReactNode;
   className?: string;
+  id?: string;
 };
 
 export function ClinicalCard({
+  ariaLabel,
   action,
   children,
   className = "",
+  id,
   subtitle,
   title,
 }: ClinicalCardProps) {
   return (
-    <section className={`rp-card ${className}`}>
+    <section aria-label={ariaLabel} className={`rp-card ${className}`} id={id}>
       {title || action ? (
         <div className="rp-card-header">
           <div className="min-w-0">

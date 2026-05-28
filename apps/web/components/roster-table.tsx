@@ -18,9 +18,11 @@ export function RosterTable({
 
   return (
     <section
+      aria-label="Active athlete roster"
       className="rp-roster-card"
       data-source={source}
       data-testid="roster-table"
+      id="athlete-roster"
     >
       <div className="rp-roster-inner">
         <div className="rp-roster-header">

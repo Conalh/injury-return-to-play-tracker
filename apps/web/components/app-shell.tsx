@@ -17,21 +17,21 @@ const navSections = [
     label: "Clinical",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/", label: "Active cases", icon: ClipboardList, count: "8" },
-      { href: "/", label: "Athletes", icon: Users, count: "142" },
-      { href: "/", label: "Evidence queue", icon: Activity, count: "4" },
+      { href: "/#active-cases", label: "Active cases", icon: ClipboardList, count: "8" },
+      { href: "/#athlete-roster", label: "Athletes", icon: Users, count: "142" },
+      { href: "/#evidence-queue", label: "Evidence queue", icon: Activity, count: "4" },
     ],
   },
   {
     label: "Decisions & access",
     items: [
-      { href: "/", label: "Decision queue", icon: ShieldCheck, count: "2" },
+      { href: "/#decision-queue", label: "Decision queue", icon: ShieldCheck, count: "2" },
       { href: "/templates", label: "Templates", icon: FileText },
     ],
   },
   {
     label: "Workspace",
-    items: [{ href: "/", label: "Settings", icon: Settings }],
+    items: [{ href: "/#workspace-settings", label: "Settings", icon: Settings }],
   },
 ];
 

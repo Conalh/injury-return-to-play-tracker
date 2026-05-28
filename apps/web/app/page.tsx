@@ -63,7 +63,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section aria-label="Clinical workload summary" className="rp-kpi-grid">
+      <section aria-label="Clinical workload summary" className="rp-kpi-grid" id="active-cases">
         <DashboardKpi
           icon={<ClipboardList aria-hidden="true" className="h-4 w-4" />}
           label="Active cases"
@@ -109,7 +109,12 @@ export default async function DashboardPage() {
         <section className="rp-dashboard-grid">
           <RosterTable athletes={data.athletes} source={data.source} />
           <aside className="rp-action-rail">
-            <ClinicalCard title="Action queue" subtitle="Today">
+            <ClinicalCard
+              ariaLabel="Evidence action queue"
+              id="evidence-queue"
+              title="Action queue"
+              subtitle="Today"
+            >
               <div className="rp-action-list">
                 {data.athletes
                   .filter((athlete) => athlete.missingGateCount > 0)
@@ -125,7 +130,12 @@ export default async function DashboardPage() {
               </div>
             </ClinicalCard>
 
-            <ClinicalCard title="Recent named decisions" subtitle="Last 7 days">
+            <ClinicalCard
+              ariaLabel="Recent named decisions"
+              id="decision-queue"
+              title="Recent named decisions"
+              subtitle="Last 7 days"
+            >
               <div className="rp-decision-list">
                 {data.athletes.slice(0, 3).map((athlete, index) => (
                   <div className="rp-decision-item" key={athlete.id}>
@@ -137,6 +147,28 @@ export default async function DashboardPage() {
                   </div>
                 ))}
               </div>
+            </ClinicalCard>
+
+            <ClinicalCard
+              ariaLabel="Workspace settings"
+              id="workspace-settings"
+              title="Workspace settings"
+              subtitle="Current session"
+            >
+              <dl className="rp-settings-list">
+                <div>
+                  <dt>Data mode</dt>
+                  <dd>{data.source === "api" ? "API-backed demo" : "Local demo"}</dd>
+                </div>
+                <div>
+                  <dt>Actor</dt>
+                  <dd>Dr. Aanya Patel</dd>
+                </div>
+                <div>
+                  <dt>Organization</dt>
+                  <dd>Stagewise Athletic Medicine</dd>
+                </div>
+              </dl>
             </ClinicalCard>
 
             <ClinicalCard title="Staff on call">

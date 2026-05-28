@@ -200,6 +200,15 @@ Goal 50 adds contextual shell breadcrumbs and active navigation:
 - Playwright covers breadcrumb text and active nav state across dashboard,
   section anchors, case routes, and templates.
 
+Goal 51 adds honest shell metrics:
+
+- The primary sidebar no longer displays hardcoded count badges.
+- Dashboard KPI cards remain the current source of truth for workload counts.
+- Sidebar navigation keeps contextual breadcrumbs and active `aria-current`
+  state from Goal 50.
+- Playwright covers the absence of decorative shell count badges while
+  dashboard workload metrics remain visible.
+
 ## Local Commands
 
 ```powershell

@@ -202,3 +202,13 @@ test("shell breadcrumbs and active navigation follow workspace context", async (
   await expect(breadcrumb).toHaveText("Clinical / New case");
   await expect(nav.getByRole("link", { name: /Active cases/ })).toHaveAttribute("aria-current", "page");
 });
+
+test("sidebar avoids decorative counts while dashboard metrics remain visible", async ({ page }) => {
+  await page.goto("/");
+
+  const nav = page.getByRole("navigation", { name: "Primary clinical navigation" });
+  await expect(nav.locator(".rp-nav-count")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Clinical workload summary" })).toBeVisible();
+  await expect(page.getByText("Across current clinical workspace")).toBeVisible();
+  await expect(page.getByText("Cases with missing phase gates")).toBeVisible();
+});

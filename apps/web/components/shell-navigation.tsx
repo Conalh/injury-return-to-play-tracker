@@ -15,7 +15,6 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 type NavItem = {
-  count?: string;
   href: string;
   icon: LucideIcon;
   label: string;
@@ -31,15 +30,15 @@ const navSections: NavSection[] = [
     label: "Clinical",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/#active-cases", label: "Active cases", icon: ClipboardList, count: "8" },
-      { href: "/#athlete-roster", label: "Athletes", icon: Users, count: "142" },
-      { href: "/#evidence-queue", label: "Evidence queue", icon: Activity, count: "4" },
+      { href: "/#active-cases", label: "Active cases", icon: ClipboardList },
+      { href: "/#athlete-roster", label: "Athletes", icon: Users },
+      { href: "/#evidence-queue", label: "Evidence queue", icon: Activity },
     ],
   },
   {
     label: "Decisions & access",
     items: [
-      { href: "/#decision-queue", label: "Decision queue", icon: ShieldCheck, count: "2" },
+      { href: "/#decision-queue", label: "Decision queue", icon: ShieldCheck },
       { href: "/templates", label: "Templates", icon: FileText },
     ],
   },
@@ -88,7 +87,6 @@ export function ShellNavigation() {
               >
                 <item.icon aria-hidden="true" className="h-4 w-4" />
                 <span>{item.label}</span>
-                {item.count ? <span className="rp-nav-count">{item.count}</span> : null}
               </Link>
             );
           })}

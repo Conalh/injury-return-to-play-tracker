@@ -53,6 +53,8 @@ for the safety posture.
 
 Captured with Playwright against the seeded local demo workflow.
 
+![Stagewise dashboard overview](docs/screenshots/dashboard-overview.png)
+
 | Control center | Case detail |
 | --- | --- |
 | ![Control center dashboard](docs/screenshots/dashboard.png) | ![Case detail with readiness and phase gates](docs/screenshots/case-detail.png) |

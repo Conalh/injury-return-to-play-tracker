@@ -31,6 +31,27 @@ export function ClinicalCard({
   );
 }
 
+export function Tooltip({
+  children,
+  className = "",
+  label,
+  side = "bottom",
+}: {
+  children: ReactNode;
+  className?: string;
+  label: string;
+  side?: "top" | "bottom";
+}) {
+  return (
+    <span className={`rp-tooltip-host rp-tooltip-${side} ${className}`}>
+      {children}
+      <span className="rp-tooltip" role="tooltip">
+        {label}
+      </span>
+    </span>
+  );
+}
+
 export function ClinicalBadge({
   children,
   tone = "neutral",

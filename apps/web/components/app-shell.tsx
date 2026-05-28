@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import { Tooltip } from "@/components/ui-primitives";
 
 const navSections = [
   {
@@ -76,15 +77,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="rp-main">
         <header className="rp-topbar">
           <div className="rp-crumbs">Clinical / Dashboard</div>
-          <button className="rp-search" type="button">
-            <Search aria-hidden="true" className="h-4 w-4" />
-            <span>Search athletes, cases, or evidence</span>
-          </button>
-          <div className="rp-topbar-actions">
-            <button aria-label="Notifications" className="rp-icon-button" type="button">
-              <Bell aria-hidden="true" className="h-4 w-4" />
-              <span className="rp-notification-dot" />
+          <Tooltip
+            className="rp-search-tooltip"
+            label="Search athletes, cases, or evidence across the clinical workspace"
+          >
+            <button className="rp-search" type="button">
+              <Search aria-hidden="true" className="h-4 w-4" />
+              <span>Search athletes, cases, or evidence</span>
             </button>
+          </Tooltip>
+          <div className="rp-topbar-actions">
+            <Tooltip label="Review clinical notifications">
+              <button aria-label="Notifications" className="rp-icon-button" type="button">
+                <Bell aria-hidden="true" className="h-4 w-4" />
+                <span className="rp-notification-dot" />
+              </button>
+            </Tooltip>
             <div className="rp-role-chip">Physician</div>
           </div>
         </header>

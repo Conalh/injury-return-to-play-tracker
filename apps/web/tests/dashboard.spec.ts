@@ -59,3 +59,26 @@ test("case detail stays inside the mobile viewport", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Readiness signals" })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
+
+test("clinical controls expose polished hover and focus affordances", async ({ page }) => {
+  await page.goto("/");
+
+  const search = page.getByRole("button", { name: "Search athletes, cases, or evidence" });
+  await search.hover();
+  await expect(
+    page.getByRole("tooltip", { name: "Search athletes, cases, or evidence across the clinical workspace" }),
+  ).toBeVisible();
+  await expect(search).toHaveCSS("transition-property", /background-color|box-shadow|transform|border-color|color/);
+
+  const notifications = page.getByRole("button", { name: "Notifications" });
+  await notifications.focus();
+  await expect(page.getByRole("tooltip", { name: "Review clinical notifications" })).toBeVisible();
+
+  await expect(page.locator(".rp-page")).toBeVisible();
+  const pageWidthBeforeHover = await page.locator(".rp-page").evaluate((node) => node.getBoundingClientRect().width);
+  await page.locator(".rp-kpi").first().hover();
+  const pageWidthAfterHover = await page.locator(".rp-page").evaluate((node) => node.getBoundingClientRect().width);
+
+  expect(pageWidthAfterHover).toBe(pageWidthBeforeHover);
+  await expectNoHorizontalOverflow(page);
+});

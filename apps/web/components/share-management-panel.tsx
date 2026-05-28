@@ -6,6 +6,7 @@ import {
   createShareLinkAction,
   revokeShareLinkAction,
 } from "@/app/cases/[id]/share-actions";
+import { Tooltip } from "@/components/ui-primitives";
 import type { AuditEvent } from "@/lib/api-client";
 
 type ShareManagementPanelProps = {
@@ -41,14 +42,16 @@ export function ShareManagementPanel({
             Create limited links for coach, athlete, or guardian status views.
           </p>
         </div>
-        <button
-          className="inline-flex min-h-10 items-center gap-2 bg-pine px-3 py-2 text-sm font-semibold text-white"
-          onClick={() => setIsOpen(true)}
-          type="button"
-        >
-          <Share2 aria-hidden="true" className="h-4 w-4" />
-          Create share link
-        </button>
+        <Tooltip label="Create a limited status view for a coach, athlete, or guardian">
+          <button
+            className="inline-flex min-h-10 items-center gap-2 bg-pine px-3 py-2 text-sm font-semibold text-white"
+            onClick={() => setIsOpen(true)}
+            type="button"
+          >
+            <Share2 aria-hidden="true" className="h-4 w-4" />
+            Create share link
+          </button>
+        </Tooltip>
       </div>
 
       {shareToken ? (
@@ -65,21 +68,25 @@ export function ShareManagementPanel({
             />
           </label>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              className="inline-flex min-h-10 items-center gap-2 border border-pine px-3 py-2 text-sm font-semibold text-pine"
-              onClick={() => void navigator.clipboard?.writeText(shareUrl)}
-              type="button"
-            >
-              <Copy aria-hidden="true" className="h-4 w-4" />
-              Copy link
-            </button>
+            <Tooltip label="Copy the limited share URL">
+              <button
+                className="inline-flex min-h-10 items-center gap-2 border border-pine px-3 py-2 text-sm font-semibold text-pine"
+                onClick={() => void navigator.clipboard?.writeText(shareUrl)}
+                type="button"
+              >
+                <Copy aria-hidden="true" className="h-4 w-4" />
+                Copy link
+              </button>
+            </Tooltip>
             <form action={revokeShareLinkAction}>
               <input name="case_id" type="hidden" value={caseId} />
               <input name="share_token" type="hidden" value={shareToken} />
-              <button className="inline-flex min-h-10 items-center gap-2 bg-rust px-3 py-2 text-sm font-semibold text-white">
-                <X aria-hidden="true" className="h-4 w-4" />
-                Revoke link
-              </button>
+              <Tooltip label="Immediately disable this external access link">
+                <button className="inline-flex min-h-10 items-center gap-2 bg-rust px-3 py-2 text-sm font-semibold text-white">
+                  <X aria-hidden="true" className="h-4 w-4" />
+                  Revoke link
+                </button>
+              </Tooltip>
             </form>
           </div>
         </div>
@@ -155,14 +162,16 @@ export function ShareManagementPanel({
                   Shared views exclude clinical evidence and private case detail.
                 </p>
               </div>
-              <button
-                aria-label="Close create share link"
-                className="inline-flex h-9 w-9 items-center justify-center border border-mist text-slate-600"
-                onClick={() => setIsOpen(false)}
-                type="button"
-              >
-                <X aria-hidden="true" className="h-4 w-4" />
-              </button>
+              <Tooltip label="Close share link dialog">
+                <button
+                  aria-label="Close create share link"
+                  className="inline-flex h-9 w-9 items-center justify-center border border-mist text-slate-600"
+                  onClick={() => setIsOpen(false)}
+                  type="button"
+                >
+                  <X aria-hidden="true" className="h-4 w-4" />
+                </button>
+              </Tooltip>
             </div>
             <form action={createShareLinkAction} className="mt-5 grid gap-3">
               <input name="case_id" type="hidden" value={caseId} />

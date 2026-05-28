@@ -8,7 +8,7 @@ import { PhaseTimeline } from "@/components/phase-timeline";
 import { ReadinessCard } from "@/components/readiness-card";
 import { ShareManagementPanel } from "@/components/share-management-panel";
 import { ErrorState, UnauthorizedState } from "@/components/state-panels";
-import { AthleteAvatar, ClinicalBadge } from "@/components/ui-primitives";
+import { AthleteAvatar, ClinicalBadge, Tooltip } from "@/components/ui-primitives";
 import { getCasePageData, UnauthorizedApiError } from "@/lib/api-client";
 
 export default async function CaseDetailPage({
@@ -49,18 +49,24 @@ export default async function CaseDetailPage({
             Roster
           </Link>
           <div className="rp-case-actions">
-            <Link className="rp-secondary-button" href="#share-access">
-              <Share2 aria-hidden="true" className="h-4 w-4" />
-              Share access
-            </Link>
-            <Link className="rp-secondary-button" href={`/cases/${detail.id}/report`}>
-              <FileDown aria-hidden="true" className="h-4 w-4" />
-              Download PDF report
-            </Link>
-            <a className="rp-primary-button" href="#record-evidence">
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              Add evidence
-            </a>
+            <Tooltip label="Create or manage limited external access">
+              <Link className="rp-secondary-button" href="#share-access">
+                <Share2 aria-hidden="true" className="h-4 w-4" />
+                Share access
+              </Link>
+            </Tooltip>
+            <Tooltip label="Download a report with status, evidence, and audit metadata">
+              <Link className="rp-secondary-button" href={`/cases/${detail.id}/report`}>
+                <FileDown aria-hidden="true" className="h-4 w-4" />
+                Download PDF report
+              </Link>
+            </Tooltip>
+            <Tooltip label="Record symptoms, tests, workload, or milestone evidence">
+              <a className="rp-primary-button" href="#record-evidence">
+                <Plus aria-hidden="true" className="h-4 w-4" />
+                Add evidence
+              </a>
+            </Tooltip>
           </div>
         </div>
 

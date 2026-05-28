@@ -131,6 +131,15 @@ Goal 29 adds the frontend environment contract:
 - Production mode rejects demo-only rendering and requires
   `RETURN_PLAY_API_BASE_URL`.
 
+Goal 44 adds interaction polish and bounds QA:
+
+- The clinical shell, dashboard, case actions, and share controls now have
+  restrained hover, focus, and motion states.
+- CSS-only tooltips explain dense controls without adding client-side state.
+- Motion respects `prefers-reduced-motion`.
+- Playwright covers tooltip visibility, stable hover bounds, and mobile
+  overflow checks.
+
 ## Local Commands
 
 ```powershell

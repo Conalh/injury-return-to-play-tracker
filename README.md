@@ -1,138 +1,92 @@
 # Injury Return-To-Play Tracker
 
-**A safety-first workflow tracker for staged return-to-play decisions.**
-Clinicians and athletic trainers get one place to track the athlete, injury
-case, return-plan phases, symptom response, functional tests, workload
-tolerance, readiness signals, limited share views, PDF reports, and the named
-human decisions behind clearance.
+**A safety-first control center for staged return-to-play decisions.**
 
-This is not a diagnostic or automatic-clearance system. It is an evidence binder
-and workflow surface: the product can show what is known, what is missing, what
-changed, and who made the decision, but it must never diagnose an injury,
-recommend treatment, override a clinician, hide red flags, or encourage
-participation through worsening symptoms.
+This project gives clinicians and athletic trainers one evidence binder for an
+injury case: staged return-plan phases, symptom response, functional tests,
+workload tolerance, readiness signals, limited share views, PDF reports, audit
+history, and the named human decision behind clearance.
+
+It is not a diagnostic or automatic-clearance system. It does not diagnose
+injuries, recommend treatment, override a clinician, hide red flags, or push an
+athlete through worsening symptoms. Its job is to show what is known, what is
+missing, what changed, and who made the decision.
+
+## Project Snapshot
+
+| Area | Current state |
+| --- | --- |
+| Product posture | Local production-path build, not hosted yet |
+| Roadmap status | Implemented through Goal 43 of the ignored production roadmap |
+| API | FastAPI workflow surface with in-memory and SQLAlchemy repositories |
+| Web | Next.js clinician workspace plus limited coach, athlete, and guardian views |
+| Safety stance | Explain-only readiness, named human clearance, non-diagnostic copy |
+| Production blockers | Hosted identity tenant deployment, live smoke evidence, staging and production hosting |
+
+## Workflow At A Glance
 
 ```text
-Athlete roster + injury case
-        |
-        v
-Staged return-plan template ----> case phases + milestone gates
-        |                                      |
-        v                                      v
-Symptoms + functional tests + workload ----> readiness review
-        |                                      |
-        v                                      v
-Named clearance decision <---- audit log + PDF report
-        |
-        v
-Limited coach / athlete / guardian share view
+Athlete roster
+  -> Injury case
+    -> Staged return-plan template
+      -> Phase milestones
+        -> Symptoms, tests, workload, notes
+          -> Readiness review
+            -> Named clearance decision
+              -> Audit log, PDF report, limited share view
 ```
 
-## Current Status
+The system is built around a conservative clinical record:
 
-The project is a local production-path build, currently through Goal 43 of the
-ignored production roadmap, with hosting goals intentionally deferred. It is not
-hosted yet.
+- Intake creates the athlete and injury case.
+- A staged template defines phases and milestone gates.
+- Evidence is captured as symptoms, functional tests, workload sessions,
+  milestone updates, and clinician notes.
+- Readiness signals explain missing evidence, symptom trends, workload
+  tolerance, and clearance completeness.
+- Clearance actions require a named actor, decision type, rationale, and
+  restrictions when needed.
+- Share links expose only audience-appropriate status for coaches, athletes,
+  or guardians.
 
-Live in the repo:
+## Product Surface
 
-- FastAPI workflow API for athletes, injury cases, templates, evidence,
-  readiness, named clearance decisions, limited share links, PDF reports, audit
-  logs, and demo seeding.
-- Authentication foundation with explicit local-header mode, HMAC bearer-token
-  mode, `/api/me`, local login/logout session endpoints, logout-driven bearer
-  token revocation, and token-mode tests.
-- Central role-to-permission matrix with route dependencies and repository
-  service guards for protected workflow actions.
-- Admin organization and user management for organization setup, user
-  invitations, role changes, deactivation, and organization audit events.
-- API-backed frontend data fetching with explicit demo fallback mode and
-  Playwright coverage against a live FastAPI test server.
-- Clinician case creation UI for athlete intake, injury case creation, staged
-  template application, validation errors, and athlete profile edits.
-- Template builder UI for listing templates, creating staged phases and
-  milestones, editing as a new version, archiving inactive plans, and applying
-  active templates to cases.
-- Evidence entry UI on case detail for symptom logs, functional tests, workload
-  sessions, and milestone evidence updates with audit events.
-- Human clearance decision UI for hold, advance, full clearance, and close-case
-  decisions with required rationale, restrictions, named attribution, and audit
-  events.
-- Share management UI on case detail for creating limited coach, athlete, or
-  guardian links, copying the share URL, revoking links, and reviewing audit
-  events.
-- Athlete portal for token-scoped current phase, assigned activities,
-  instructions, clinician message, non-diagnostic language, and symptom
-  check-ins without clinician-only data exposure.
-- Guardian portal for conservative participation status, restrictions, next
-  review, clinician note, and token-scoped acknowledgment capture without raw
-  clinical evidence exposure.
-- Production PDF reports with status, phase, evidence, restrictions, clearance
-  decision, audit metadata, non-diagnostic disclaimer, and case-detail download.
-- Hardened audit logging with a shared event taxonomy, read events for limited
-  share views and PDF exports, filtered audit-log API access, immutable
-  in-memory audit record reads, and case-detail audit filtering.
-- Privacy controls with centralized share-view field filtering, explicit
-  restricted-surface data contracts, retention policy hooks, an export/delete
-  request plan, and a PHI handling checklist.
-- Security baseline controls for secure response headers, CORS allowlisting,
-  request size limits, auth/share route rate limits, dependency scanning, and
-  secret scanning.
-- Continuous integration workflow for backend tests, migration head checks,
-  frontend build, Playwright browser coverage, Docker compose build validation,
-  dependency audit, and documented required status checks.
-- Local production compose packaging with Postgres, API and web Dockerfiles,
-  container health checks, migration-on-start, and a one-shot demo seed service.
-- Explicit environment configuration with typed backend settings, frontend
-  environment contract helpers, `.env.example`, and production startup
-  validation for required runtime variables.
-- Observability baseline with request IDs, structured API request logs, an
-  error-tracking integration seam, readiness endpoint, and basic JSON runtime
-  metrics.
-- Backup and recovery baseline with Postgres backup/restore scripts, a restore
-  drill, RPO/RTO targets, and a documented verification checklist.
-- Legal and compliance review package with a data flow map, user role/data
-  access matrix, security controls summary, HIPAA/FTC review notes, terms and
-  privacy-policy inputs, and BAA decision checklist.
-- Product polish and usability review covering non-diagnostic copy, empty/error
-  states, mobile layout, keyboard accessibility, clinician workflow timing, and
-  beta polish backlog.
-- Beta readiness operations package with onboarding checklist, feedback triage,
-  known limitations, support runbook, incident response starter plan, and
-  no-developer-access beta organization workflow.
-- Production launch-gate package with critical-test, security, backup,
-  monitoring, legal/compliance, safety-blocker, residual-risk, and signoff
-  checklists. The package explicitly keeps broad launch blocked until deferred
-  staging and production deployment work is completed.
-- Auth token revocation foundation with unique bearer-token IDs, logout
-  revocation, revoked-token rejection, durable database-backed revocation for
-  persistent deployments, and an explicit runbook for the remaining hosted
-  identity decision.
-- Hosted identity OIDC adapter with RS256 JWT verification, issuer/audience
-  validation, JWKS support, role/organization claim mapping, and production
-  startup checks for OIDC configuration.
-- Hosted identity tenant rollout package for provider setup, account lifecycle,
-  MFA/password policy, provider-side session controls, claim mapping, smoke
-  tests, and launch-gate evidence.
-- Dependency update automation with Dependabot coverage for web npm packages,
-  API Python packages, and GitHub Actions, plus a triage and validation runbook.
-- GitHub Actions runtime readiness with Node.js 24 action-runtime opt-in and a
-  CI maintenance runbook for platform deprecation annotations.
-- SQLAlchemy repository path selected by `RETURN_PLAY_DATABASE_URL`, with the
-  in-memory repository retained for local/demo tests.
-- Repository boundary package under `return_play.repositories`, split into
-  athlete, case, template/plan, evidence, readiness, share/report/audit, and
-  demo seed surfaces.
-- Next.js clinician dashboard with roster, case detail, evidence panels,
-  readiness review, clearance panel, and limited shared status view.
-- Backend pytest coverage and frontend Playwright coverage for the current
-  workflow surface.
+| Surface | What it does |
+| --- | --- |
+| Clinician dashboard | Roster, active cases, status, current phase, and quick access to case work |
+| Case detail | Phase timeline, milestones, evidence panels, readiness signals, decisions, shares, and audit trail |
+| Template builder | Create, version, archive, and apply staged return-plan templates |
+| Evidence entry | Record symptoms, functional tests, workload sessions, and milestone evidence |
+| Clearance panel | Hold, advance, fully clear, or close a case with named rationale |
+| Share management | Create, copy, revoke, and audit limited coach, athlete, or guardian links |
+| Athlete portal | Token-scoped current phase, instructions, clinician message, and symptom check-ins |
+| Guardian portal | Conservative participation status, restrictions, next review, and acknowledgment |
+| Reports | PDF status report with evidence, restrictions, decision, audit metadata, and disclaimer |
 
-Still deferred:
+## Production-Path Controls
 
-- Hosted identity-provider tenant deployment and live smoke evidence in a
-  target environment.
-- Staging and production deployment.
+| Control area | Implemented package |
+| --- | --- |
+| Authentication | Development headers, HMAC bearer tokens, login/logout, durable token revocation, OIDC adapter |
+| Authorization | Central role-to-permission matrix plus route and repository guards |
+| Privacy | Share-view field filtering, restricted response contracts, export/delete request plan |
+| Audit | Sensitive writes, reads, reports, share activity, clearance decisions, immutable reads |
+| Security baseline | Secure headers, CORS allowlist, request size limit, rate limits, secret scan, dependency scan |
+| Persistence | SQLAlchemy repository selected by `RETURN_PLAY_DATABASE_URL`; in-memory fallback for local/demo |
+| Operations | Environment contract, observability, backup/restore drill, beta readiness, launch gate |
+| Identity rollout | OIDC config, tenant checklist, MFA/password policy, claim mapping, smoke-test evidence plan |
+| CI maintenance | Required checks, Dependabot updates, Node.js 24 GitHub Actions runtime opt-in |
+
+## What Is Still Deferred
+
+Broad production use remains blocked until these are completed outside the
+current local build:
+
+- Hosted identity-provider tenant deployment.
+- Live identity smoke evidence in the target environment.
+- Staging deployment.
+- Production deployment.
+- Legal/compliance signoff for the exact customer and data posture.
 
 ## Run It Locally
 
@@ -145,10 +99,13 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m uvicorn return_play.api:app --reload
 ```
 
-Open `http://127.0.0.1:8000/health`.
+Open:
 
-By default the API uses the in-memory repository. To run the persistent path,
-set:
+```text
+http://127.0.0.1:8000/health
+```
+
+The default repository is in-memory. To use Postgres-backed persistence:
 
 ```powershell
 $env:RETURN_PLAY_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/return_play"
@@ -156,8 +113,8 @@ $env:RETURN_PLAY_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:
 .\.venv\Scripts\python.exe -m uvicorn return_play.api:app --reload
 ```
 
-The default auth mode is `dev_headers`, which accepts the local request-context
-headers used by the tests and demo seed. To run the bearer-token path:
+The default auth mode is `dev_headers`, intended for local development and
+tests. To run the local bearer-token path:
 
 ```powershell
 $env:RETURN_PLAY_AUTH_MODE="token"
@@ -172,15 +129,38 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:3217`.
+Open:
 
-The web app defaults to local demo data. Set `RETURN_PLAY_DATA_MODE=api` or
-`RETURN_PLAY_DATA_MODE=api-demo` plus `RETURN_PLAY_API_BASE_URL` to render from
-FastAPI.
+```text
+http://127.0.0.1:3217
+```
+
+The web app defaults to local demo data. API-backed local mode uses:
+
+```powershell
+$env:RETURN_PLAY_DATA_MODE="api-demo"
+$env:RETURN_PLAY_API_BASE_URL="http://127.0.0.1:8000"
+$env:RETURN_PLAY_ACTOR_ID="clinician_demo"
+$env:RETURN_PLAY_ACTOR_ROLE="clinician"
+$env:RETURN_PLAY_ORGANIZATION_ID="org_demo"
+npm run dev
+```
+
+### Browser Test Harness
+
+Playwright uses a combined local harness:
+
+```powershell
+cd apps/web
+npm test
+```
+
+That script starts FastAPI at `http://127.0.0.1:8015` and Next.js at
+`http://127.0.0.1:3227`.
 
 ## Demo Seed
 
-With the API running, seed the Riley Chen local workflow:
+With the API running, seed the Riley Chen synthetic workflow:
 
 ```powershell
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/demo/seed `
@@ -191,7 +171,7 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/demo/seed `
   }
 ```
 
-The seed covers a synthetic athlete, injury case, staged return plan, milestone
+The seed includes an athlete, injury case, staged return plan, milestone
 status, symptom logs, functional tests, workload sessions, clinician note, hold
 decision, limited share link, readiness signals, PDF report, and audit events.
 
@@ -201,18 +181,18 @@ decision, limited share link, readiness signals, PDF report, and audit events.
 apps/web
   Next.js App Router + TypeScript + Tailwind
   /                  clinician roster dashboard
-  /cases/[id]        case detail, evidence, readiness, clearance
-  /share/[token]     limited non-clinical status view
+  /cases/[id]        case detail, evidence, readiness, clearance, shares
+  /templates         staged return-plan template builder
+  /share/[token]     limited coach, athlete, or guardian status view
 
 services/api
   FastAPI app factory + route surface
-  auth.py            local request-context role gates
-  observability.py   request IDs, structured logs, readiness, metrics
+  auth.py            dev headers, HMAC tokens, OIDC verification, logout
+  permissions.py     role-to-permission matrix
   audit.py           audit event taxonomy
   privacy.py         field filters + data-control policy hooks
-  security.py        secure headers, CORS, size limits, rate limits
-  models.py          Pydantic request contracts
-  db.py              SQLAlchemy metadata
+  security.py        headers, CORS, size limits, rate limits
+  observability.py   request IDs, structured logs, readiness, metrics
   repositories/      in-memory + SQLAlchemy workflow repositories
   readiness.py       conservative readiness signal builder
   reports.py         PDF report generation
@@ -234,39 +214,26 @@ Compatibility shims keep the earlier `return_play.repository` and
 
 ## Safety Model
 
-Return-to-play decisions are high-stakes human decisions. The current safety
-contract is:
+Return-to-play decisions are high-stakes human decisions. The repository keeps
+these boundaries explicit:
 
-- Protected API routes require local request-context headers:
-  `x-actor-id`, `x-actor-role`, and `x-organization-id` only in explicit
-  development-header mode.
-- Token mode ignores trusted identity headers and builds request context from a
-  verified bearer token.
-- Newly issued bearer tokens include unique revocation IDs, and logout revokes
-  the current token for the lifetime of that token in the running API process.
-- Persistent API deployments store hashed revoked token IDs in the database so
-  logout revocation survives API restarts and can be shared by API workers.
-- OIDC provider mode validates RS256 bearer tokens against configured issuer,
+- Development-header auth is local only; token mode ignores trusted identity
+  headers and builds request context from verified bearer tokens.
+- Persistent deployments store hashed revoked token IDs so logout revocation
+  survives API restarts and can be shared by API workers.
+- OIDC provider mode validates RS256 tokens against configured issuer,
   audience, JWKS, role claim, organization claim, subject, expiration, and token
   ID.
-- Clinical workflows are limited to clinician, athletic trainer, and admin
-  roles until the production role matrix lands.
-- Organization IDs scope roster, template, case, evidence, readiness,
-  report, share-management, and audit-log access.
-- Limited share view reads and sensitive report exports are recorded as audit
-  events.
-- Restricted share responses use an explicit data contract and field-level
-  filtering before leaving the API.
-- API responses carry baseline security headers; CORS, request body size, and
-  auth/share route rate limits are centrally configured.
-- API responses include request IDs, and runtime request logs use structured
-  JSON without clinical payloads.
+- Organization IDs scope roster, template, case, evidence, readiness, reports,
+  share management, and audit-log access.
+- Readiness responses explain evidence status and always include
+  `can_auto_clear: false`.
 - Clearance decisions require a named actor and rationale.
-- Readiness responses explicitly include `can_auto_clear: false`.
-- Shared pages use non-diagnostic language and exclude symptom detail, guardian
-  contact, and the full clinical record.
+- Limited share views use explicit data contracts and exclude raw clinical
+  records that do not belong to the audience.
+- API request logs are structured and intentionally avoid clinical payloads.
 
-## Tests
+## Validation
 
 Backend:
 
@@ -285,66 +252,44 @@ npm run build
 npm audit --audit-level=high
 ```
 
-Current coverage includes API contracts, schema contracts, migrations, clinician
-workflow behavior, evidence capture, readiness signals, privacy and permission
-checks, privacy-control contracts, security-baseline middleware and workflow
-contracts, share/report/audit behavior, audit filtering and immutability, demo
-seed validation, persistent repository restart behavior, repository-boundary
-contracts, and browser coverage for the dashboard, API-backed case creation,
-template builder, evidence entry, clearance decisions, share management, athlete
-and guardian portals, report download, audit filtering, case detail, and limited
-share page.
+CI currently covers backend tests, migration head checks, web build, Playwright
+browser coverage, Docker compose build validation, backup restore drill,
+dependency audit, and secret scan.
 
-## Documentation
+## Documentation Map
 
-- [services/api/README.md](services/api/README.md): backend setup, scope, demo
+Start here:
+
+- [docs/README.md](docs/README.md): full documentation index.
+- [services/api/README.md](services/api/README.md): API setup, scope, demo
   seed, and migration commands.
-- [apps/web/README.md](apps/web/README.md): frontend scope and local commands.
-- [docs/README.md](docs/README.md): documentation index.
-- [docs/product/product-spec.md](docs/product/product-spec.md): safety-first
-  product specification.
-- [docs/product/safety-and-compliance-notes.md](docs/product/safety-and-compliance-notes.md):
-  safety, privacy, and compliance notes.
-- [docs/product/permission-matrix.md](docs/product/permission-matrix.md):
-  current role-to-permission matrix and enforcement points.
-- [docs/product/privacy-controls.md](docs/product/privacy-controls.md):
-  field filtering, share-view contracts, retention hooks, export/delete request
-  plan, and PHI checklist.
-- [docs/product/security-baseline.md](docs/product/security-baseline.md):
-  secure headers, CORS, rate limits, input limits, dependency scanning, and
-  secret scanning.
-- [docs/product/legal-compliance-review-package.md](docs/product/legal-compliance-review-package.md):
-  data flow map, access matrix, controls summary, HIPAA/FTC review notes,
-  policy inputs, and BAA checklist.
-- [docs/product/usability-review.md](docs/product/usability-review.md):
-  copy, empty/error state, mobile, accessibility, workflow timing, and beta
-  polish review.
-- [docs/operations/beta-readiness.md](docs/operations/beta-readiness.md):
-  controlled beta onboarding, feedback, limitations, support, incident, and
-  launch-gate runbook.
-- [docs/operations/production-launch-gate.md](docs/operations/production-launch-gate.md):
-  final launch checklist, evidence requirements, residual risk register, and
-  signoff table.
-- [docs/operations/auth-token-revocation.md](docs/operations/auth-token-revocation.md):
-  bearer-token IDs, logout revocation, verification, and production identity
-  limits.
-- [docs/operations/hosted-identity-oidc.md](docs/operations/hosted-identity-oidc.md):
-  OIDC provider adapter configuration, token contract, and launch-gate limits.
-- [docs/operations/identity-provider-tenant-rollout.md](docs/operations/identity-provider-tenant-rollout.md):
-  hosted identity tenant setup, lifecycle, MFA/password, session, smoke-test,
-  and evidence checklist.
-- [docs/operations/ci-required-checks.md](docs/operations/ci-required-checks.md):
-  CI workflow jobs and required branch-protection status checks.
-- [docs/operations/local-production-compose.md](docs/operations/local-production-compose.md):
-  local Docker Compose production-path runbook.
-- [docs/operations/environment-configuration.md](docs/operations/environment-configuration.md):
-  backend and frontend environment-variable contract.
-- [docs/operations/observability.md](docs/operations/observability.md):
-  request IDs, structured logs, error capture seam, readiness, and metrics.
-- [docs/operations/backups-and-recovery.md](docs/operations/backups-and-recovery.md):
-  Postgres backup strategy, restore runbook, RPO/RTO targets, and restore drill.
-- [docs/foundation/project-foundation.md](docs/foundation/project-foundation.md):
-  initial repo and tooling direction.
-- [docs/foundation/goal-roadmap.md](docs/foundation/goal-roadmap.md): original
-  staged creation roadmap. Some later production-path decisions now live in the
-  ignored local roadmap.
+- [apps/web/README.md](apps/web/README.md): web app scope, local modes, and
+  frontend commands.
+
+Product documents:
+
+- [Product specification](docs/product/product-spec.md)
+- [Permission matrix](docs/product/permission-matrix.md)
+- [Privacy controls](docs/product/privacy-controls.md)
+- [Security baseline](docs/product/security-baseline.md)
+- [Legal/compliance review package](docs/product/legal-compliance-review-package.md)
+- [Usability review](docs/product/usability-review.md)
+
+Operations documents:
+
+- [Beta readiness](docs/operations/beta-readiness.md)
+- [Production launch gate](docs/operations/production-launch-gate.md)
+- [Auth token revocation](docs/operations/auth-token-revocation.md)
+- [Hosted identity OIDC](docs/operations/hosted-identity-oidc.md)
+- [Identity provider tenant rollout](docs/operations/identity-provider-tenant-rollout.md)
+- [Required CI checks](docs/operations/ci-required-checks.md)
+- [Dependency update automation](docs/operations/dependency-update-automation.md)
+- [GitHub Actions runtime readiness](docs/operations/github-actions-runtime-readiness.md)
+- [Environment configuration](docs/operations/environment-configuration.md)
+- [Observability](docs/operations/observability.md)
+- [Backups and recovery](docs/operations/backups-and-recovery.md)
+
+## License
+
+No license file is currently included. Add one before broad distribution or
+third-party reuse.

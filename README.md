@@ -325,5 +325,4 @@ Operations documents:
 
 ## License
 
-No license file is currently included. Add one before broad distribution or
-third-party reuse.
+MIT. See [LICENSE](LICENSE).

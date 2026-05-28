@@ -140,6 +140,16 @@ Goal 44 adds interaction polish and bounds QA:
 - Playwright covers tooltip visibility, stable hover bounds, and mobile
   overflow checks.
 
+Goal 45 adds submit-state interaction feedback:
+
+- Evidence, clearance, share creation, and share revocation forms use a shared
+  pending submit control.
+- Submit controls disable while their form action is pending to guard against
+  double submissions.
+- Pending labels explain the in-flight operation without changing the data
+  contract or route behavior.
+- Playwright covers the pending-label contract on the clinical case page.
+
 ## Local Commands
 
 ```powershell

@@ -5,6 +5,7 @@ import {
   recordSymptomAction,
   recordWorkloadAction,
 } from "@/app/cases/[id]/evidence-actions";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 
 type EvidenceEntryPanelProps = {
   caseId: string;
@@ -54,7 +55,11 @@ function SymptomForm({ caseId, athleteId }: { caseId: string; athleteId: string 
           <Field label="Symptom notes" multiline name="symptom_notes" />
         </div>
       </div>
-      <SubmitButton label="Record symptoms" />
+      <PendingSubmitButton
+        className="justify-self-start"
+        label="Record symptoms"
+        pendingLabel="Recording symptoms..."
+      />
     </form>
   );
 }
@@ -82,7 +87,11 @@ function FunctionalTestForm({ caseId }: { caseId: string }) {
           <Field label="Functional test notes" multiline name="functional_test_notes" />
         </div>
       </div>
-      <SubmitButton label="Record functional test" />
+      <PendingSubmitButton
+        className="justify-self-start"
+        label="Record functional test"
+        pendingLabel="Recording functional test..."
+      />
     </form>
   );
 }
@@ -110,7 +119,11 @@ function WorkloadForm({ caseId }: { caseId: string }) {
           <Field label="Workload notes" multiline name="workload_notes" />
         </div>
       </div>
-      <SubmitButton label="Record workload" />
+      <PendingSubmitButton
+        className="justify-self-start"
+        label="Record workload"
+        pendingLabel="Recording workload..."
+      />
     </form>
   );
 }
@@ -151,7 +164,11 @@ function MilestoneEvidenceForm({
         <Field label="Evidence source" name="evidence_source" required />
         <Field label="Milestone notes" name="milestone_notes" />
       </div>
-      <SubmitButton label="Attach milestone evidence" />
+      <PendingSubmitButton
+        className="justify-self-start"
+        label="Attach milestone evidence"
+        pendingLabel="Attaching milestone evidence..."
+      />
     </form>
   );
 }
@@ -217,16 +234,5 @@ function SelectField({
         ))}
       </select>
     </label>
-  );
-}
-
-function SubmitButton({ label }: { label: string }) {
-  return (
-    <button
-      className="justify-self-start bg-pine px-4 py-2 text-sm font-semibold text-white shadow-panel"
-      type="submit"
-    >
-      {label}
-    </button>
   );
 }

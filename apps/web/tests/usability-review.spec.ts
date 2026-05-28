@@ -30,3 +30,24 @@ test("core clinician pages keep reviewed safety copy and mobile layout", async (
   await expect(page.getByRole("button", { name: "Record clearance decision" })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
+
+test("clinical submit controls declare pending feedback and double-submit guards", async ({ page }) => {
+  await page.goto("/cases/case_demo");
+
+  const expectedButtons = [
+    ["Record symptoms", "Recording symptoms..."],
+    ["Record functional test", "Recording functional test..."],
+    ["Record workload", "Recording workload..."],
+    ["Attach milestone evidence", "Attaching milestone evidence..."],
+    ["Record clearance decision", "Recording clearance decision..."],
+    ["Create limited link", "Creating limited link..."],
+  ] as const;
+
+  await page.getByRole("button", { name: "Create share link" }).click();
+
+  for (const [label, pendingLabel] of expectedButtons) {
+    const button = page.getByRole("button", { name: label });
+    await expect(button).toHaveAttribute("data-pending-label", pendingLabel);
+    await expect(button).toHaveAttribute("data-disables-while-pending", "true");
+  }
+});

@@ -166,6 +166,7 @@ textarea {
 .rp-secondary-button,
 .rp-icon-button,
 .rp-search,
+.rp-submit-button,
 .rp-nav-item,
 .rp-action-item,
 .rp-back-link,
@@ -195,6 +196,7 @@ textarea {
   .rp-secondary-button:hover,
   .rp-icon-button:hover,
   .rp-search:hover,
+  .rp-submit-button:hover:not(:disabled),
   .rp-nav-item:hover,
   .rp-action-item:hover,
   .rp-back-link:hover,
@@ -452,6 +454,63 @@ textarea {
   border-color: var(--rp-accent-hover);
   background: var(--rp-accent-hover);
   box-shadow: var(--rp-shadow-focus);
+}
+
+.rp-submit-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--rp-radius);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 14px;
+  box-shadow: var(--rp-shadow-1);
+}
+
+.rp-submit-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.rp-submit-button-pine {
+  background: #1f6b4f;
+  color: white;
+}
+
+.rp-submit-button-gold {
+  background: #d9a52b;
+  color: #17201d;
+}
+
+.rp-submit-button-rust {
+  background: #a6442e;
+  color: white;
+}
+
+.rp-submit-button-outline {
+  border-color: var(--rp-border);
+  background: white;
+  color: var(--rp-text-2);
+}
+
+.rp-submit-button:hover:not(:disabled),
+.rp-submit-button:focus-visible:not(:disabled) {
+  box-shadow: var(--rp-shadow-focus);
+}
+
+.rp-submit-spinner {
+  height: 16px;
+  width: 16px;
+  animation: rp-spin 700ms linear infinite;
+}
+
+@keyframes rp-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 button:hover:not(:disabled),

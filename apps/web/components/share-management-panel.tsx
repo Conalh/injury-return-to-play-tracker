@@ -6,6 +6,7 @@ import {
   createShareLinkAction,
   revokeShareLinkAction,
 } from "@/app/cases/[id]/share-actions";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Tooltip } from "@/components/ui-primitives";
 import type { AuditEvent } from "@/lib/api-client";
 
@@ -82,10 +83,12 @@ export function ShareManagementPanel({
               <input name="case_id" type="hidden" value={caseId} />
               <input name="share_token" type="hidden" value={shareToken} />
               <Tooltip label="Immediately disable this external access link">
-                <button className="inline-flex min-h-10 items-center gap-2 bg-rust px-3 py-2 text-sm font-semibold text-white">
-                  <X aria-hidden="true" className="h-4 w-4" />
-                  Revoke link
-                </button>
+                <PendingSubmitButton
+                  icon={<X aria-hidden="true" className="h-4 w-4" />}
+                  label="Revoke link"
+                  pendingLabel="Revoking link..."
+                  tone="rust"
+                />
               </Tooltip>
             </form>
           </div>
@@ -205,10 +208,11 @@ export function ShareManagementPanel({
                 Share note
                 <textarea className="mt-1 min-h-20 w-full border border-mist px-3 py-2" name="clinician_note" required />
               </label>
-              <button className="inline-flex min-h-10 items-center justify-center gap-2 bg-pine px-4 text-sm font-semibold text-white">
-                <Link2 aria-hidden="true" className="h-4 w-4" />
-                Create limited link
-              </button>
+              <PendingSubmitButton
+                icon={<Link2 aria-hidden="true" className="h-4 w-4" />}
+                label="Create limited link"
+                pendingLabel="Creating limited link..."
+              />
             </form>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { Ban, CheckCircle2 } from "lucide-react";
 import { recordClearanceDecisionAction } from "@/app/cases/[id]/clearance-actions";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 
 export function ClearancePanel({
   caseId,
@@ -65,10 +66,12 @@ export function ClearancePanel({
             name="restrictions"
           />
         </label>
-        <button className="inline-flex min-h-10 items-center justify-center gap-2 bg-gold px-4 text-sm font-semibold text-ink">
-          <Ban aria-hidden="true" className="h-4 w-4" />
-          Record clearance decision
-        </button>
+        <PendingSubmitButton
+          icon={<Ban aria-hidden="true" className="h-4 w-4" />}
+          label="Record clearance decision"
+          pendingLabel="Recording clearance decision..."
+          tone="gold"
+        />
       </form>
     </section>
   );

@@ -82,7 +82,7 @@ export default async function CaseDetailPage({
             </div>
             <div className="rp-case-meta">
               <span>{detail.athlete.sport} - {detail.athlete.position}</span>
-              <span>Case {detail.id}</span>
+              <span title={detail.id}>Case {caseReference(detail.id)}</span>
               <span>{detail.injuryTitle}</span>
               <span>{detail.athlete.daysInPhase} days in current phase</span>
             </div>
@@ -163,4 +163,12 @@ async function loadCasePageData(caseId: string) {
 
 function singleQueryValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+// Hosted case IDs end in a 32-char uuid hex, which reads as noise in the UI.
+// Show a short, stable reference code; the full id stays in the title tooltip.
+function caseReference(id: string): string {
+  const tail = id.includes("_") ? id.slice(id.lastIndexOf("_") + 1) : id;
+  const handle = /^[0-9a-f]{12,}$/i.test(tail) ? tail.slice(0, 6) : tail;
+  return handle.toUpperCase();
 }

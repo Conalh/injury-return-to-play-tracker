@@ -4,7 +4,7 @@ import {
   recordFunctionalTestAction,
   recordSymptomAction,
   recordWorkloadAction,
-} from "@/app/cases/[id]/evidence-actions";
+} from "@/app/(app)/cases/[id]/evidence-actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 
 type EvidenceEntryPanelProps = {
@@ -19,9 +19,14 @@ export function EvidenceEntryPanel({
   currentPhase,
 }: EvidenceEntryPanelProps) {
   return (
-    <section className="bg-white px-4 py-5 shadow-panel sm:px-5">
-      <h2 className="text-base font-semibold text-ink">Record evidence</h2>
-      <div className="mt-4 grid gap-5">
+    <section className="rp-detail-card">
+      <div className="rp-detail-card-header">
+        <div>
+          <h2>Record evidence</h2>
+          <p>Symptoms, tests, workload, and milestone evidence for clinician review.</p>
+        </div>
+      </div>
+      <div className="rp-entry-body">
         <SymptomForm caseId={caseId} athleteId={athleteId} />
         <FunctionalTestForm caseId={caseId} />
         <WorkloadForm caseId={caseId} />
@@ -33,11 +38,11 @@ export function EvidenceEntryPanel({
 
 function SymptomForm({ caseId, athleteId }: { caseId: string; athleteId: string }) {
   return (
-    <form action={recordSymptomAction} className="grid gap-3 border border-mist bg-field p-4">
+    <form action={recordSymptomAction} className="rp-subform">
       <input name="case_id" type="hidden" value={caseId} />
       <input name="athlete_id" type="hidden" value={athleteId} />
-      <h3 className="font-semibold text-ink">Symptoms</h3>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <h3>Symptoms</h3>
+      <div className="rp-form-grid rp-form-grid-2">
         <Field label="Symptom date" name="symptom_date" required type="date" />
         <Field label="Pain score" max={10} min={0} name="pain" required type="number" />
         <SelectField
@@ -51,7 +56,7 @@ function SymptomForm({ caseId, athleteId }: { caseId: string; athleteId: string 
           ]}
         />
         <Field label="Confidence" max={5} min={1} name="confidence" required type="number" />
-        <div className="sm:col-span-2">
+        <div className="rp-form-grid-full">
           <Field label="Symptom notes" multiline name="symptom_notes" />
         </div>
       </div>
@@ -66,10 +71,10 @@ function SymptomForm({ caseId, athleteId }: { caseId: string; athleteId: string 
 
 function FunctionalTestForm({ caseId }: { caseId: string }) {
   return (
-    <form action={recordFunctionalTestAction} className="grid gap-3 border border-mist bg-field p-4">
+    <form action={recordFunctionalTestAction} className="rp-subform">
       <input name="case_id" type="hidden" value={caseId} />
-      <h3 className="font-semibold text-ink">Functional test</h3>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <h3>Functional test</h3>
+      <div className="rp-form-grid rp-form-grid-2">
         <Field label="Functional test name" name="functional_test_name" required />
         <Field label="Test date" name="test_date" required type="date" />
         <Field label="Result value" name="result_value" type="number" />
@@ -83,7 +88,7 @@ function FunctionalTestForm({ caseId }: { caseId: string }) {
             ["false", "Review"],
           ]}
         />
-        <div className="sm:col-span-2">
+        <div className="rp-form-grid-full">
           <Field label="Functional test notes" multiline name="functional_test_notes" />
         </div>
       </div>
@@ -98,10 +103,10 @@ function FunctionalTestForm({ caseId }: { caseId: string }) {
 
 function WorkloadForm({ caseId }: { caseId: string }) {
   return (
-    <form action={recordWorkloadAction} className="grid gap-3 border border-mist bg-field p-4">
+    <form action={recordWorkloadAction} className="rp-subform">
       <input name="case_id" type="hidden" value={caseId} />
-      <h3 className="font-semibold text-ink">Workload session</h3>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <h3>Workload session</h3>
+      <div className="rp-form-grid rp-form-grid-2">
         <Field label="Workload date" name="workload_date" required type="date" />
         <Field label="Activity" name="activity" required />
         <Field label="Duration minutes" min={0} name="duration_minutes" required type="number" />
@@ -115,7 +120,7 @@ function WorkloadForm({ caseId }: { caseId: string }) {
           ]}
         />
         <Field label="Symptom response" name="symptom_response" />
-        <div className="sm:col-span-2">
+        <div className="rp-form-grid-full">
           <Field label="Workload notes" multiline name="workload_notes" />
         </div>
       </div>
@@ -139,10 +144,10 @@ function MilestoneEvidenceForm({
     return null;
   }
   return (
-    <form action={attachMilestoneEvidenceAction} className="grid gap-3 border border-mist bg-field p-4">
+    <form action={attachMilestoneEvidenceAction} className="rp-subform">
       <input name="case_id" type="hidden" value={caseId} />
-      <h3 className="font-semibold text-ink">Milestone evidence</h3>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <h3>Milestone evidence</h3>
+      <div className="rp-form-grid rp-form-grid-2">
         <SelectField
           label="Milestone"
           name="milestone_id"
@@ -190,22 +195,13 @@ function Field({
   min?: number;
   max?: number;
 }) {
-  const className =
-    "mt-1 w-full border border-mist bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/20";
   return (
-    <label className="block text-sm font-medium text-ink">
+    <label className="rp-field">
       {label}
       {multiline ? (
-        <textarea className={`${className} min-h-20 resize-y`} name={name} />
+        <textarea name={name} />
       ) : (
-        <input
-          className={className}
-          max={max}
-          min={min}
-          name={name}
-          required={required}
-          type={type}
-        />
+        <input max={max} min={min} name={name} required={required} type={type} />
       )}
     </label>
   );
@@ -221,12 +217,9 @@ function SelectField({
   options: string[][];
 }) {
   return (
-    <label className="block text-sm font-medium text-ink">
+    <label className="rp-field">
       {label}
-      <select
-        className="mt-1 w-full border border-mist bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/20"
-        name={name}
-      >
+      <select name={name}>
         {options.map(([value, text]) => (
           <option key={value} value={value}>
             {text}

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, JSON, String, Text, create_engine
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, JSON, String, Text, create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
@@ -11,8 +11,20 @@ class Base(DeclarativeBase):
 
 
 def create_engine_for_url(database_url: str) -> Engine:
-    connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
-    return create_engine(database_url, connect_args=connect_args)
+    is_sqlite = database_url.startswith("sqlite")
+    connect_args = {"check_same_thread": False} if is_sqlite else {}
+    engine = create_engine(database_url, connect_args=connect_args)
+    if is_sqlite:
+        # SQLite ignores foreign-key constraints unless asked per connection.
+        # Production runs on Postgres (which always enforces them); without this
+        # the test suite silently accepts FK violations that fail in production.
+        @event.listens_for(engine, "connect")
+        def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
+    return engine
 
 
 def create_session_factory(database_url: str) -> sessionmaker:
@@ -231,7 +243,7 @@ class ClearanceDecisionRecord(IdMixin, Base):
         ForeignKey("injury_cases.id"), nullable=False, index=True
     )
     phase_id: Mapped[str] = mapped_column(
-        ForeignKey("return_plan_phases.id"), nullable=False, index=True
+        ForeignKey("case_phase_statuses.id"), nullable=False, index=True
     )
     decision: Mapped[str] = mapped_column(String(32), nullable=False)
     decided_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)

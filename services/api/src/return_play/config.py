@@ -65,35 +65,38 @@ class ReturnPlaySettings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     def validate_startup(self) -> None:
-        if self.env != "production":
-            return
-
         errors: list[str] = []
-        if not self.database_url:
-            errors.append("RETURN_PLAY_DATABASE_URL is required in production.")
-        if self.auth_mode != "token":
-            errors.append("RETURN_PLAY_AUTH_MODE must be token in production.")
-        if self.auth_provider == "local_hmac":
-            if not self.auth_secret:
-                errors.append("RETURN_PLAY_AUTH_SECRET is required in production.")
-            elif len(self.auth_secret) < 32:
-                errors.append("RETURN_PLAY_AUTH_SECRET must be at least 32 characters in production.")
-        if self.auth_provider == "oidc":
-            if not self.oidc_issuer:
-                errors.append("RETURN_PLAY_OIDC_ISSUER is required for OIDC auth.")
-            if not self.oidc_audience:
-                errors.append("RETURN_PLAY_OIDC_AUDIENCE is required for OIDC auth.")
-            if not (self.oidc_jwks_url or self.oidc_jwks_json):
-                errors.append(
-                    "RETURN_PLAY_OIDC_JWKS_URL or RETURN_PLAY_OIDC_JWKS_JSON is required for OIDC auth."
-                )
-        if not self.cors_origin_list:
-            errors.append("RETURN_PLAY_CORS_ORIGINS must list allowed origins in production.")
-        if self.local_auth_enabled:
-            errors.append("RETURN_PLAY_LOCAL_AUTH_ENABLED must not be enabled in production.")
+
+        # Header-trust auth and local login must never run in an environment
+        # that may hold real PHI. Production and staging are both gated.
+        if self.env in {"production", "staging"}:
+            if self.auth_mode != "token":
+                errors.append(f"RETURN_PLAY_AUTH_MODE must be token in {self.env}.")
+            if self.local_auth_enabled:
+                errors.append(f"RETURN_PLAY_LOCAL_AUTH_ENABLED must not be enabled in {self.env}.")
+
+        if self.env == "production":
+            if not self.database_url:
+                errors.append("RETURN_PLAY_DATABASE_URL is required in production.")
+            if self.auth_provider == "local_hmac":
+                if not self.auth_secret:
+                    errors.append("RETURN_PLAY_AUTH_SECRET is required in production.")
+                elif len(self.auth_secret) < 32:
+                    errors.append("RETURN_PLAY_AUTH_SECRET must be at least 32 characters in production.")
+            if self.auth_provider == "oidc":
+                if not self.oidc_issuer:
+                    errors.append("RETURN_PLAY_OIDC_ISSUER is required for OIDC auth.")
+                if not self.oidc_audience:
+                    errors.append("RETURN_PLAY_OIDC_AUDIENCE is required for OIDC auth.")
+                if not (self.oidc_jwks_url or self.oidc_jwks_json):
+                    errors.append(
+                        "RETURN_PLAY_OIDC_JWKS_URL or RETURN_PLAY_OIDC_JWKS_JSON is required for OIDC auth."
+                    )
+            if not self.cors_origin_list:
+                errors.append("RETURN_PLAY_CORS_ORIGINS must list allowed origins in production.")
 
         if errors:
-            raise RuntimeError("Invalid production configuration: " + " ".join(errors))
+            raise RuntimeError("Invalid startup configuration: " + " ".join(errors))
 
 
 def get_settings() -> ReturnPlaySettings:

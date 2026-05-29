@@ -34,38 +34,36 @@ export function TemplateForm({ template }: { template?: ApiTemplateDetail }) {
   const phases = template?.phases ?? [];
 
   return (
-    <form action={formAction} className="grid gap-6" noValidate>
+    <form action={formAction} className="rp-form" noValidate>
       {template ? <input name="template_id" type="hidden" value={template.id} /> : null}
       {state.status === "error" ? (
-        <div className="border border-rust/30 bg-rust/10 px-4 py-3 text-sm text-rust" role="alert">
+        <p className="rp-form-error" role="alert">
           {state.message}
-        </div>
+        </p>
       ) : null}
 
-      <section className="border-y border-mist bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-          <div>
-            <h2 className="text-lg font-semibold text-ink">Template profile</h2>
-            <p className="mt-1 text-sm text-slate-600">Name the staged plan and match it to an injury category.</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Template name" name="name" defaultValue={template?.name ?? ""} required state={state} />
+      <section className="rp-form-section">
+        <div className="rp-form-section-intro">
+          <h2>Template profile</h2>
+          <p>Name the staged plan and match it to an injury category.</p>
+        </div>
+        <div className="rp-form-fields rp-form-fields-2">
+          <Field label="Template name" name="name" defaultValue={template?.name ?? ""} required state={state} />
+          <Field
+            label="Injury category"
+            name="injury_category"
+            defaultValue={template?.injury_category ?? ""}
+            required
+            state={state}
+          />
+          <div className="rp-form-grid-full">
             <Field
-              label="Injury category"
-              name="injury_category"
-              defaultValue={template?.injury_category ?? ""}
-              required
+              label="Description"
+              name="description"
+              defaultValue={template?.description ?? ""}
+              multiline
               state={state}
             />
-            <div className="sm:col-span-2">
-              <Field
-                label="Description"
-                name="description"
-                defaultValue={template?.description ?? ""}
-                multiline
-                state={state}
-              />
-            </div>
           </div>
         </div>
       </section>
@@ -80,7 +78,7 @@ export function TemplateForm({ template }: { template?: ApiTemplateDetail }) {
         />
       ))}
 
-      <div className="mx-auto flex w-full max-w-7xl justify-end px-4 pb-8 sm:px-6 lg:px-8">
+      <div className="rp-form-actions">
         <SubmitButton label={template ? "Save new version" : "Save template"} />
       </div>
     </form>
@@ -101,15 +99,14 @@ function PhaseEditor({
   const prefix = `phase_${index}`;
   const milestone = phase?.milestones[0];
   return (
-    <section className="border-y border-mist bg-white">
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-        <div>
-          <h2 className="text-lg font-semibold text-ink">Phase {index}</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            {required ? "First phase and milestone are required." : "Optional second phase for staged progression."}
-          </p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+    <section className="rp-form-section">
+      <div className="rp-form-section-intro">
+        <h2>Phase {index}</h2>
+        <p>
+          {required ? "First phase and milestone are required." : "Optional second phase for staged progression."}
+        </p>
+      </div>
+      <div className="rp-form-fields rp-form-fields-2">
           <Field
             label={`Phase ${index} name`}
             name={`${prefix}_name`}
@@ -149,7 +146,7 @@ function PhaseEditor({
             defaultValue={milestone?.kind ?? "other"}
             options={milestoneKinds}
           />
-          <div className="sm:col-span-2">
+          <div className="rp-form-grid-full">
             <Field
               label={`Phase ${index} milestone instructions`}
               name={`${prefix}_milestone_instructions`}
@@ -158,7 +155,6 @@ function PhaseEditor({
               state={state}
             />
           </div>
-        </div>
       </div>
     </section>
   );
@@ -182,30 +178,22 @@ function Field({
   multiline?: boolean;
 }) {
   const error = state.fieldErrors[name];
-  const className =
-    "mt-1 w-full border border-mist bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/20";
 
   return (
-    <label className="block text-sm font-medium text-ink">
+    <label className="rp-field">
       {label}
       {multiline ? (
-        <textarea
-          aria-invalid={Boolean(error)}
-          className={`${className} min-h-24 resize-y`}
-          defaultValue={defaultValue}
-          name={name}
-        />
+        <textarea aria-invalid={Boolean(error)} defaultValue={defaultValue} name={name} />
       ) : (
         <input
           aria-invalid={Boolean(error)}
-          className={className}
           defaultValue={defaultValue}
           name={name}
           required={required}
           type={type}
         />
       )}
-      {error ? <span className="mt-1 block text-xs font-semibold text-rust">{error}</span> : null}
+      {error ? <span className="rp-field-error">{error}</span> : null}
     </label>
   );
 }
@@ -222,13 +210,9 @@ function SelectField({
   options: string[][];
 }) {
   return (
-    <label className="block text-sm font-medium text-ink">
+    <label className="rp-field">
       {label}
-      <select
-        className="mt-1 w-full border border-mist bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/20"
-        defaultValue={defaultValue}
-        name={name}
-      >
+      <select defaultValue={defaultValue} name={name}>
         {options.map(([value, text]) => (
           <option key={value} value={value}>
             {text}
@@ -243,7 +227,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center bg-pine px-5 text-sm font-semibold text-white shadow-panel disabled:cursor-not-allowed disabled:opacity-60"
+      className="rp-primary-button disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >

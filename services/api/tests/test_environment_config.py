@@ -89,6 +89,29 @@ def test_production_startup_requires_oidc_provider_configuration(monkeypatch) ->
     assert "RETURN_PLAY_OIDC_JWKS_URL or RETURN_PLAY_OIDC_JWKS_JSON is required for OIDC auth." in message
 
 
+def test_staging_startup_rejects_header_trust_auth(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_ENV", "staging")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "dev_headers")
+    monkeypatch.setenv("RETURN_PLAY_LOCAL_AUTH_ENABLED", "1")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        get_settings().validate_startup()
+
+    message = str(exc_info.value)
+    assert "RETURN_PLAY_AUTH_MODE must be token in staging." in message
+    assert "RETURN_PLAY_LOCAL_AUTH_ENABLED must not be enabled in staging." in message
+
+
+def test_staging_startup_allows_token_auth(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_ENV", "staging")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.delenv("RETURN_PLAY_LOCAL_AUTH_ENABLED", raising=False)
+
+    # Staging only gates the auth surface (not full production config), so
+    # token auth without local login must pass startup validation.
+    get_settings().validate_startup()
+
+
 def test_env_example_documents_required_backend_and_frontend_contract() -> None:
     example = (ROOT / ".env.example").read_text()
     frontend_env = (ROOT / "apps" / "web" / "lib" / "env.ts").read_text()

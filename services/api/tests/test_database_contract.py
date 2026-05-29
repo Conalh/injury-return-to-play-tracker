@@ -64,6 +64,16 @@ def test_goal_14_metadata_contains_user_admin_columns() -> None:
     assert "metadata_json" in organization_audit_columns
 
 
+def test_clearance_decision_phase_id_references_case_phase_statuses() -> None:
+    # Decisions are recorded against a case's applied phase, not a template
+    # phase. A real database enforces this FK; SQLite (used in tests) does not,
+    # so this contract guards the target table directly against regression.
+    phase_fk = next(
+        iter(Base.metadata.tables["clearance_decisions"].columns["phase_id"].foreign_keys)
+    )
+    assert phase_fk.column.table.name == "case_phase_statuses"
+
+
 def test_goal_39_metadata_contains_auth_token_revocation_table() -> None:
     revocation_columns = Base.metadata.tables["auth_token_revocations"].columns
 

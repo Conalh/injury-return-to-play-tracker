@@ -16,12 +16,13 @@ coverage/
 htmlcov/
 .turbo/
 .vercel/
+*.tsbuildinfo
 
 # Test artifacts
 test-results/
 playwright-report/
-output/playwright/
-**/output/playwright/
+output/
+**/output/
 .playwright-cli/
 .coverage
 .coverage.*
@@ -44,6 +45,9 @@ worktrees/
 # Local planning
 ROADMAP2.md
 CCUI_IMPLEMENTATION_PLAN.md
+
+# Local design prototype (visual reference for the Control Center UI migration)
+ccui/
 
 # Environment and secrets
 .env

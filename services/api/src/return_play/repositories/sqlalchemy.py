@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 from secrets import token_urlsafe
 from typing import Any
@@ -1548,7 +1548,7 @@ class SqlAlchemyWorkflowRepository:
                 status_code=status.HTTP_410_GONE,
                 detail="Share token has been revoked.",
             )
-        if share.expires_at <= self._now():
+        if self._to_naive_utc(share.expires_at) <= self._now():
             raise HTTPException(
                 status_code=status.HTTP_410_GONE,
                 detail="Share token has expired.",
@@ -1589,3 +1589,12 @@ class SqlAlchemyWorkflowRepository:
     @staticmethod
     def _now() -> datetime:
         return datetime.utcnow()
+
+    @staticmethod
+    def _to_naive_utc(value: datetime) -> datetime:
+        # Postgres returns tz-aware datetimes for timestamptz columns while
+        # SQLite returns naive ones; normalize to naive UTC so comparisons with
+        # _now() behave the same on both engines.
+        if value.tzinfo is None:
+            return value
+        return value.astimezone(timezone.utc).replace(tzinfo=None)

@@ -231,7 +231,7 @@ class ClearanceDecisionRecord(IdMixin, Base):
         ForeignKey("injury_cases.id"), nullable=False, index=True
     )
     phase_id: Mapped[str] = mapped_column(
-        ForeignKey("return_plan_phases.id"), nullable=False, index=True
+        ForeignKey("case_phase_statuses.id"), nullable=False, index=True
     )
     decision: Mapped[str] = mapped_column(String(32), nullable=False)
     decided_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)

@@ -9,6 +9,7 @@ production branch. These names match the workflow job names used by GitHub.
 
 - Backend tests
 - Migration head check
+- Postgres integration
 - Web build
 - Web Playwright
 - Docker compose build
@@ -20,7 +21,8 @@ production branch. These names match the workflow job names used by GitHub.
 
 - `.github/workflows/ci.yml` runs application tests, migration checks, frontend
   build, Playwright coverage, Docker compose image builds, restore drills, and
-  dependency audits.
+  dependency audits. It also applies the Alembic migrations to a real Postgres
+  service and runs the Postgres-backed integration tests against it.
 - `.github/workflows/security.yml` runs the standalone security baseline checks,
   including Secret scan.
 - `.github/dependabot.yml` opens dependency update pull requests for web, API,
@@ -34,6 +36,11 @@ production branch. These names match the workflow job names used by GitHub.
 
 - Web Playwright runs on Windows because the local browser harness is currently
   PowerShell-based.
+- Postgres integration runs on Linux against a `postgres` service container so
+  the migration-produced schema and the production database engine are exercised
+  together. The rest of the backend suite runs on SQLite, which does not enforce
+  foreign keys or return timezone-aware datetimes, so engine-specific bugs only
+  surface in this job.
 - Dependency audit is included in CI and also remains in the security workflow
   so high-severity dependency issues are visible from both the product pipeline
   and security baseline.

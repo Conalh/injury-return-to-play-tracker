@@ -51,6 +51,43 @@ jobs:
         shell: pwsh
         run: .\.venv\Scripts\alembic.exe heads
 
+  postgres-integration:
+    name: Postgres integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: return_play
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      RETURN_PLAY_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/return_play
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install API dependencies
+        working-directory: services/api
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -e '.[dev]'
+      - name: Apply migrations to Postgres
+        working-directory: services/api
+        run: .venv/bin/alembic upgrade head
+      - name: Run Postgres-backed integration tests
+        working-directory: services/api
+        run: .venv/bin/python -m pytest tests/test_postgres_integration.py -v
+
   web-build:
     name: Web build
     runs-on: ubuntu-latest

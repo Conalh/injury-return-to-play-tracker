@@ -1,5 +1,5 @@
 import { Ban, CheckCircle2 } from "lucide-react";
-import { recordClearanceDecisionAction } from "@/app/cases/[id]/clearance-actions";
+import { recordClearanceDecisionAction } from "@/app/(app)/cases/[id]/clearance-actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 
 export function ClearancePanel({

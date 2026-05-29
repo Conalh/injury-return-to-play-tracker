@@ -1989,3 +1989,216 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* Public limited share view (rendered without the clinician shell). */
+.rp-share-page {
+  display: grid;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.rp-share-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rp-share-kicker {
+  margin: 0;
+  color: var(--rp-accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rp-share-title {
+  margin: 8px 0 0;
+  color: var(--rp-text-1);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.rp-share-lead {
+  margin: 12px 0 0;
+  max-width: 62ch;
+  color: var(--rp-text-2);
+  font-size: 14px;
+}
+
+.rp-share-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  color: var(--rp-accent);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 12px;
+}
+
+.rp-share-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.rp-share-notice {
+  margin: 0;
+  border: 1px solid var(--rp-ok-bg);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-ok-bg);
+  color: var(--rp-ok-fg);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 16px;
+}
+
+.rp-share-card {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  padding: 18px;
+}
+
+.rp-share-card h2 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rp-share-card > div > p {
+  margin: 4px 0 0;
+  color: var(--rp-text-2);
+  font-size: 13px;
+}
+
+.rp-share-stat {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  padding: 18px;
+}
+
+.rp-share-stat h2 {
+  margin: 0;
+  color: var(--rp-text-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rp-share-stat p {
+  margin: 6px 0 0;
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rp-share-clearance {
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-side-bg);
+  color: var(--rp-side-text-strong);
+  padding: 20px;
+}
+
+.rp-share-clearance h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rp-share-clearance p {
+  margin: 8px 0 0;
+  color: var(--rp-side-text);
+  font-size: 13px;
+}
+
+.rp-share-clearance-note {
+  margin-top: 16px;
+  border: 1px solid var(--rp-side-bd);
+  border-radius: var(--rp-radius);
+  background: var(--rp-side-bg-elev);
+  padding: 14px 16px;
+}
+
+.rp-share-clearance-note p:first-child {
+  margin: 0;
+  color: var(--rp-side-text-strong);
+  font-weight: 700;
+}
+
+.rp-share-form {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  padding: 20px;
+}
+
+.rp-share-form h2 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rp-share-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.rp-field {
+  display: grid;
+  gap: 6px;
+  color: var(--rp-text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rp-field input,
+.rp-field select,
+.rp-field textarea {
+  width: 100%;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-surface);
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+}
+
+.rp-field textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+@media (min-width: 700px) {
+  .rp-share-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rp-share-fields-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rp-share-fields-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

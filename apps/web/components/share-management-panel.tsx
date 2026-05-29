@@ -5,7 +5,7 @@ import { Copy, Link2, Share2, X } from "lucide-react";
 import {
   createShareLinkAction,
   revokeShareLinkAction,
-} from "@/app/cases/[id]/share-actions";
+} from "@/app/(app)/cases/[id]/share-actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Tooltip } from "@/components/ui-primitives";
 

@@ -4,7 +4,7 @@ import {
   recordFunctionalTestAction,
   recordSymptomAction,
   recordWorkloadAction,
-} from "@/app/cases/[id]/evidence-actions";
+} from "@/app/(app)/cases/[id]/evidence-actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 
 type EvidenceEntryPanelProps = {

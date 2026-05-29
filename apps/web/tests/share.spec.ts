@@ -14,4 +14,9 @@ test("limited share page hides clinical detail while showing participation statu
   await expect(page.getByText("Symptom trend")).toHaveCount(0);
   await expect(page.getByText("Pain 5")).toHaveCount(0);
   await expect(page.getByText("guardian@example.com")).toHaveCount(0);
+
+  // External recipients must not see the clinician shell (nav, identity, search).
+  await expect(page.getByText("Dr. Aanya Patel")).toHaveCount(0);
+  await expect(page.getByText("Search athletes, cases, or evidence", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Skip to clinical workspace" })).toHaveCount(0);
 });

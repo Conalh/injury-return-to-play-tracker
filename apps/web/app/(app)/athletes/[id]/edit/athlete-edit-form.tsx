@@ -18,16 +18,16 @@ export function AthleteEditForm({ athlete }: { athlete: ApiAthlete }) {
   );
 
   return (
-    <form action={formAction} className="border-y border-mist bg-white" noValidate>
+    <form action={formAction} className="rp-form" noValidate>
       <input name="athlete_id" type="hidden" value={athlete.id} />
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-        <div>
-          <h2 className="text-lg font-semibold text-ink">Athlete profile</h2>
-          <p className="mt-1 text-sm text-slate-600">Update fields used by clinician workflows and family sharing.</p>
+      <section className="rp-form-section">
+        <div className="rp-form-section-intro">
+          <h2>Athlete profile</h2>
+          <p>Update fields used by clinician workflows and family sharing.</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rp-form-fields rp-form-fields-2">
           {state.status === "error" ? (
-            <div className="border border-rust/30 bg-rust/10 px-4 py-3 text-sm text-rust sm:col-span-2" role="alert">
+            <div className="rp-form-error rp-form-grid-full" role="alert">
               {state.message}
             </div>
           ) : null}
@@ -49,15 +49,15 @@ export function AthleteEditForm({ athlete }: { athlete: ApiAthlete }) {
             state={state}
             type="email"
           />
-          <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-ink">
-            <input className="h-4 w-4 accent-pine" defaultChecked={athlete.active} name="active" type="checkbox" />
+          <label className="rp-field-checkbox">
+            <input defaultChecked={athlete.active} name="active" type="checkbox" />
             Active athlete
           </label>
-          <div className="sm:col-span-2">
+          <div className="rp-form-grid-full">
             <SubmitButton />
           </div>
         </div>
-      </div>
+      </section>
     </form>
   );
 }
@@ -79,17 +79,16 @@ function Field({
 }) {
   const error = state.fieldErrors[name];
   return (
-    <label className="block text-sm font-medium text-ink">
+    <label className="rp-field">
       {label}
       <input
         aria-invalid={Boolean(error)}
-        className="mt-1 w-full border border-mist bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/20"
         defaultValue={defaultValue}
         name={name}
         required={required}
         type={type}
       />
-      {error ? <span className="mt-1 block text-xs font-semibold text-rust">{error}</span> : null}
+      {error ? <span className="rp-field-error">{error}</span> : null}
     </label>
   );
 }
@@ -98,7 +97,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center bg-pine px-5 text-sm font-semibold text-white shadow-panel disabled:cursor-not-allowed disabled:opacity-60"
+      className="rp-primary-button disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >

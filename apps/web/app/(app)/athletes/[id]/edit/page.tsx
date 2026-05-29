@@ -20,17 +20,15 @@ export default async function AthleteEditPage({ params }: { params: Promise<{ id
   }
 
   return (
-    <main>
-      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link href="/cases/new" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-pine">
+    <main className="rp-form-page">
+      <header className="rp-form-page-header">
+        <Link href="/cases/new" className="rp-back-link">
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           Case creation
         </Link>
-        <div className="mt-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-pine">Athlete administration</p>
-          <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">Edit athlete</h1>
-        </div>
-      </section>
+        <p className="rp-form-kicker">Athlete administration</p>
+        <h1>Edit athlete</h1>
+      </header>
       <AthleteEditForm athlete={data.athlete} />
     </main>
   );

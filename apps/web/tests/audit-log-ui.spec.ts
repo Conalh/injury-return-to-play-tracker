@@ -1,5 +1,17 @@
 import { expect, test } from "@playwright/test";
 
+test("audit history has its own case section the tab links to", async ({ page }) => {
+  await page.goto("/cases/case_demo");
+
+  const auditTab = page.getByRole("link", { name: "Audit history" });
+  await expect(auditTab).toHaveAttribute("href", "#audit-history");
+
+  await auditTab.click();
+  await expect(
+    page.getByRole("heading", { name: "Audit history" }),
+  ).toBeVisible();
+});
+
 test("clinician can filter audit log to sensitive workflow reads", async ({ page }) => {
   await page.goto("/cases/case_demo");
 

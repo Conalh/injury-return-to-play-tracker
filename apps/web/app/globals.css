@@ -1756,6 +1756,26 @@ textarea:focus {
   padding: 12px 16px;
 }
 
+.rp-audit-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--rp-border-faint);
+  padding: 12px 16px;
+}
+
+.rp-audit-filter select {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-sm);
+  background: var(--rp-bg-surface);
+  color: var(--rp-text-1);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 8px;
+}
+
 .rp-symptom-chart {
   display: flex;
   min-height: 160px;

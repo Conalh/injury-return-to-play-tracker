@@ -1,21 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Filter, Link2, Share2, X } from "lucide-react";
+import { Copy, Link2, Share2, X } from "lucide-react";
 import {
   createShareLinkAction,
   revokeShareLinkAction,
 } from "@/app/cases/[id]/share-actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Tooltip } from "@/components/ui-primitives";
-import type { AuditEvent } from "@/lib/api-client";
 
 type ShareManagementPanelProps = {
   caseId: string;
   shareToken?: string;
   shareAudience?: string;
   shareRevoked: boolean;
-  auditEvents: AuditEvent[];
 };
 
 export function ShareManagementPanel({
@@ -23,16 +21,9 @@ export function ShareManagementPanel({
   shareToken,
   shareAudience,
   shareRevoked,
-  auditEvents,
 }: ShareManagementPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [auditEventType, setAuditEventType] = useState("all");
   const shareUrl = shareToken ? `/share/${shareToken}` : "";
-  const filteredAuditEvents =
-    auditEventType === "all"
-      ? auditEvents
-      : auditEvents.filter((event) => event.eventType === auditEventType);
-  const visibleAuditEvents = filteredAuditEvents.slice(-8).reverse();
 
   return (
     <section className="bg-white px-4 py-5 shadow-panel sm:px-5">
@@ -100,53 +91,6 @@ export function ShareManagementPanel({
           Share link revoked.
         </p>
       ) : null}
-
-      <div className="mt-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h3 className="text-sm font-semibold text-ink">Audit log</h3>
-          <div>
-            <label
-              className="text-xs font-semibold text-slate-600"
-              htmlFor="audit-event-type-filter"
-            >
-              Audit event type
-            </label>
-            <div className="mt-1 flex items-center gap-2 border border-mist bg-white px-2 py-1.5">
-              <Filter aria-hidden="true" className="h-3.5 w-3.5 text-pine" />
-              <select
-                id="audit-event-type-filter"
-                className="bg-transparent text-sm font-semibold text-ink outline-none"
-                onChange={(event) => setAuditEventType(event.target.value)}
-                value={auditEventType}
-              >
-                <option value="all">All events</option>
-                {AUDIT_EVENT_TYPES.map((eventType) => (
-                  <option key={eventType} value={eventType}>
-                    {formatEventType(eventType)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-        {visibleAuditEvents.length > 0 ? (
-          <ul className="mt-3 divide-y divide-mist border-y border-mist">
-            {visibleAuditEvents.map((event) => (
-              <li key={event.id} className="py-3 text-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="font-semibold text-ink">{event.eventType}</span>
-                  <span className="shrink-0 text-xs font-semibold text-slate-500">
-                    {event.occurredAt}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-slate-600">Actor: {event.actorId}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 text-sm text-slate-600">No matching audit events recorded.</p>
-        )}
-      </div>
 
       {isOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-ink/60 px-4 py-6">
@@ -221,26 +165,6 @@ export function ShareManagementPanel({
   );
 }
 
-const AUDIT_EVENT_TYPES = [
-  "athlete_symptom_check_in",
-  "clearance_decision_recorded",
-  "clinician_note_recorded",
-  "functional_test_logged",
-  "guardian_acknowledgment_recorded",
-  "milestone_evidence_recorded",
-  "report_generated",
-  "sensitive_export_read",
-  "share_created",
-  "share_revoked",
-  "share_view_read",
-  "symptom_logged",
-  "workload_session_logged",
-];
-
 function titleCase(value: string): string {
   return value.replace(/\b\w/g, (match) => match.toUpperCase());
-}
-
-function formatEventType(value: string): string {
-  return value.replaceAll("_", " ").replace(/\b\w/g, (match) => match.toUpperCase());
 }

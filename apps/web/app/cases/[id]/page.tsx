@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, FileDown, Plus, Share2, ShieldAlert } from "lucide-react";
+import { AuditHistoryPanel } from "@/components/audit-history-panel";
 import { ClearancePanel } from "@/components/clearance-panel";
 import { FunctionalTestTable, SymptomTrend, WorkloadProgression } from "@/components/evidence-panels";
 import { EvidenceEntryPanel } from "@/components/evidence-entry-panel";
@@ -103,7 +104,7 @@ export default async function CaseDetailPage({
           <a href="#record-evidence">Evidence</a>
           <a href="#clearance">Decisions</a>
           <a href="#share-access">Share access</a>
-          <a href="#share-access">Audit history</a>
+          <a href="#audit-history">Audit history</a>
         </nav>
       </section>
 
@@ -136,13 +137,13 @@ export default async function CaseDetailPage({
           </div>
           <div id="share-access">
             <ShareManagementPanel
-              auditEvents={auditEvents}
               caseId={detail.id}
               shareAudience={shareAudience}
               shareRevoked={singleQueryValue(query.share_revoked) === "1"}
               shareToken={shareToken}
             />
           </div>
+          <AuditHistoryPanel auditEvents={auditEvents} />
         </div>
       </section>
     </main>

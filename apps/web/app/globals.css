@@ -2189,6 +2189,14 @@ textarea:focus {
   resize: vertical;
 }
 
+.rp-field input:focus,
+.rp-field select:focus,
+.rp-field textarea:focus {
+  border-color: var(--rp-accent);
+  box-shadow: var(--rp-shadow-focus);
+  outline: none;
+}
+
 @media (min-width: 700px) {
   .rp-share-grid-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2237,4 +2245,122 @@ textarea:focus {
 
 .rp-state-card-error {
   border-color: var(--rp-bad-bg);
+}
+
+/* Case-detail evidence entry forms. */
+.rp-entry-body {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.rp-subform {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--rp-border-faint);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-subtle);
+  padding: 16px;
+}
+
+.rp-subform h3 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.rp-form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.rp-form-grid-full {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 560px) {
+  .rp-form-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Clearance decision panel (prominent dark surface). */
+.rp-clearance {
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-side-bg);
+  color: var(--rp-side-text-strong);
+  padding: 20px;
+}
+
+.rp-clearance > h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rp-clearance-cards {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rp-clearance-card {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--rp-side-bd);
+  border-radius: var(--rp-radius);
+  background: var(--rp-side-bg-elev);
+  padding: 14px 16px;
+}
+
+.rp-clearance-card p:first-of-type {
+  margin: 0;
+  color: var(--rp-side-text-strong);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rp-clearance-card p:last-of-type {
+  margin: 4px 0 0;
+  color: var(--rp-side-text);
+  font-size: 13px;
+}
+
+.rp-clearance-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.rp-clearance-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--rp-side-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rp-clearance-form select,
+.rp-clearance-form textarea {
+  width: 100%;
+  border: 1px solid var(--rp-side-bd);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-surface);
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+}
+
+.rp-clearance-form textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.rp-clearance-form select:focus,
+.rp-clearance-form textarea:focus {
+  border-color: var(--rp-accent);
+  box-shadow: var(--rp-shadow-focus);
+  outline: none;
 }

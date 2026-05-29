@@ -27,7 +27,7 @@ jobs:
       - name: Block high severity web advisories
         working-directory: apps/web
         run: npm audit --audit-level=high
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install API audit tooling

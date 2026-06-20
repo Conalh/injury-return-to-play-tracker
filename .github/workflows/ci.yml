@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install API dependencies
@@ -36,7 +36,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install API dependencies
@@ -72,7 +72,7 @@ jobs:
       RETURN_PLAY_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/return_play
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install API dependencies
@@ -110,7 +110,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - uses: actions/setup-node@v4
@@ -170,7 +170,7 @@ jobs:
       - name: Block high severity web advisories
         working-directory: apps/web
         run: npm audit --audit-level=high
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install Python audit tooling

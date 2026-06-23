@@ -49,6 +49,59 @@ flowchart LR
 for the launch gate, and [docs/product/safety-and-compliance-notes.md](docs/product/safety-and-compliance-notes.md)
 for the safety posture.
 
+## 5-Minute Reviewer Path
+
+If you are reviewing this as a portfolio project, start here:
+
+1. Scan the screenshots below to understand the product surface: clinician
+   dashboard, case detail, template builder, and limited coach share view.
+2. Run the static local demo:
+
+   ```powershell
+   cd apps/web
+   npm install
+   npm run dev
+   ```
+
+   Open `http://127.0.0.1:3217`, then visit `/cases/case_demo`,
+   `/templates`, and `/share/demo-coach-token`.
+3. Judge the safety boundary: readiness is explain-only, clearance requires a
+   named human decision, and limited share views exclude raw clinical detail.
+   The relevant code paths are `services/api/src/return_play/readiness.py`,
+   `services/api/src/return_play/privacy.py`, and
+   `services/api/src/return_play/permissions.py`.
+4. Check the evidence that this is engineered beyond a mockup: response models
+   in `services/api/src/return_play/models.py`, split repositories under
+   `services/api/src/return_play/repositories/`, Playwright workflows in
+   `apps/web/tests/`, and the CI/security workflows in `.github/workflows/`.
+5. For the strongest local proof, run the browser harness after creating the
+   API virtual environment:
+
+   ```powershell
+   cd services/api
+   python -m venv .venv
+   .\.venv\Scripts\python.exe -m pip install -e .[dev]
+
+   cd ..\..\apps\web
+   npm install
+   npx playwright install chromium
+   npm test
+   ```
+
+   The Playwright harness starts FastAPI, seeds the synthetic Riley Chen
+   workflow, runs clinician/portal workflows, and includes axe-based
+   accessibility smoke coverage.
+
+What to look for:
+
+- Product judgment: regulated workflow boundaries are explicit instead of
+  hidden behind demo polish.
+- Engineering depth: FastAPI contracts, repository parity, Postgres migrations,
+  audit logs, PDF reporting, and Next.js server-action workflows are covered by
+  tests.
+- Demo honesty: production hosting and legal/compliance signoff are documented
+  as deferred rather than claimed.
+
 ## Screenshots
 
 Captured with Playwright against the seeded local demo workflow.

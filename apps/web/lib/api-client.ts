@@ -2,6 +2,7 @@ import {
   athletes as demoAthletes,
   getCaseDetail as getDemoCaseDetail,
   getShareView as getDemoShareView,
+  templates as demoTemplates,
 } from "@/lib/demo-data";
 import { toAuditEvent, toCaseDetail, toShareView } from "@/lib/api/mappers";
 import type {
@@ -128,7 +129,11 @@ export async function getSharePageData(token: string): Promise<SharePageData> {
 
 export async function getCaseCreationData(): Promise<CaseCreationData> {
   if (!usesApi()) {
-    return { source: "demo", athletes: [], templates: [] };
+    return {
+      source: "demo",
+      athletes: [],
+      templates: demoTemplates.filter((template) => template.active),
+    };
   }
 
   await seedDemoIfConfigured();
@@ -148,7 +153,7 @@ export async function getTemplateListData(): Promise<{
   templates: ApiTemplate[];
 }> {
   if (!usesApi()) {
-    return { source: "demo", templates: [] };
+    return { source: "demo", templates: demoTemplates };
   }
 
   await seedDemoIfConfigured();

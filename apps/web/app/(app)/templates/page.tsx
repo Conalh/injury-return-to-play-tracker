@@ -14,15 +14,16 @@ export default async function TemplatesPage({
   if (data.status === "unauthorized") {
     return <UnauthorizedState />;
   }
-  if (data.status === "error" || data.source !== "api") {
+  if (data.status === "error") {
     return (
       <ErrorState
         title="Templates unavailable"
-        body="Template management requires an authenticated API data mode."
+        body="The template list could not be loaded from the return-to-play API."
       />
     );
   }
 
+  const isApiMode = data.source === "api";
   const activeCount = data.templates.filter((template) => template.active).length;
 
   return (
@@ -36,10 +37,14 @@ export default async function TemplatesPage({
               Manage reusable staged return-to-play plans before applying them to clinical cases.
             </p>
             <div className="rp-form-header-cta">
-              <Link className="rp-primary-button" href="/templates/new">
-                <Plus aria-hidden="true" className="h-4 w-4" />
-                New template
-              </Link>
+              {isApiMode ? (
+                <Link className="rp-primary-button" href="/templates/new">
+                  <Plus aria-hidden="true" className="h-4 w-4" />
+                  New template
+                </Link>
+              ) : (
+                <p className="rp-cell-sub">Read-only local demo templates. API mode enables versioning.</p>
+              )}
             </div>
           </div>
           <div className="rp-stat-card">
@@ -73,17 +78,24 @@ export default async function TemplatesPage({
               {data.templates.map((template) => (
                 <tr key={template.id}>
                   <td>
-                    <Link className="rp-listing-link" href={`/templates/${template.id}/edit`}>
-                      <FilePenLine aria-hidden="true" className="h-4 w-4" />
-                      {template.name}
-                    </Link>
+                    {isApiMode ? (
+                      <Link className="rp-listing-link" href={`/templates/${template.id}/edit`}>
+                        <FilePenLine aria-hidden="true" className="h-4 w-4" />
+                        {template.name}
+                      </Link>
+                    ) : (
+                      <span className="rp-listing-link">
+                        <FilePenLine aria-hidden="true" className="h-4 w-4" />
+                        {template.name}
+                      </span>
+                    )}
                     <div className="rp-cell-sub">{template.description ?? "No description"}</div>
                   </td>
                   <td>{template.injury_category}</td>
                   <td className="rp-cell-strong">v{template.version}</td>
                   <td>{template.active ? "Active" : "Archived"}</td>
                   <td>
-                    {template.active ? (
+                    {template.active && isApiMode ? (
                       <form action={archiveTemplateAction}>
                         <input name="template_id" type="hidden" value={template.id} />
                         <input name="template_name" type="hidden" value={template.name} />
@@ -96,6 +108,8 @@ export default async function TemplatesPage({
                           Archive
                         </button>
                       </form>
+                    ) : template.active ? (
+                      <span className="rp-cell-sub">API mode required</span>
                     ) : (
                       <span className="rp-cell-sub">No actions</span>
                     )}

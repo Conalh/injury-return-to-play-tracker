@@ -88,6 +88,39 @@ export type ShareView = {
   clinicianNote: string;
 };
 
+export const templates = [
+  {
+    id: "template_ankle_sprain",
+    organization_id: "org_demo",
+    name: "Ankle sprain staged return",
+    injury_category: "ankle",
+    description: "Motion, loading, and non-contact progression for field athletes.",
+    created_by: "clinician_demo",
+    version: 3,
+    active: true,
+  },
+  {
+    id: "template_hamstring_strain",
+    organization_id: "org_demo",
+    name: "Hamstring strain running progression",
+    injury_category: "hamstring",
+    description: "Controlled sprint exposure with symptom and workload gates.",
+    created_by: "clinician_demo",
+    version: 2,
+    active: true,
+  },
+  {
+    id: "template_knee_soreness",
+    organization_id: "org_demo",
+    name: "Knee soreness practice ramp",
+    injury_category: "knee",
+    description: "Non-contact practice ramp with functional test review.",
+    created_by: "clinician_demo",
+    version: 1,
+    active: false,
+  },
+];
+
 export const athletes: AthleteSummary[] = [
   {
     id: "case_demo",

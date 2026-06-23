@@ -66,7 +66,7 @@ Captured with Playwright against the seeded local demo workflow.
 | Area | Current state |
 | --- | --- |
 | Product posture | Local production-path build, not hosted yet |
-| Roadmap status | Implemented through Goal 52 of the ignored production roadmap |
+| Roadmap status | Implemented through Goal 53 of the ignored production roadmap |
 | API | FastAPI workflow surface with in-memory and SQLAlchemy repositories |
 | Web | Next.js Stagewise workspace plus limited coach, athlete, and guardian views |
 | Safety stance | Explain-only readiness, named human clearance, non-diagnostic copy |
@@ -108,6 +108,7 @@ The system is built around a conservative clinical record:
 | Privacy | Share-view field filtering, restricted response contracts, export/delete request plan |
 | Audit | Sensitive writes, reads, reports, share activity, clearance decisions, immutable reads |
 | Security baseline | Secure headers, CORS allowlist, request size limit, rate limits, secret scan, dependency scan |
+| Accessibility | Axe-based Playwright smoke gate for key demo surfaces plus keyboard-focused workflow tests |
 | Persistence | SQLAlchemy repository selected by `RETURN_PLAY_DATABASE_URL`; in-memory fallback for local/demo |
 | Operations | Environment contract, observability, backup/restore drill, beta readiness, launch gate |
 | Identity rollout | OIDC config, tenant checklist, MFA/password policy, claim mapping, smoke-test evidence plan |

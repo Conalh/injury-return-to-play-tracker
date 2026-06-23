@@ -250,7 +250,7 @@
   font-weight: 800;
 }
 
-.rp-milestone-row span,
+.rp-milestone-row span:not(.rp-badge),
 .rp-readiness-item span {
   color: var(--rp-text-3);
   font-size: 12px;

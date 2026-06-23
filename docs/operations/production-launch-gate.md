@@ -195,7 +195,7 @@ Use this table for final signoff. Add rows instead of hiding open risk.
 | Legal contracts and subprocessor list are not stored in this repository. | Blocker for real data | Legal/compliance owner | Attach approved external packet before launch | Before production launch |
 | Distributed rate limiting and platform edge controls are not implemented here. | Medium or high depending on hosting | Engineering/security owner | Decide during deployment architecture review | Before production launch |
 | Dependency update automation requires active triage ownership. | Medium | Engineering/security owner | Goal 42 enables Dependabot and a runbook; assign owner before broad launch | Before production launch |
-| Automated contrast/accessibility audit is not in CI. | Medium | Product/engineering owner | Complete or accept for limited launch | Before public launch |
+| Automated accessibility coverage is a key-route smoke gate, not a full manual audit. | Medium | Product/engineering owner | Keep axe-based Playwright checks in CI and complete manual keyboard/screen-reader review before broad launch | Before public launch |
 
 ## Signoff Checklist
 

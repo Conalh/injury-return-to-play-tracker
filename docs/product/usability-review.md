@@ -89,14 +89,18 @@ Implemented guardrails:
 
 Current automated coverage:
 
+- `accessibility.spec.ts` runs axe-based WCAG smoke checks against the
+  dashboard, case detail, template builder, and limited coach share view, and
+  blocks serious or critical automated violations.
 - `usability-review.spec.ts` verifies the skip link receives keyboard focus and
   moves focus to the clinical workspace.
 - Existing Playwright tests use role and label locators across the core
   clinician and portal workflows, which gives practical coverage for many
   accessible names.
 
-Beta polish note: add automated contrast and axe-style checks once the visual
-system settles.
+Beta polish note: extend automated accessibility coverage to every modal,
+portal, and mobile breakpoint, and keep manual keyboard/screen-reader review in
+the beta checklist.
 
 ## Clinician Workflow Timing Review
 
@@ -123,7 +127,8 @@ access, or hidden test hooks once the local API/web harness is running.
 - Add active-route state to sidebar navigation after route taxonomy settles.
 - Replace static shell counts with API-backed queue counts.
 - Add a real command palette or remove the search affordance before beta.
-- Add automated contrast checks.
+- Expand automated accessibility checks beyond the current key-route smoke
+  suite.
 - Add a short clinician task-timing script for in-person review sessions.
 - Add copy review for every modal and submitted-success state.
 

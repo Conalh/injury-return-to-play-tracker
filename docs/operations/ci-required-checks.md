@@ -36,6 +36,9 @@ production branch. These names match the workflow job names used by GitHub.
 
 - Web Playwright runs on Windows because the local browser harness is currently
   PowerShell-based.
+- Web Playwright includes axe-based accessibility smoke coverage for the
+  dashboard, case detail, template builder, and limited share route. The gate
+  blocks serious and critical automated WCAG violations on those demo surfaces.
 - Postgres integration runs on Linux against a `postgres` service container so
   the migration-produced schema and the production database engine are exercised
   together. The rest of the backend suite runs on SQLite, which does not enforce

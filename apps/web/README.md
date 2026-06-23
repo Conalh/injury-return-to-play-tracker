@@ -219,6 +219,15 @@ Goal 52 tightens count-free sidebar layout bounds:
 - Playwright covers compact navigation bounds, contained horizontal scrolling,
   and access to later sidebar links on mobile.
 
+Goal 53 adds automated accessibility smoke coverage:
+
+- `accessibility.spec.ts` runs axe-based WCAG checks on the dashboard, case
+  detail, template builder, and limited coach share view.
+- Serious and critical automated accessibility violations fail the Playwright
+  suite.
+- The case-detail symptom chart, functional-test table, and milestone badges
+  were adjusted to satisfy the new gate without changing workflow behavior.
+
 ## Local Commands
 
 ```powershell

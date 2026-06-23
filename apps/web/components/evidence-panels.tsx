@@ -17,7 +17,7 @@ export function SymptomTrend({ symptomLogs }: Pick<CaseDetail, "symptomLogs">) {
               <div
                 className="rp-symptom-fill"
                 style={{ height: `${Math.max(8, (log.pain / maxPain) * 100)}%` }}
-                aria-label={`${log.date} pain ${log.pain}`}
+                aria-hidden="true"
               />
             </div>
             <div>
@@ -40,7 +40,11 @@ export function FunctionalTestTable({ functionalTests }: Pick<CaseDetail, "funct
           <p>{functionalTests.length} recorded tests</p>
         </div>
       </div>
-      <div className="rp-functional-table-wrap">
+      <div
+        aria-label="Functional test results"
+        className="rp-functional-table-wrap"
+        tabIndex={0}
+      >
         <table className="rp-functional-table">
           <thead>
             <tr>

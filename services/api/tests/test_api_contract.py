@@ -16,7 +16,7 @@ def test_health_endpoint_reports_service_status() -> None:
 
 
 def test_api_routes_are_registered_under_api_prefix() -> None:
-    route_paths = {route.path for route in create_app().routes}
+    route_paths = set(create_app().openapi()["paths"])
 
     assert "/api/athletes" in route_paths
     assert "/api/injury-cases" in route_paths

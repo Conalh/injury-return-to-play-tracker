@@ -11,7 +11,25 @@ import {
   type SymptomLog,
   type WorkloadSession,
 } from "@/lib/demo-data";
-import { returnPlayWebEnv } from "@/lib/env";
+import {
+  apiArrayBufferRequest,
+  apiRequest,
+  currentActorId,
+  currentActorRole,
+  currentOrganizationId,
+  dataMode,
+  ensureWritableApiMode,
+  jsonRequest,
+  UnauthorizedApiError,
+  usesApi,
+} from "@/lib/api/transport";
+
+export {
+  currentActorId,
+  currentActorRole,
+  currentOrganizationId,
+  UnauthorizedApiError,
+};
 
 export type DataSource = "demo" | "api";
 
@@ -30,13 +48,6 @@ export type SharePageData = {
   source: DataSource;
   share: ShareView;
 };
-
-export class UnauthorizedApiError extends Error {
-  constructor(message = "Your session does not have access to this workflow.") {
-    super(message);
-    this.name = "UnauthorizedApiError";
-  }
-}
 
 type ApiList<T> = { items: T[] };
 type DemoSeed = { injury_case_id: string; share_token: string | null };
@@ -331,17 +342,7 @@ export async function getCasePageData(caseId: string): Promise<CasePageData> {
 
 export async function getCaseReportPdf(caseId: string): Promise<ArrayBuffer> {
   ensureWritableApiMode();
-  const response = await fetch(`${apiBaseUrl()}/api/injury-cases/${caseId}/report`, {
-    cache: "no-store",
-    headers: authHeaders(),
-  });
-  if (response.status === 401 || response.status === 403) {
-    throw new UnauthorizedApiError();
-  }
-  if (!response.ok) {
-    throw new Error(`API request failed with ${response.status}: report`);
-  }
-  return response.arrayBuffer();
+  return apiArrayBufferRequest(`/api/injury-cases/${caseId}/report`, "report");
 }
 
 export async function getSharePageData(token: string): Promise<SharePageData> {
@@ -539,18 +540,6 @@ export async function submitGuardianAcknowledgment(
   );
 }
 
-export function currentOrganizationId(): string {
-  return returnPlayWebEnv().organizationId;
-}
-
-export function currentActorId(): string {
-  return returnPlayWebEnv().actorId;
-}
-
-export function currentActorRole(): string {
-  return returnPlayWebEnv().actorRole;
-}
-
 async function getApiCasePageData(caseId: string): Promise<CasePageData> {
   const [detail, readiness, athletesResponse, auditResponse] = await Promise.all([
     apiRequest<ApiCaseDetail>(`/api/injury-cases/${caseId}`),
@@ -571,40 +560,6 @@ async function seedDemoIfConfigured(): Promise<DemoSeed | null> {
     return null;
   }
   return apiRequest<DemoSeed>("/api/demo/seed", { method: "POST" });
-}
-
-async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${apiBaseUrl()}${path}`, {
-    ...init,
-    cache: "no-store",
-    headers: {
-      ...authHeaders(),
-      ...(init.headers ?? {}),
-    },
-  });
-  if (response.status === 401 || response.status === 403) {
-    throw new UnauthorizedApiError();
-  }
-  if (!response.ok) {
-    throw new Error(`API request failed with ${response.status}: ${path}`);
-  }
-  return response.json() as Promise<T>;
-}
-
-function jsonRequest(method: "POST" | "PATCH", payload: unknown): RequestInit {
-  return {
-    method,
-    body: JSON.stringify(payload),
-    headers: {
-      "content-type": "application/json",
-    },
-  };
-}
-
-function ensureWritableApiMode() {
-  if (!usesApi()) {
-    throw new Error("Case creation requires RETURN_PLAY_DATA_MODE=api or api-demo.");
-  }
 }
 
 function toCaseDetail(
@@ -746,31 +701,6 @@ function toAuditEvent(event: ApiAuditEvent): AuditEvent {
     actorId: event.actor_id ?? "public share view",
     occurredAt: formatDate(event.created_at.slice(0, 10)),
     metadata: event.metadata_json,
-  };
-}
-
-function usesApi(): boolean {
-  return dataMode() === "api" || dataMode() === "api-demo";
-}
-
-function dataMode(): string {
-  return returnPlayWebEnv().dataMode;
-}
-
-function apiBaseUrl(): string {
-  return returnPlayWebEnv().apiBaseUrl;
-}
-
-function authHeaders(): Record<string, string> {
-  const env = returnPlayWebEnv();
-  const token = env.apiToken;
-  if (token) {
-    return { Authorization: `Bearer ${token}` };
-  }
-  return {
-    "x-actor-id": env.actorId,
-    "x-actor-role": env.actorRole,
-    "x-organization-id": env.organizationId,
   };
 }
 

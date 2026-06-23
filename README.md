@@ -20,6 +20,11 @@ injuries, recommend treatment, override a clinician, hide red flags, or push an
 athlete through worsening symptoms. Its job is to show what is known, what is
 missing, what changed, and who made the decision.
 
+> Development note: this is AI-assisted software engineering. The quality bar is
+> the shipped behavior, source structure, safety boundaries, tests, and CI
+> evidence in this repository, not a claim that the work was produced without AI
+> assistance.
+
 > Built as a production-path local app: Next.js clinician workspace, FastAPI
 > workflow API, Postgres-ready persistence, OIDC-ready auth, audit trails,
 > limited share portals, and launch-gate operations docs. Hosting is still
@@ -102,6 +107,33 @@ What to look for:
 - Demo honesty: production hosting and legal/compliance signoff are documented
   as deferred rather than claimed.
 
+## Portfolio Case Study
+
+This project is a portfolio-grade example of AI-assisted development applied to
+a workflow where vague demo polish would be dangerous. The goal was not to make
+a landing page for a sports medicine idea; it was to build the actual control
+surface a clinician would inspect before deciding whether an athlete can advance
+through a staged return-to-play plan.
+
+| Case-study lens | What the repo demonstrates |
+| --- | --- |
+| User problem | Athletic medicine teams need one place to see phase gates, symptoms, workload, functional tests, restrictions, and the named clearance decision. |
+| Product judgment | Readiness signals explain risk and missing evidence, but never diagnose, prescribe, or auto-clear. |
+| System design | Next.js App Router workspace backed by a FastAPI workflow API, repository parity, Postgres migrations, audit events, reports, and limited share contracts. |
+| AI-assisted execution | Fast iteration was paired with explicit contracts, tests, screenshots, security checks, and conservative public claims. |
+| Review evidence | The README links directly to screenshots, runnable demo paths, Playwright flows, API models, permissions, privacy filters, and operations docs. |
+
+Key implementation choices:
+
+- Separate local demo mode from API-backed mode so the product can be reviewed
+  quickly without pretending the static demo is production hosting.
+- Keep coaches, athletes, and guardians on scoped share views rather than
+  exposing clinician-only records.
+- Treat auditability, revocation, report generation, accessibility, and backup
+  drills as part of the product surface instead of afterthoughts.
+- Document the launch blockers plainly: hosted identity, live deployment,
+  environment smoke evidence, and customer-specific legal/compliance review.
+
 ## Screenshots
 
 Captured with Playwright against the seeded local demo workflow.
@@ -124,6 +156,15 @@ Captured with Playwright against the seeded local demo workflow.
 | Web | Next.js Stagewise workspace plus limited coach, athlete, and guardian views |
 | Safety stance | Explain-only readiness, named human clearance, non-diagnostic copy |
 | Production blockers | Hosted identity tenant deployment, live smoke evidence, staging and production hosting |
+
+## What This Is / Is Not
+
+| This is | This is not |
+| --- | --- |
+| An AI-assisted, production-path local portfolio app with real workflow code, tests, and docs | A claim that the system is hosted, sold, or approved for real clinical use today |
+| A clinician decision-support workspace that organizes evidence and exposes missing gates | A diagnostic tool, treatment recommender, or automatic clearance engine |
+| A synthetic demo with API-backed test coverage and Postgres-ready persistence | A substitute for customer-specific HIPAA, FTC, medical, or legal review |
+| A practical engineering case study for safety-critical product judgment | A promise that templates are medically authoritative protocols |
 
 The system is built around a conservative clinical record:
 

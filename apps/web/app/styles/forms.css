@@ -1,0 +1,519 @@
+/* Generic empty / error / unauthorized states (clinician and public surfaces). */
+.rp-state {
+  display: grid;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.rp-state-card {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  padding: 20px;
+}
+
+.rp-state-card h2 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.rp-state-card p {
+  margin: 8px 0 0;
+  max-width: 62ch;
+  color: var(--rp-text-2);
+  font-size: 13px;
+}
+
+.rp-state-card-error {
+  border-color: var(--rp-bad-bg);
+}
+
+/* Case-detail evidence entry forms. */
+.rp-entry-body {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.rp-subform {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--rp-border-faint);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-subtle);
+  padding: 16px;
+}
+
+.rp-subform h3 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.rp-form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.rp-form-grid-full {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 560px) {
+  .rp-form-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Clearance decision panel (prominent dark surface). */
+.rp-clearance {
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-side-bg);
+  color: var(--rp-side-text-strong);
+  padding: 20px;
+}
+
+.rp-clearance > h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rp-clearance-cards {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rp-clearance-card {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--rp-side-bd);
+  border-radius: var(--rp-radius);
+  background: var(--rp-side-bg-elev);
+  padding: 14px 16px;
+}
+
+.rp-clearance-card p:first-of-type {
+  margin: 0;
+  color: var(--rp-side-text-strong);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rp-clearance-card p:last-of-type {
+  margin: 4px 0 0;
+  color: var(--rp-side-text);
+  font-size: 13px;
+}
+
+.rp-clearance-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.rp-clearance-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--rp-side-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rp-clearance-form select,
+.rp-clearance-form textarea {
+  width: 100%;
+  border: 1px solid var(--rp-side-bd);
+  border-radius: var(--rp-radius);
+  background: var(--rp-bg-surface);
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+}
+
+.rp-clearance-form textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.rp-clearance-form select:focus,
+.rp-clearance-form textarea:focus {
+  border-color: var(--rp-accent);
+  box-shadow: var(--rp-shadow-focus);
+  outline: none;
+}
+
+/* Full-page clinician forms (case creation, template builder). */
+.rp-form-page {
+  padding: 24px;
+}
+
+.rp-form-page-header,
+.rp-form,
+.rp-form-actions,
+.rp-form-banner {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.rp-form-page-header {
+  margin-bottom: 18px;
+}
+
+.rp-form-kicker {
+  margin: 0;
+  color: var(--rp-accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rp-form-page-header h1 {
+  margin: 8px 0 0;
+  color: var(--rp-text-1);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.rp-form-lead {
+  margin: 12px 0 0;
+  max-width: 70ch;
+  color: var(--rp-text-2);
+  font-size: 14px;
+}
+
+.rp-form-header-split {
+  display: grid;
+  gap: 18px;
+}
+
+.rp-form-header-cta {
+  margin-top: 18px;
+}
+
+.rp-stat-card {
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  padding: 16px;
+}
+
+.rp-stat-card-label {
+  margin: 0;
+  color: var(--rp-text-3);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rp-stat-card-value {
+  margin: 8px 0 0;
+  color: var(--rp-text-1);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rp-stat-card-sub {
+  margin: 6px 0 0;
+  color: var(--rp-text-3);
+  font-size: 12px;
+}
+
+.rp-form {
+  display: grid;
+  gap: 18px;
+}
+
+.rp-form-error {
+  margin: 0;
+  border: 1px solid var(--rp-bad-bg);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bad-bg);
+  color: var(--rp-bad-fg);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 16px;
+}
+
+.rp-form-section {
+  display: grid;
+  gap: 18px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  padding: 20px;
+}
+
+.rp-form-section-intro svg {
+  color: var(--rp-accent);
+}
+
+.rp-form-section-intro h2 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rp-form-section-intro p {
+  margin: 6px 0 0;
+  color: var(--rp-text-3);
+  font-size: 13px;
+}
+
+.rp-form-fields {
+  display: grid;
+  gap: 14px;
+}
+
+.rp-field-error {
+  color: var(--rp-bad-fg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rp-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.rp-form-banner {
+  margin-bottom: 18px;
+  border: 1px solid var(--rp-ok-bg);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-ok-bg);
+  color: var(--rp-ok-fg);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 16px;
+}
+
+/* Listing tables (templates, existing athletes). */
+.rp-listing {
+  overflow: hidden;
+  max-width: 1100px;
+  margin: 0 auto;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+}
+
+.rp-listing-header {
+  border-bottom: 1px solid var(--rp-border-faint);
+  padding: 14px 16px;
+}
+
+.rp-listing-header h2 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.rp-listing-wrap {
+  overflow-x: auto;
+}
+
+.rp-listing-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.rp-listing-table th {
+  border-bottom: 1px solid var(--rp-border);
+  color: var(--rp-text-3);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 10px 16px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rp-listing-table td {
+  border-bottom: 1px solid var(--rp-border-faint);
+  color: var(--rp-text-2);
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.rp-listing-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.rp-cell-strong {
+  color: var(--rp-text-1);
+  font-weight: 700;
+}
+
+.rp-cell-sub {
+  margin-top: 2px;
+  color: var(--rp-text-3);
+  font-size: 12px;
+}
+
+.rp-inline-link,
+.rp-listing-link,
+.rp-inline-danger {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rp-inline-link {
+  color: var(--rp-accent);
+}
+
+.rp-listing-link {
+  color: var(--rp-text-1);
+}
+
+.rp-listing-link svg,
+.rp-inline-link svg {
+  color: var(--rp-accent);
+}
+
+.rp-inline-danger {
+  color: var(--rp-bad-fg);
+}
+
+@media (min-width: 880px) {
+  .rp-form-section {
+    grid-template-columns: 260px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .rp-form-fields-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rp-form-header-split {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: end;
+  }
+}
+
+/* Share management panel + create-link modal. */
+.rp-share-result-title {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.rp-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rp-form-banner-bad {
+  margin-bottom: 0;
+  border-color: var(--rp-bad-bg);
+  background: var(--rp-bad-bg);
+  color: var(--rp-bad-fg);
+}
+
+.rp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 26, 45, 0.6);
+  padding: 24px 16px;
+}
+
+.rp-modal {
+  max-height: 100%;
+  width: 100%;
+  max-width: 32rem;
+  overflow-y: auto;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-2);
+  padding: 20px;
+}
+
+.rp-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rp-modal-header h3 {
+  margin: 0;
+  color: var(--rp-text-1);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.rp-modal-header p {
+  margin: 4px 0 0;
+  color: var(--rp-text-3);
+  font-size: 13px;
+}
+
+.rp-modal-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.rp-field-checkbox {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  color: var(--rp-text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rp-field-checkbox input {
+  height: 16px;
+  width: 16px;
+  accent-color: var(--rp-accent);
+}
+
+.rp-loading-block {
+  height: 128px;
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-md);
+  background: var(--rp-bg-surface);
+  box-shadow: var(--rp-shadow-1);
+  animation: rp-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes rp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

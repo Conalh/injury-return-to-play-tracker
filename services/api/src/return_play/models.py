@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
@@ -275,3 +275,67 @@ class MilestoneResultUpdate(ApiSchema):
 class ClinicianNoteCreate(ApiSchema):
     author_id: str = Field(min_length=1)
     body: str = Field(min_length=1)
+
+
+class SystemStatusResponse(ApiSchema):
+    service: str
+    status: str
+
+
+class MetricsSnapshotResponse(ApiSchema):
+    service: str
+    uptime_seconds: int
+    requests_total: int
+    errors_total: int
+    responses_by_status: dict[str, int]
+    requests_by_method: dict[str, int]
+
+
+class LoginTokenResponse(ApiSchema):
+    access_token: str
+    token_type: str
+
+
+class StatusResponse(ApiSchema):
+    status: str
+
+
+class CurrentUserResponse(ApiSchema):
+    actor_id: str
+    role: UserRole
+    organization_id: str
+
+
+class PrivacyDataControlsResponse(ApiSchema):
+    retention_policy: dict[str, Any]
+    export_delete_request_plan: dict[str, list[str]]
+    phi_handling_checklist: dict[str, str]
+
+
+class OrganizationResponse(ApiSchema):
+    id: str
+    name: str
+    timezone: str
+
+
+class UserResponse(ApiSchema):
+    id: str
+    organization_id: str
+    email: EmailStr
+    name: str
+    role: UserRole
+    active: bool
+
+
+class OrganizationAuditEventResponse(ApiSchema):
+    id: str
+    organization_id: str
+    event_type: str
+    actor_id: str | None
+    target_user_id: str | None
+    created_at: datetime
+    metadata_json: dict[str, Any]
+
+
+class OrganizationAuditLogResponse(ApiSchema):
+    items: list[OrganizationAuditEventResponse]

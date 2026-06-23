@@ -23,17 +23,26 @@ from return_play.models import (
     AthleteUpdate,
     ClearanceDecisionCreate,
     ClinicianNoteCreate,
+    CurrentUserResponse,
     FunctionalTestCreate,
     GuardianAcknowledgmentCreate,
     InjuryCaseCreate,
+    LoginTokenResponse,
     MilestoneResultUpdate,
+    MetricsSnapshotResponse,
     OrganizationCreate,
+    OrganizationAuditLogResponse,
+    OrganizationResponse,
+    PrivacyDataControlsResponse,
     ReturnPlanTemplateWithPhasesCreate,
     ShareTokenCreate,
     ShareTokenRevoke,
+    StatusResponse,
     SymptomLogCreate,
+    SystemStatusResponse,
     UserCreate,
     UserDeactivateRequest,
+    UserResponse,
     UserRoleUpdate,
     WorkloadSessionCreate,
 )
@@ -111,27 +120,27 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     configure_security(app)
     observability = configure_observability(app)
 
-    @app.get("/health", tags=["system"])
+    @app.get("/health", tags=["system"], response_model=SystemStatusResponse)
     def health() -> dict[str, str]:
         return {
             "service": "return-play-api",
             "status": "ok",
         }
 
-    @app.get("/ready", tags=["system"])
+    @app.get("/ready", tags=["system"], response_model=SystemStatusResponse)
     def ready() -> dict[str, str]:
         return {
             "service": "return-play-api",
             "status": "ready",
         }
 
-    @app.get("/metrics", tags=["system"])
+    @app.get("/metrics", tags=["system"], response_model=MetricsSnapshotResponse)
     def metrics() -> dict:
         return observability.snapshot()
 
     api_router = APIRouter(prefix="/api")
 
-    @api_router.post("/auth/login")
+    @api_router.post("/auth/login", response_model=LoginTokenResponse)
     def login(payload: AuthLoginRequest) -> dict[str, str]:
         context = authenticate_local_login(payload.email, payload.password)
         return {
@@ -139,12 +148,12 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
             "token_type": "bearer",
         }
 
-    @api_router.post("/auth/logout")
+    @api_router.post("/auth/logout", response_model=StatusResponse)
     def logout(context: AuthenticatedContext) -> dict[str, str]:
         revoke_auth_context(context)
         return {"status": "logged_out"}
 
-    @api_router.get("/me")
+    @api_router.get("/me", response_model=CurrentUserResponse)
     def current_user(context: AuthenticatedContext) -> dict[str, str]:
         return {
             "actor_id": context.actor_id,
@@ -152,22 +161,33 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
             "organization_id": context.organization_id,
         }
 
-    @api_router.get("/privacy/data-controls")
+    @api_router.get(
+        "/privacy/data-controls",
+        response_model=PrivacyDataControlsResponse,
+    )
     def get_privacy_data_controls(_context: ReadClinicalCasesContext) -> dict:
         return privacy_data_controls()
 
-    @api_router.post("/admin/organization", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/admin/organization",
+        status_code=status.HTTP_201_CREATED,
+        response_model=OrganizationResponse,
+    )
     def setup_organization(
         payload: OrganizationCreate,
         context: ManageOrganizationContext,
     ) -> dict:
         return repository.setup_organization(payload, context)
 
-    @api_router.post("/admin/users/invitations", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/admin/users/invitations",
+        status_code=status.HTTP_201_CREATED,
+        response_model=UserResponse,
+    )
     def invite_user(payload: UserCreate, context: ManageUsersContext) -> dict:
         return repository.invite_user(payload, context)
 
-    @api_router.patch("/admin/users/{user_id}/role")
+    @api_router.patch("/admin/users/{user_id}/role", response_model=UserResponse)
     def update_user_role(
         user_id: str,
         payload: UserRoleUpdate,
@@ -175,7 +195,10 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.update_user_role(user_id, payload, context)
 
-    @api_router.post("/admin/users/{user_id}/deactivate")
+    @api_router.post(
+        "/admin/users/{user_id}/deactivate",
+        response_model=UserResponse,
+    )
     def deactivate_user(
         user_id: str,
         payload: UserDeactivateRequest,
@@ -183,7 +206,10 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.deactivate_user(user_id, payload, context)
 
-    @api_router.get("/admin/audit-log")
+    @api_router.get(
+        "/admin/audit-log",
+        response_model=OrganizationAuditLogResponse,
+    )
     def get_organization_audit_log(
         context: ReadOrganizationAuditLogContext,
         organization_id: str | None = Query(default=None),

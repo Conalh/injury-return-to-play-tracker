@@ -15,7 +15,7 @@ jobs:
     name: Backend tests
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -35,7 +35,7 @@ jobs:
     name: Migration head check
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -71,7 +71,7 @@ jobs:
     env:
       RETURN_PLAY_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/return_play
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -92,7 +92,7 @@ jobs:
     name: Web build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
@@ -109,7 +109,7 @@ jobs:
     name: Web Playwright
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -139,7 +139,7 @@ jobs:
     name: Docker compose build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate compose file
         run: docker compose -f compose.yml config
       - name: Build API and web images
@@ -149,7 +149,7 @@ jobs:
     name: Backup restore drill
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Run Postgres restore drill
         shell: pwsh
         run: ./scripts/backup/restore-drill.ps1
@@ -158,7 +158,7 @@ jobs:
     name: Dependency audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: "22"

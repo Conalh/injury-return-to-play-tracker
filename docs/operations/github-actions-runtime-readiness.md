@@ -16,9 +16,9 @@ This package covers repository-owned workflow files:
 It applies to JavaScript-based GitHub Actions used by those workflows,
 including:
 
-- `actions/checkout@v4`
-- `actions/setup-node@v4`
-- `actions/setup-python@v5`
+- `actions/checkout@v7`
+- `actions/setup-node@v6`
+- `actions/setup-python@v6`
 
 It does not change the application runtime versions used by the project. The
 web build and Playwright jobs still use Node.js 22 for the Next.js app, and the

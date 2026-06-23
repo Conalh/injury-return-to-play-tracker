@@ -10,7 +10,7 @@ def test_workflows_opt_into_node_24_actions_runtime() -> None:
         text = workflow.read_text(encoding="utf-8")
 
         assert "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: \"true\"" in text
-        assert "actions/checkout@v4" in text
+        assert "actions/checkout@v7" in text
 
 
 def test_actions_runtime_runbook_covers_node_24_transition() -> None:
@@ -33,9 +33,9 @@ def test_actions_runtime_runbook_covers_node_24_transition() -> None:
         "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
         ".github/workflows/ci.yml",
         ".github/workflows/security.yml",
-        "actions/checkout@v4",
-        "actions/setup-node@v4",
-        "actions/setup-python@v5",
+        "actions/checkout@v7",
+        "actions/setup-node@v6",
+        "actions/setup-python@v6",
         "docs/operations/ci-required-checks.md",
         "docs/operations/dependency-update-automation.md",
     ]:

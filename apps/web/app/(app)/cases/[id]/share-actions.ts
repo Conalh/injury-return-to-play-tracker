@@ -6,6 +6,7 @@ import {
   currentActorId,
   revokeShareToken,
 } from "@/lib/api-client";
+import { formValue, optionalFormValue } from "@/lib/form-data";
 
 export async function createShareLinkAction(formData: FormData): Promise<void> {
   const caseId = formValue(formData, "case_id");
@@ -29,14 +30,4 @@ export async function revokeShareLinkAction(formData: FormData): Promise<void> {
   const caseId = formValue(formData, "case_id");
   await revokeShareToken(formValue(formData, "share_token"));
   redirect(`/cases/${caseId}?share_revoked=1`);
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
 }

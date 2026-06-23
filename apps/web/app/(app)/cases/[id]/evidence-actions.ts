@@ -8,6 +8,11 @@ import {
   currentActorId,
   updateMilestoneEvidence,
 } from "@/lib/api-client";
+import {
+  formValue,
+  optionalFormValue,
+  optionalNumberFormValue,
+} from "@/lib/form-data";
 
 export async function recordSymptomAction(formData: FormData): Promise<void> {
   const caseId = formValue(formData, "case_id");
@@ -29,9 +34,9 @@ export async function recordFunctionalTestAction(formData: FormData): Promise<vo
     injury_case_id: caseId,
     name: formValue(formData, "functional_test_name"),
     test_date: formValue(formData, "test_date"),
-    result_value: optionalNumber(formData, "result_value"),
+    result_value: optionalNumberFormValue(formData, "result_value"),
     unit: optionalFormValue(formData, "unit"),
-    side_to_side_difference_percent: optionalNumber(formData, "side_difference"),
+    side_to_side_difference_percent: optionalNumberFormValue(formData, "side_difference"),
     passed: formValue(formData, "passed") === "true",
     recorded_by: currentActorId(),
     notes: optionalFormValue(formData, "functional_test_notes"),
@@ -65,19 +70,4 @@ export async function attachMilestoneEvidenceAction(formData: FormData): Promise
     },
   });
   redirect(`/cases/${caseId}`);
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
-}
-
-function optionalNumber(formData: FormData, key: string): number | null {
-  const value = formValue(formData, key);
-  return value ? Number(value) : null;
 }

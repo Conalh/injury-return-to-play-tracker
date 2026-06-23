@@ -5,6 +5,7 @@ import {
   submitAthleteSymptomCheckIn,
   submitGuardianAcknowledgment,
 } from "@/lib/api-client";
+import { formValue, optionalFormValue } from "@/lib/form-data";
 
 export async function submitAthleteSymptomCheckInAction(formData: FormData): Promise<void> {
   const token = formValue(formData, "token");
@@ -26,14 +27,4 @@ export async function submitGuardianAcknowledgmentAction(formData: FormData): Pr
     message: optionalFormValue(formData, "message"),
   });
   redirect(`/share/${token}?acknowledgment=recorded`);
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
 }

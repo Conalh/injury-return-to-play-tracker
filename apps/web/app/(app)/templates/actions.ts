@@ -10,6 +10,7 @@ import {
   UnauthorizedApiError,
   type TemplatePayload,
 } from "@/lib/api-client";
+import { formValue, optionalFormValue, requiredFieldErrors } from "@/lib/form-data";
 
 export type TemplateActionState = {
   status: "idle" | "error";
@@ -74,12 +75,12 @@ function parseTemplateForm(formData: FormData): {
   payload: TemplatePayload;
   fieldErrors: Record<string, string>;
 } {
-  const fieldErrors: Record<string, string> = {};
-  for (const field of ["name", "injury_category", "phase_1_name", "phase_1_milestone_title"]) {
-    if (!formValue(formData, field)) {
-      fieldErrors[field] = "Required";
-    }
-  }
+  const fieldErrors = requiredFieldErrors(formData, [
+    "name",
+    "injury_category",
+    "phase_1_name",
+    "phase_1_milestone_title",
+  ]);
 
   const phases = [1, 2]
     .map((index) => phaseFromForm(formData, index, fieldErrors))
@@ -142,14 +143,4 @@ function templateError(error: unknown, fallback: string): TemplateActionState {
     };
   }
   return { status: "error", message: fallback, fieldErrors: {} };
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
 }

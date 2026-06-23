@@ -6,6 +6,7 @@ import {
   currentActorId,
   currentActorRole,
 } from "@/lib/api-client";
+import { formValue, optionalFormValue } from "@/lib/form-data";
 
 export async function recordClearanceDecisionAction(formData: FormData): Promise<void> {
   const caseId = formValue(formData, "case_id");
@@ -23,14 +24,4 @@ export async function recordClearanceDecisionAction(formData: FormData): Promise
     restrictions: optionalFormValue(formData, "restrictions"),
   });
   redirect(`/cases/${caseId}`);
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
 }

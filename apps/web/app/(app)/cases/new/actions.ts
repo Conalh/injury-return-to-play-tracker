@@ -9,6 +9,7 @@ import {
   currentOrganizationId,
   UnauthorizedApiError,
 } from "@/lib/api-client";
+import { formValue, optionalFormValue, requiredFieldErrors } from "@/lib/form-data";
 
 export type CaseCreationActionState = {
   status: "idle" | "error";
@@ -32,7 +33,7 @@ export async function createCaseAction(
   _previousState: CaseCreationActionState,
   formData: FormData,
 ): Promise<CaseCreationActionState> {
-  const fieldErrors = validateRequiredFields(formData, REQUIRED_FIELDS);
+  const fieldErrors = requiredFieldErrors(formData, REQUIRED_FIELDS);
   if (Object.keys(fieldErrors).length > 0) {
     return {
       status: "error",
@@ -80,26 +81,4 @@ export async function createCaseAction(
     };
   }
   redirect(`/cases/${createdCaseId}`);
-}
-
-function validateRequiredFields(
-  formData: FormData,
-  fields: readonly string[],
-): Record<string, string> {
-  return fields.reduce<Record<string, string>>((errors, field) => {
-    if (!formValue(formData, field)) {
-      errors[field] = "Required";
-    }
-    return errors;
-  }, {});
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
 }

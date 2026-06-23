@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { updateAthlete, UnauthorizedApiError } from "@/lib/api-client";
+import { formValue, optionalFormValue, requiredFieldErrors } from "@/lib/form-data";
 
 export type AthleteEditActionState = {
   status: "idle" | "error";
@@ -14,12 +15,7 @@ export async function updateAthleteAction(
   formData: FormData,
 ): Promise<AthleteEditActionState> {
   const athleteId = formValue(formData, "athlete_id");
-  const fieldErrors: Record<string, string> = {};
-  for (const field of ["name", "date_of_birth", "sport"]) {
-    if (!formValue(formData, field)) {
-      fieldErrors[field] = "Required";
-    }
-  }
+  const fieldErrors = requiredFieldErrors(formData, ["name", "date_of_birth", "sport"]);
   if (!athleteId) {
     fieldErrors.athlete_id = "Required";
   }
@@ -55,14 +51,4 @@ export async function updateAthleteAction(
     };
   }
   redirect("/cases/new");
-}
-
-function formValue(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalFormValue(formData: FormData, key: string): string | null {
-  const value = formValue(formData, key);
-  return value || null;
 }

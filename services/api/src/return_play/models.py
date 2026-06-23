@@ -339,3 +339,306 @@ class OrganizationAuditEventResponse(ApiSchema):
 
 class OrganizationAuditLogResponse(ApiSchema):
     items: list[OrganizationAuditEventResponse]
+
+
+class AthleteResponse(ApiSchema):
+    id: str
+    organization_id: str
+    name: str
+    date_of_birth: date
+    sport: str
+    position: str | None = None
+    guardian_contact: EmailStr | None = None
+    active: bool
+
+
+class AthleteListResponse(ApiSchema):
+    items: list[AthleteResponse]
+
+
+class InjuryCaseResponse(ApiSchema):
+    id: str
+    organization_id: str
+    athlete_id: str
+    title: str
+    injury_category: str
+    body_region: str
+    side: Side
+    date_of_injury: date
+    status: InjuryCaseStatus
+    clinician_owner_id: str
+    summary: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class InjuryCaseListResponse(ApiSchema):
+    items: list[InjuryCaseResponse]
+
+
+class CaseMilestoneResponse(ApiSchema):
+    id: str
+    template_milestone_id: str | None = None
+    title: str | None = None
+    kind: MilestoneKind | None = None
+    required: bool | None = None
+    instructions: str | None = None
+    status: MilestoneResultStatus
+    recorded_by: str | None = None
+    recorded_at: datetime | None = None
+    notes: str | None = None
+    evidence_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class MilestoneResultResponse(ApiSchema):
+    id: str
+    injury_case_id: str | None = None
+    milestone_id: str | None = None
+    template_milestone_id: str | None = None
+    title: str | None = None
+    kind: MilestoneKind | None = None
+    required: bool | None = None
+    instructions: str | None = None
+    status: MilestoneResultStatus
+    recorded_by: str | None = None
+    recorded_at: datetime | None = None
+    notes: str | None = None
+    evidence_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class CasePhaseResponse(ApiSchema):
+    id: str
+    template_phase_id: str
+    name: str
+    order_index: int
+    objective: str | None = None
+    minimum_days: int
+    exit_summary: str | None = None
+    status: PhaseStatus
+    clinician_note: str | None = None
+    milestones: list[CaseMilestoneResponse]
+
+
+class CasePhaseListResponse(ApiSchema):
+    items: list[CasePhaseResponse]
+
+
+class AppliedTemplateResponse(ApiSchema):
+    injury_case_id: str
+    template_id: str
+    phases: list[CasePhaseResponse]
+
+
+class ClinicianNoteResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    author_id: str
+    body: str
+    created_at: datetime
+
+
+class SymptomLogResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    athlete_id: str
+    date: date
+    pain: int
+    swelling: SwellingLevel
+    confidence: int
+    notes: str | None = None
+    recorded_at: datetime | None = None
+
+
+class SymptomLogListResponse(ApiSchema):
+    items: list[SymptomLogResponse]
+
+
+class FunctionalTestResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    name: str
+    test_date: date
+    result_value: float | None = None
+    unit: str | None = None
+    side_to_side_difference_percent: float | None = None
+    passed: bool
+    recorded_by: str
+    notes: str | None = None
+    recorded_at: datetime | None = None
+
+
+class FunctionalTestListResponse(ApiSchema):
+    items: list[FunctionalTestResponse]
+
+
+class WorkloadSessionResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    date: date
+    activity: str
+    duration_minutes: int
+    intensity: int
+    symptom_response: str | None = None
+    completed: bool
+    notes: str | None = None
+    recorded_at: datetime | None = None
+
+
+class WorkloadSessionListResponse(ApiSchema):
+    items: list[WorkloadSessionResponse]
+
+
+class ClearanceDecisionResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    phase_id: str
+    decision: ClearanceDecision
+    decided_by: str
+    decided_by_role: UserRole
+    decided_at: datetime
+    rationale: str
+    restrictions: str | None = None
+
+
+class InjuryCaseDetailResponse(InjuryCaseResponse):
+    phases: list[CasePhaseResponse]
+    current_phase: CasePhaseResponse | None = None
+    notes: list[ClinicianNoteResponse]
+    symptom_logs: list[SymptomLogResponse]
+    functional_tests: list[FunctionalTestResponse]
+    workload_sessions: list[WorkloadSessionResponse]
+    clearance_decisions: list[ClearanceDecisionResponse]
+
+
+class ReadinessSummaryResponse(ApiSchema):
+    missing_required_milestone_count: int
+    concern_count: int
+    missing_clearance_count: int
+
+
+class ReadinessSignalResponse(ApiSchema):
+    type: str
+    severity: str
+    message: str
+    source_facts: list[dict[str, Any]]
+
+
+class ReadinessResponse(ApiSchema):
+    injury_case_id: str
+    current_phase_id: str | None
+    current_phase_name: str | None
+    can_auto_clear: bool
+    summary: ReadinessSummaryResponse
+    signals: list[ReadinessSignalResponse]
+
+
+class ShareTokenResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    audience: ShareAudience
+    expires_in_days: int | None = None
+    created_by: str | None = None
+    token: str | None = None
+    token_hash: str
+    created_at: datetime
+    expires_at: datetime
+    revoked_at: datetime | None = None
+    allowed_activities: str
+    restricted_activities: str
+    clinician_note: str
+    next_review_date: date | None = None
+
+
+class ShareTokenCreateResponse(ShareTokenResponse):
+    token: str
+
+
+class ShareViewDataContractResponse(ApiSchema):
+    audience: str
+    included_fields: list[str]
+    excluded_fields: list[str]
+
+
+class ShareViewResponse(ApiSchema):
+    audience: ShareAudience
+    athlete_name: str
+    sport: str
+    injury_title: str
+    current_phase: str | None = None
+    participation_status: str
+    allowed_activities: str
+    restricted_activities: str
+    next_review_date: date | None = None
+    clearance_status: str
+    clinician_note: str
+    data_contract: ShareViewDataContractResponse
+
+
+class GuardianAcknowledgmentResponse(ApiSchema):
+    id: str
+    share_id: str
+    injury_case_id: str
+    acknowledged_by: str
+    relationship: str
+    message: str | None = None
+    created_at: datetime
+
+
+class AuditEventResponse(ApiSchema):
+    id: str
+    injury_case_id: str
+    event_type: str
+    actor_id: str | None
+    created_at: datetime
+    metadata_json: dict[str, Any]
+
+
+class AuditLogResponse(ApiSchema):
+    items: list[AuditEventResponse]
+
+
+class DemoSeedResponse(ApiSchema):
+    athlete_id: str
+    athlete_name: str
+    injury_case_id: str
+    current_phase: str | None = None
+    share_token: str | None = None
+    can_auto_clear: bool
+    readiness_signal_count: int
+    already_seeded: bool
+
+
+class TemplateMilestoneResponse(ApiSchema):
+    id: str
+    phase_id: str
+    title: str
+    kind: MilestoneKind
+    required: bool
+    instructions: str | None = None
+
+
+class TemplatePhaseResponse(ApiSchema):
+    id: str
+    template_id: str
+    name: str
+    order_index: int
+    objective: str | None = None
+    minimum_days: int
+    exit_summary: str | None = None
+    milestones: list[TemplateMilestoneResponse] = Field(default_factory=list)
+
+
+class TemplateResponse(ApiSchema):
+    id: str
+    organization_id: str
+    name: str
+    injury_category: str
+    description: str | None = None
+    created_by: str
+    version: int
+    active: bool
+    phases: list[TemplatePhaseResponse] = Field(default_factory=list)
+
+
+class TemplateListResponse(ApiSchema):
+    items: list[TemplateResponse]

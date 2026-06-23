@@ -16,35 +16,60 @@ from return_play.auth import (
 from return_play.config import get_settings
 from return_play.db import create_session_factory
 from return_play.models import (
+    AppliedTemplateResponse,
     ApplyTemplateRequest,
+    AthleteListResponse,
+    AthleteResponse,
     AthleteSymptomCheckIn,
     AuthLoginRequest,
     AthleteCreate,
     AthleteUpdate,
+    AuditLogResponse,
+    CasePhaseListResponse,
     ClearanceDecisionCreate,
+    ClearanceDecisionResponse,
     ClinicianNoteCreate,
+    ClinicianNoteResponse,
     CurrentUserResponse,
+    DemoSeedResponse,
     FunctionalTestCreate,
+    FunctionalTestListResponse,
+    FunctionalTestResponse,
     GuardianAcknowledgmentCreate,
+    GuardianAcknowledgmentResponse,
     InjuryCaseCreate,
+    InjuryCaseDetailResponse,
+    InjuryCaseListResponse,
+    InjuryCaseResponse,
     LoginTokenResponse,
     MilestoneResultUpdate,
+    MilestoneResultResponse,
     MetricsSnapshotResponse,
     OrganizationCreate,
     OrganizationAuditLogResponse,
     OrganizationResponse,
     PrivacyDataControlsResponse,
+    ReadinessResponse,
     ReturnPlanTemplateWithPhasesCreate,
     ShareTokenCreate,
+    ShareTokenCreateResponse,
+    ShareTokenResponse,
     ShareTokenRevoke,
+    ShareViewResponse,
     StatusResponse,
     SymptomLogCreate,
+    SymptomLogListResponse,
+    SymptomLogResponse,
     SystemStatusResponse,
+    TemplateListResponse,
+    TemplateResponse,
     UserCreate,
     UserDeactivateRequest,
     UserResponse,
     UserRoleUpdate,
     WorkloadSessionCreate,
+    WorkloadSessionListResponse,
+    WorkloadSessionResponse,
 )
 from return_play.observability import configure_observability
 from return_play.permissions import Permission
@@ -216,18 +241,22 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict[str, list[dict]]:
         return repository.get_organization_audit_log(organization_id, context)
 
-    @api_router.get("/athletes")
+    @api_router.get("/athletes", response_model=AthleteListResponse)
     def list_athletes(
         context: ReadAthletesContext,
         organization_id: str | None = Query(default=None),
     ) -> dict[str, list[dict]]:
         return repository.list_athletes(context, organization_id)
 
-    @api_router.post("/athletes", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/athletes",
+        status_code=status.HTTP_201_CREATED,
+        response_model=AthleteResponse,
+    )
     def create_athlete(payload: AthleteCreate, context: ManageAthletesContext) -> dict:
         return repository.create_athlete(payload, context)
 
-    @api_router.patch("/athletes/{athlete_id}")
+    @api_router.patch("/athletes/{athlete_id}", response_model=AthleteResponse)
     def update_athlete(
         athlete_id: str,
         payload: AthleteUpdate,
@@ -235,24 +264,34 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.update_athlete(athlete_id, payload, context)
 
-    @api_router.post("/injury-cases", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/injury-cases",
+        status_code=status.HTTP_201_CREATED,
+        response_model=InjuryCaseResponse,
+    )
     def create_injury_case(
         payload: InjuryCaseCreate, context: ManageClinicalCasesContext
     ) -> dict:
         return repository.create_injury_case(payload, context)
 
-    @api_router.get("/injury-cases")
+    @api_router.get("/injury-cases", response_model=InjuryCaseListResponse)
     def list_injury_cases(
         context: ReadClinicalCasesContext,
         organization_id: str | None = Query(default=None),
     ) -> dict[str, list[dict]]:
         return repository.list_injury_cases(context, organization_id)
 
-    @api_router.get("/injury-cases/{case_id}")
+    @api_router.get(
+        "/injury-cases/{case_id}",
+        response_model=InjuryCaseDetailResponse,
+    )
     def get_injury_case(case_id: str, context: ReadClinicalCasesContext) -> dict:
         return repository.get_injury_case_detail(case_id, context)
 
-    @api_router.post("/injury-cases/{case_id}/apply-template")
+    @api_router.post(
+        "/injury-cases/{case_id}/apply-template",
+        response_model=AppliedTemplateResponse,
+    )
     def apply_template(
         case_id: str,
         payload: ApplyTemplateRequest,
@@ -260,13 +299,19 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.apply_template(case_id, payload, context)
 
-    @api_router.get("/injury-cases/{case_id}/phases")
+    @api_router.get(
+        "/injury-cases/{case_id}/phases",
+        response_model=CasePhaseListResponse,
+    )
     def list_case_phases(
         case_id: str, context: ReadClinicalCasesContext
     ) -> dict[str, list[dict]]:
         return repository.list_case_phases(case_id, context)
 
-    @api_router.patch("/injury-cases/{case_id}/milestones/{milestone_id}")
+    @api_router.patch(
+        "/injury-cases/{case_id}/milestones/{milestone_id}",
+        response_model=MilestoneResultResponse,
+    )
     def update_milestone(
         case_id: str,
         milestone_id: str,
@@ -278,6 +323,7 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     @api_router.post(
         "/injury-cases/{case_id}/notes",
         status_code=status.HTTP_201_CREATED,
+        response_model=ClinicianNoteResponse,
     )
     def create_note(
         case_id: str,
@@ -289,6 +335,7 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     @api_router.post(
         "/injury-cases/{case_id}/symptoms",
         status_code=status.HTTP_201_CREATED,
+        response_model=SymptomLogResponse,
     )
     def create_symptom_log(
         case_id: str,
@@ -297,7 +344,10 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.create_symptom_log(case_id, payload, context)
 
-    @api_router.get("/injury-cases/{case_id}/symptoms")
+    @api_router.get(
+        "/injury-cases/{case_id}/symptoms",
+        response_model=SymptomLogListResponse,
+    )
     def list_symptom_logs(
         case_id: str, context: ReadEvidenceContext
     ) -> dict[str, list[dict]]:
@@ -306,6 +356,7 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     @api_router.post(
         "/injury-cases/{case_id}/functional-tests",
         status_code=status.HTTP_201_CREATED,
+        response_model=FunctionalTestResponse,
     )
     def create_functional_test(
         case_id: str,
@@ -314,7 +365,10 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.create_functional_test(case_id, payload, context)
 
-    @api_router.get("/injury-cases/{case_id}/functional-tests")
+    @api_router.get(
+        "/injury-cases/{case_id}/functional-tests",
+        response_model=FunctionalTestListResponse,
+    )
     def list_functional_tests(
         case_id: str,
         context: ReadEvidenceContext,
@@ -324,6 +378,7 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     @api_router.post(
         "/injury-cases/{case_id}/workload-sessions",
         status_code=status.HTTP_201_CREATED,
+        response_model=WorkloadSessionResponse,
     )
     def create_workload_session(
         case_id: str,
@@ -332,20 +387,27 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.create_workload_session(case_id, payload, context)
 
-    @api_router.get("/injury-cases/{case_id}/workload-sessions")
+    @api_router.get(
+        "/injury-cases/{case_id}/workload-sessions",
+        response_model=WorkloadSessionListResponse,
+    )
     def list_workload_sessions(
         case_id: str,
         context: ReadEvidenceContext,
     ) -> dict[str, list[dict]]:
         return repository.list_workload_sessions(case_id, context)
 
-    @api_router.get("/injury-cases/{case_id}/readiness")
+    @api_router.get(
+        "/injury-cases/{case_id}/readiness",
+        response_model=ReadinessResponse,
+    )
     def get_readiness(case_id: str, context: ReadReadinessContext) -> dict:
         return repository.get_readiness(case_id, context)
 
     @api_router.post(
         "/injury-cases/{case_id}/clearance",
         status_code=status.HTTP_201_CREATED,
+        response_model=ClearanceDecisionResponse,
     )
     def create_clearance_decision(
         case_id: str,
@@ -354,7 +416,11 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.create_clearance_decision(case_id, payload, context)
 
-    @api_router.post("/injury-cases/{case_id}/share", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/injury-cases/{case_id}/share",
+        status_code=status.HTTP_201_CREATED,
+        response_model=ShareTokenCreateResponse,
+    )
     def create_share(
         case_id: str,
         payload: ShareTokenCreate,
@@ -369,7 +435,10 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
             media_type="application/pdf",
         )
 
-    @api_router.get("/injury-cases/{case_id}/audit-log")
+    @api_router.get(
+        "/injury-cases/{case_id}/audit-log",
+        response_model=AuditLogResponse,
+    )
     def get_audit_log(
         case_id: str,
         context: ReadAuditLogContext,
@@ -379,11 +448,15 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict[str, list[dict]]:
         return repository.get_audit_log(case_id, context, event_type, actor_id, limit)
 
-    @api_router.get("/share/{token}")
+    @api_router.get("/share/{token}", response_model=ShareViewResponse)
     def get_share(token: str) -> dict:
         return repository.get_share(token)
 
-    @api_router.post("/share/{token}/symptoms", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/share/{token}/symptoms",
+        status_code=status.HTTP_201_CREATED,
+        response_model=SymptomLogResponse,
+    )
     def create_athlete_symptom_check_in(
         token: str,
         payload: AthleteSymptomCheckIn,
@@ -393,6 +466,7 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     @api_router.post(
         "/share/{token}/guardian-acknowledgment",
         status_code=status.HTTP_201_CREATED,
+        response_model=GuardianAcknowledgmentResponse,
     )
     def create_guardian_acknowledgment(
         token: str,
@@ -400,14 +474,18 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.create_guardian_acknowledgment(token, payload)
 
-    @api_router.post("/demo/seed", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/demo/seed",
+        status_code=status.HTTP_201_CREATED,
+        response_model=DemoSeedResponse,
+    )
     def seed_demo(context: SeedDemoContext, response: Response) -> dict:
         demo = repository.seed_demo(context)
         if demo["already_seeded"]:
             response.status_code = status.HTTP_200_OK
         return demo
 
-    @api_router.post("/share/{token}/revoke")
+    @api_router.post("/share/{token}/revoke", response_model=ShareTokenResponse)
     def revoke_share(
         token: str,
         payload: ShareTokenRevoke,
@@ -415,25 +493,29 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.revoke_share(token, payload, context)
 
-    @api_router.get("/templates")
+    @api_router.get("/templates", response_model=TemplateListResponse)
     def list_templates(
         context: ReadTemplatesContext,
         organization_id: str | None = Query(default=None),
     ) -> dict[str, list[dict]]:
         return repository.list_templates(context, organization_id)
 
-    @api_router.post("/templates", status_code=status.HTTP_201_CREATED)
+    @api_router.post(
+        "/templates",
+        status_code=status.HTTP_201_CREATED,
+        response_model=TemplateResponse,
+    )
     def create_template(
         payload: ReturnPlanTemplateWithPhasesCreate,
         context: ManageTemplatesContext,
     ) -> dict:
         return repository.create_template(payload, context)
 
-    @api_router.get("/templates/{template_id}")
+    @api_router.get("/templates/{template_id}", response_model=TemplateResponse)
     def get_template(template_id: str, context: ReadTemplatesContext) -> dict:
         return repository.get_template_detail(template_id, context)
 
-    @api_router.patch("/templates/{template_id}")
+    @api_router.patch("/templates/{template_id}", response_model=TemplateResponse)
     def update_template(
         template_id: str,
         payload: ReturnPlanTemplateWithPhasesCreate,
@@ -441,7 +523,10 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.update_template(template_id, payload, context)
 
-    @api_router.post("/templates/{template_id}/archive")
+    @api_router.post(
+        "/templates/{template_id}/archive",
+        response_model=TemplateResponse,
+    )
     def archive_template(template_id: str, context: ManageTemplatesContext) -> dict:
         return repository.archive_template(template_id, context)
 

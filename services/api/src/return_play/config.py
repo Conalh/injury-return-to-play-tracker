@@ -64,6 +64,10 @@ class ReturnPlaySettings(BaseSettings):
             return []
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
+    @property
+    def demo_seed_enabled(self) -> bool:
+        return self.env in {"local", "test"}
+
     def validate_startup(self) -> None:
         errors: list[str] = []
 
@@ -74,6 +78,17 @@ class ReturnPlaySettings(BaseSettings):
                 errors.append(f"RETURN_PLAY_AUTH_MODE must be token in {self.env}.")
             if self.local_auth_enabled:
                 errors.append(f"RETURN_PLAY_LOCAL_AUTH_ENABLED must not be enabled in {self.env}.")
+            if self.env == "staging" and self.auth_provider != "oidc":
+                errors.append("RETURN_PLAY_AUTH_PROVIDER must be oidc in staging.")
+            if self.env == "staging" and self.auth_provider == "oidc":
+                if not self.oidc_issuer:
+                    errors.append("RETURN_PLAY_OIDC_ISSUER is required for OIDC auth.")
+                if not self.oidc_audience:
+                    errors.append("RETURN_PLAY_OIDC_AUDIENCE is required for OIDC auth.")
+                if not (self.oidc_jwks_url or self.oidc_jwks_json):
+                    errors.append(
+                        "RETURN_PLAY_OIDC_JWKS_URL or RETURN_PLAY_OIDC_JWKS_JSON is required for OIDC auth."
+                    )
 
         if self.env == "production":
             if not self.database_url:

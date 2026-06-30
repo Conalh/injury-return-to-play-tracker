@@ -21,3 +21,4 @@ def test_api_routes_are_registered_under_api_prefix() -> None:
     assert "/api/athletes" in route_paths
     assert "/api/injury-cases" in route_paths
     assert "/api/templates" in route_paths
+    assert "/api/demo/seed" in route_paths

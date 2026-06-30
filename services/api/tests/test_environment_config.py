@@ -102,14 +102,42 @@ def test_staging_startup_rejects_header_trust_auth(monkeypatch) -> None:
     assert "RETURN_PLAY_LOCAL_AUTH_ENABLED must not be enabled in staging." in message
 
 
-def test_staging_startup_allows_token_auth(monkeypatch) -> None:
+def test_staging_startup_requires_oidc_configuration(monkeypatch) -> None:
     monkeypatch.setenv("RETURN_PLAY_ENV", "staging")
     monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "local_hmac")
     monkeypatch.delenv("RETURN_PLAY_LOCAL_AUTH_ENABLED", raising=False)
 
-    # Staging only gates the auth surface (not full production config), so
-    # token auth without local login must pass startup validation.
+    with pytest.raises(RuntimeError) as exc_info:
+        get_settings().validate_startup()
+
+    message = str(exc_info.value)
+    assert "RETURN_PLAY_AUTH_PROVIDER must be oidc in staging." in message
+
+
+def test_staging_startup_allows_token_auth_with_oidc(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_ENV", "staging")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "oidc")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_ISSUER", "https://identity.example.com/")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_AUDIENCE", "return-play-api")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_JWKS_URL", "https://identity.example.com/.well-known/jwks.json")
+    monkeypatch.delenv("RETURN_PLAY_LOCAL_AUTH_ENABLED", raising=False)
+
     get_settings().validate_startup()
+
+
+def test_runtime_app_omits_demo_seed_route_outside_local(monkeypatch) -> None:
+    monkeypatch.setenv("RETURN_PLAY_ENV", "staging")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_MODE", "token")
+    monkeypatch.setenv("RETURN_PLAY_AUTH_PROVIDER", "oidc")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_ISSUER", "https://identity.example.com/")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_AUDIENCE", "return-play-api")
+    monkeypatch.setenv("RETURN_PLAY_OIDC_JWKS_URL", "https://identity.example.com/.well-known/jwks.json")
+
+    app = create_runtime_app()
+
+    assert "/api/demo/seed" not in app.openapi()["paths"]
 
 
 def test_env_example_documents_required_backend_and_frontend_contract() -> None:

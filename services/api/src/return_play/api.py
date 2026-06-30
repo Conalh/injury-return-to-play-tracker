@@ -13,7 +13,7 @@ from return_play.auth import (
     require_permission,
     revoke_auth_context,
 )
-from return_play.config import get_settings
+from return_play.config import ReturnPlaySettings, get_settings
 from return_play.db import create_session_factory
 from return_play.models import (
     AppliedTemplateResponse,
@@ -132,7 +132,12 @@ ReadOrganizationAuditLogContext = Annotated[
 ]
 
 
-def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
+def create_app(
+    repository=None,
+    auth_token_revocation_store=None,
+    settings: ReturnPlaySettings | None = None,
+) -> FastAPI:
+    settings = settings or get_settings()
     repository = repository or InMemoryWorkflowRepository()
     configure_auth_token_revocation_store(
         auth_token_revocation_store or InMemoryAuthTokenRevocationStore()
@@ -474,16 +479,18 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     ) -> dict:
         return repository.create_guardian_acknowledgment(token, payload)
 
-    @api_router.post(
-        "/demo/seed",
-        status_code=status.HTTP_201_CREATED,
-        response_model=DemoSeedResponse,
-    )
-    def seed_demo(context: SeedDemoContext, response: Response) -> dict:
-        demo = repository.seed_demo(context)
-        if demo["already_seeded"]:
-            response.status_code = status.HTTP_200_OK
-        return demo
+    if settings.demo_seed_enabled:
+
+        @api_router.post(
+            "/demo/seed",
+            status_code=status.HTTP_201_CREATED,
+            response_model=DemoSeedResponse,
+        )
+        def seed_demo(context: SeedDemoContext, response: Response) -> dict:
+            demo = repository.seed_demo(context)
+            if demo["already_seeded"]:
+                response.status_code = status.HTTP_200_OK
+            return demo
 
     @api_router.post("/share/{token}/revoke", response_model=ShareTokenResponse)
     def revoke_share(
@@ -534,11 +541,15 @@ def create_app(repository=None, auth_token_revocation_store=None) -> FastAPI:
     return app
 
 
-def create_persistent_app(database_url: str) -> FastAPI:
+def create_persistent_app(
+    database_url: str, settings: ReturnPlaySettings | None = None
+) -> FastAPI:
+    settings = settings or get_settings()
     session_factory = create_session_factory(database_url)
     return create_app(
         SqlAlchemyWorkflowRepository(session_factory),
         SqlAlchemyAuthTokenRevocationStore(session_factory),
+        settings=settings,
     )
 
 
@@ -546,8 +557,8 @@ def create_runtime_app() -> FastAPI:
     settings = get_settings()
     settings.validate_startup()
     if settings.database_url:
-        return create_persistent_app(settings.database_url)
-    return create_app()
+        return create_persistent_app(settings.database_url, settings=settings)
+    return create_app(settings=settings)
 
 
 app = create_runtime_app()
